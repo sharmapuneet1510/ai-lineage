@@ -136,9 +136,7 @@ export function LineageGraph({ data, height = 420 }: LineageGraphProps) {
             if (n.type === 'xpath') return '#00b96b'
             return '#8b5cf6'
           }}
-          style={{ bottom: 8, left: 8 }}
-          height={80}
-          width={120}
+          style={{ bottom: 8, left: 8, width: 120, height: 80 }}
         />
       </ReactFlow>
     </div>
