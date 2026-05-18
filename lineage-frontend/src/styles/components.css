@@ -119,10 +119,10 @@
 
 .btn-primary {
   background: var(--color-primary);
-  color: #ffffff;
+  color: #fff;
 }
 
-.btn-primary:hover { background: #0e55cc; }
+.btn-primary:hover { background: var(--color-primary-hover); }
 .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .btn-secondary {
@@ -149,6 +149,7 @@
 
 .input:focus {
   border-color: var(--color-primary);
+  /* Focus ring uses primary color at 12% opacity (#1267e8 with 0.12 alpha) */
   box-shadow: 0 0 0 3px rgba(18,103,232,0.12);
 }
 
