@@ -109,7 +109,21 @@
       "Bash(bash /tmp/install_driver.sh)",
       "Bash(curl -I -H \"Origin: http://localhost:5175\" http://localhost:8001/api/fields -H \"X-User: puneet.sharma\")",
       "Bash(curl -s http://localhost:8001/api/fields/1 -H \"X-User: puneet.sharma\")",
-      "Bash(bash /tmp/screenshots.sh)"
+      "Bash(bash /tmp/screenshots.sh)",
+      "Bash(npm list *)",
+      "Bash(bash /tmp/verify_tokens.sh)",
+      "Bash(bash /tmp/final_check.sh)",
+      "Bash(grep -E \"^\\\\}|^}$\")",
+      "Bash(npm ls *)",
+      "Bash(node /tmp/badge_audit.js)",
+      "Bash(node /tmp/package_audit.js)",
+      "Bash(curl -s http://localhost:5173)",
+      "Bash(kill %1)",
+      "Bash(/tmp/verify.sh)",
+      "Bash(/tmp/final_verification.sh)",
+      "Bash(/tmp/verify_task3.sh)",
+      "Bash(grep -E '\\(#[0-9a-f]{3,6}|rgba?|hsl\\)' src/styles/components.css)",
+      "Bash(grep -E \"\\\\.\\(md|txt\\)$\")"
     ]
   }
 }

@@ -1,0 +1,147 @@
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - generic [ref=e5]:
+      - img [ref=e7]
+      - generic [ref=e11]:
+        - generic [ref=e12]: Data Lineage
+        - generic [ref=e13]: Platform v1.0
+    - navigation [ref=e14]:
+      - generic [ref=e15]: Navigation
+      - link "Dashboard" [ref=e16] [cursor=pointer]:
+        - /url: /
+        - img [ref=e17]
+        - text: Dashboard
+      - link "Fields" [ref=e22] [cursor=pointer]:
+        - /url: /fields
+        - img [ref=e23]
+        - text: Fields
+      - link "Lineage Explorer" [ref=e27] [cursor=pointer]:
+        - /url: /fields/1
+        - img [ref=e28]
+        - text: Lineage Explorer
+      - link "Graph Explorer" [ref=e32] [cursor=pointer]:
+        - /url: /graph
+        - img [ref=e33]
+        - text: Graph Explorer
+      - link "Comparison" [ref=e39] [cursor=pointer]:
+        - /url: /comparison
+        - img [ref=e40]
+        - text: Comparison
+      - link "Impact Analysis" [ref=e45] [cursor=pointer]:
+        - /url: /impact
+        - img [ref=e46]
+        - text: Impact Analysis
+      - link "Global Search" [ref=e51] [cursor=pointer]:
+        - /url: /search
+        - img [ref=e52]
+        - text: Global Search
+      - generic [ref=e53]: Jurisdictions
+      - generic [ref=e54] [cursor=pointer]:
+        - checkbox "JFSA" [ref=e55]
+        - generic [ref=e56]: JFSA
+      - generic [ref=e57] [cursor=pointer]:
+        - checkbox "MAS" [ref=e58]
+        - generic [ref=e59]: MAS
+      - generic [ref=e60] [cursor=pointer]:
+        - checkbox "ASIC" [ref=e61]
+        - generic [ref=e62]: ASIC
+      - generic [ref=e63] [cursor=pointer]:
+        - checkbox "FCA" [ref=e64]
+        - generic [ref=e65]: FCA
+      - generic [ref=e66] [cursor=pointer]:
+        - checkbox "SEC" [ref=e67]
+        - generic [ref=e68]: SEC
+      - generic [ref=e69]: System
+      - link "Settings" [ref=e70] [cursor=pointer]:
+        - /url: "#"
+        - img [ref=e71]
+        - text: Settings
+    - generic [ref=e74]:
+      - generic [ref=e75]: PS
+      - generic [ref=e76]:
+        - generic [ref=e77]: Puneet Sharma
+        - generic [ref=e78]: LINEAGE_ADMIN
+  - generic [ref=e79]:
+    - banner [ref=e80]:
+      - generic [ref=e81]:
+        - generic [ref=e83]: Home
+        - generic [ref=e84]:
+          - generic [ref=e85]: /
+          - generic [ref=e86]: Fields
+        - generic [ref=e87]:
+          - generic [ref=e88]: /
+          - generic [ref=e89]: Field 360
+      - generic [ref=e90]:
+        - button "Search" [ref=e91] [cursor=pointer]:
+          - img [ref=e92]
+        - button "Help" [ref=e95] [cursor=pointer]:
+          - img [ref=e96]
+        - button "Notifications" [ref=e99] [cursor=pointer]:
+          - img [ref=e100]
+    - main [ref=e103]:
+      - generic [ref=e110]:
+        - generic [ref=e111]:
+          - generic [ref=e112]:
+            - button "Go back" [ref=e114] [cursor=pointer]:
+              - img [ref=e115]
+              - generic [ref=e117]: Back
+            - generic [ref=e118]:
+              - heading "Trade Identifier" [level=1] [ref=e119]
+              - paragraph [ref=e120]: "ID: 1"
+            - generic [ref=e122]:
+              - generic [ref=e123]: APPROVED
+              - generic [ref=e124]: HIGH
+          - navigation [ref=e125]:
+            - generic [ref=e126]: "Jurisdiction:"
+            - generic [ref=e127]: •
+            - generic [ref=e128]: "Type: VARCHAR(50)"
+            - generic [ref=e129]: •
+            - generic [ref=e130]: "Owner: N/A"
+        - generic [ref=e131]:
+          - generic [ref=e132]:
+            - heading "Lineage Pipeline" [level=2] [ref=e134]
+            - generic [ref=e135]: No transformations configured for this field
+          - generic [ref=e136]:
+            - generic [ref=e137]:
+              - button "📊 Overview" [ref=e138] [cursor=pointer]:
+                - generic [ref=e139]: 📊
+                - generic [ref=e140]: Overview
+              - button "💼 Business" [ref=e141] [cursor=pointer]:
+                - generic [ref=e142]: 💼
+                - generic [ref=e143]: Business
+              - button "⚙️ Technical" [ref=e144] [cursor=pointer]:
+                - generic [ref=e145]: ⚙️
+                - generic [ref=e146]: Technical
+              - button "🔄 XSLT" [ref=e147] [cursor=pointer]:
+                - generic [ref=e148]: 🔄
+                - generic [ref=e149]: XSLT
+              - button "☕ Java" [ref=e150] [cursor=pointer]:
+                - generic [ref=e151]: ☕
+                - generic [ref=e152]: Java
+              - button "➡️ Downstream" [ref=e153] [cursor=pointer]:
+                - generic [ref=e154]: ➡️
+                - generic [ref=e155]: Downstream
+            - generic [ref=e157]:
+              - heading "Field Overview" [level=3] [ref=e159]
+              - generic [ref=e161]:
+                - generic [ref=e162]:
+                  - generic [ref=e163]: Internal Name
+                  - generic [ref=e164]: TRADE_ID
+                - generic [ref=e165]:
+                  - generic [ref=e166]: External Name
+                  - generic [ref=e167]: Trade Identifier
+                - generic [ref=e168]:
+                  - generic [ref=e169]: Data Type
+                  - generic [ref=e170]: VARCHAR(50)
+                - generic [ref=e171]:
+                  - generic [ref=e172]: Category
+                  - generic [ref=e173]: N/A
+                - generic [ref=e174]:
+                  - generic [ref=e175]: Mandatory
+                  - generic [ref=e176]: "No"
+                - generic [ref=e177]:
+                  - generic [ref=e178]: Status
+                  - generic [ref=e180]: APPROVED
+                - generic [ref=e181]:
+                  - generic [ref=e182]: Criticality
+                  - generic [ref=e184]: HIGH
