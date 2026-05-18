@@ -18,9 +18,10 @@ test.describe('Field List Screen (/fields)', () => {
   })
 
   test('shows TRADE_ID in the list', async ({ page }) => {
-    const tradeId = page.getByText('TRADE_ID', { exact: false })
-    if (await tradeId.count() > 0) {
-      await expect(tradeId).toBeVisible()
+    const table = page.locator('table tbody')
+    const tradeIdCell = table.locator('td', { hasText: 'TRADE_ID' })
+    if (await tradeIdCell.count() > 0) {
+      await expect(tradeIdCell.first()).toBeVisible()
     } else {
       // If data not loaded, at least page should render without error
       await expect(page.locator('body')).not.toContainText('Error')
@@ -28,9 +29,10 @@ test.describe('Field List Screen (/fields)', () => {
   })
 
   test('shows TRADE_TIMESTAMP in the list', async ({ page }) => {
-    const tradeTimestamp = page.getByText('TRADE_TIMESTAMP', { exact: false })
-    if (await tradeTimestamp.count() > 0) {
-      await expect(tradeTimestamp).toBeVisible()
+    const table = page.locator('table tbody')
+    const tradeTimestampCell = table.locator('td', { hasText: 'TRADE_TIMESTAMP' })
+    if (await tradeTimestampCell.count() > 0) {
+      await expect(tradeTimestampCell.first()).toBeVisible()
     } else {
       // If data not loaded, page should still render
       await expect(page.locator('body')).not.toContainText('Error')

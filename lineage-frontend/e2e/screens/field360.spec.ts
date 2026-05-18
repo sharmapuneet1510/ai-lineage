@@ -22,23 +22,19 @@ test.describe('Field 360 Screen (/fields/:fieldId)', () => {
   })
 
   test('tabs are rendered or field not found', async ({ page }) => {
-    const overviewTab = page.getByRole('tab', { name: /overview/i })
-    const businessTab = page.getByRole('tab', { name: /business/i })
-    const technicalTab = page.getByRole('tab', { name: /technical/i })
+    const tabButtons = page.locator('.tab-btn')
     const notFoundMsg = page.getByText(/not found|not exist/i)
 
     // Check if at least some tabs exist OR if not found message shown
-    const hasOverviewTab = await overviewTab.count() > 0
-    const hasBusinessTab = await businessTab.count() > 0
-    const hasTechnicalTab = await technicalTab.count() > 0
+    const hasTabButtons = await tabButtons.count() > 0
     const isNotFound = await notFoundMsg.count() > 0
 
-    const hasTabsOrNotFound = hasOverviewTab || hasBusinessTab || hasTechnicalTab || isNotFound
+    const hasTabsOrNotFound = hasTabButtons || isNotFound
     expect(hasTabsOrNotFound).toBe(true)
   })
 
   test('clicking Business tab shows content', async ({ page }) => {
-    const businessTab = page.getByRole('tab', { name: /business/i })
+    const businessTab = page.locator('.tab-btn', { hasText: /business/i })
     if (await businessTab.count() > 0) {
       await businessTab.click()
       await page.waitForLoadState('networkidle')
@@ -48,7 +44,7 @@ test.describe('Field 360 Screen (/fields/:fieldId)', () => {
   })
 
   test('clicking XSLT tab shows content if exists', async ({ page }) => {
-    const xsltTab = page.getByRole('tab', { name: /xslt/i })
+    const xsltTab = page.locator('.tab-btn', { hasText: /xslt/i })
     if (await xsltTab.count() > 0 && await xsltTab.isVisible()) {
       await xsltTab.click()
       await page.waitForLoadState('networkidle')
