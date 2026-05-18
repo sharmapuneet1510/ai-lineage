@@ -1,25 +1,25 @@
-import { Handle, Position } from 'reactflow'
+import { Handle, Position, NodeProps } from 'reactflow'
 
-export interface JavaNodeData {
-  label: string
-  className?: string
-  methodName?: string
-}
-
-export default function JavaNode({ data }: { data: JavaNodeData }) {
+export function JavaNode({ data }: NodeProps) {
   return (
-    <div className="px-4 py-3 rounded-lg border-2 border-purple-500 bg-purple-50 shadow-md min-w-max">
-      <Handle type="target" position={Position.Top} />
-      <div className="flex flex-col gap-1">
-        <div className="text-sm font-bold text-purple-900">{data.label}</div>
-        {data.className && (
-          <div className="text-xs text-purple-700">Class: {data.className}</div>
-        )}
-        {data.methodName && (
-          <div className="text-xs text-gray-600">Method: {data.methodName}</div>
-        )}
+    <div style={{
+      background: '#8b5cf6',
+      color: '#fff',
+      border: '2px solid #7c3aed',
+      borderRadius: 8,
+      padding: '8px 14px',
+      minWidth: 140,
+      boxShadow: '0 2px 8px rgba(139,92,246,0.3)',
+    }}>
+      <Handle type="target" position={Position.Left} style={{ background: '#fff' }} />
+      <div style={{ fontSize: 10, opacity: 0.75, marginBottom: 2, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+        Java Method
       </div>
-      <Handle type="source" position={Position.Bottom} />
+      <div style={{ fontSize: 13, fontWeight: 700, fontFamily: 'monospace' }}>{data.label}</div>
+      {data.subtitle && (
+        <div style={{ fontSize: 11, opacity: 0.8, marginTop: 2 }}>{data.subtitle}</div>
+      )}
+      <Handle type="source" position={Position.Right} style={{ background: '#fff' }} />
     </div>
   )
 }

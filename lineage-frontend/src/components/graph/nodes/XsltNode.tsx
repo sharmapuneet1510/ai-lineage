@@ -1,25 +1,25 @@
-import { Handle, Position } from 'reactflow'
+import { Handle, Position, NodeProps } from 'reactflow'
 
-export interface XsltNodeData {
-  label: string
-  variableName?: string
-  template?: string
-}
-
-export default function XsltNode({ data }: { data: XsltNodeData }) {
+export function XsltNode({ data }: NodeProps) {
   return (
-    <div className="px-4 py-3 rounded-lg border-2 border-yellow-500 bg-yellow-50 shadow-md min-w-max">
-      <Handle type="target" position={Position.Top} />
-      <div className="flex flex-col gap-1">
-        <div className="text-sm font-bold text-yellow-900">{data.label}</div>
-        {data.variableName && (
-          <div className="text-xs text-yellow-700">Var: {data.variableName}</div>
-        )}
-        {data.template && (
-          <div className="text-xs text-gray-600">Template: {data.template}</div>
-        )}
+    <div style={{
+      background: '#f59e0b',
+      color: '#1a1200',
+      border: '2px solid #d97706',
+      borderRadius: 8,
+      padding: '8px 14px',
+      minWidth: 140,
+      boxShadow: '0 2px 8px rgba(245,158,11,0.3)',
+    }}>
+      <Handle type="target" position={Position.Left} style={{ background: '#1a1200' }} />
+      <div style={{ fontSize: 10, opacity: 0.65, marginBottom: 2, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+        XSLT Variable
       </div>
-      <Handle type="source" position={Position.Bottom} />
+      <div style={{ fontSize: 13, fontWeight: 700, fontFamily: 'monospace' }}>{data.label}</div>
+      {data.subtitle && (
+        <div style={{ fontSize: 11, opacity: 0.75, marginTop: 2 }}>{data.subtitle}</div>
+      )}
+      <Handle type="source" position={Position.Right} style={{ background: '#1a1200' }} />
     </div>
   )
 }

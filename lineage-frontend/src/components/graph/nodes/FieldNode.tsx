@@ -1,25 +1,25 @@
-import { Handle, Position } from 'reactflow'
+import { Handle, Position, NodeProps } from 'reactflow'
 
-export interface FieldNodeData {
-  label: string
-  fieldId?: string
-  jurisdiction?: string
-}
-
-export default function FieldNode({ data }: { data: FieldNodeData }) {
+export function FieldNode({ data }: NodeProps) {
   return (
-    <div className="px-4 py-3 rounded-lg border-2 border-blue-500 bg-blue-50 shadow-md min-w-max">
-      <Handle type="target" position={Position.Top} />
-      <div className="flex flex-col gap-1">
-        <div className="text-sm font-bold text-blue-900">{data.label}</div>
-        {data.jurisdiction && (
-          <div className="text-xs text-blue-700">{data.jurisdiction}</div>
-        )}
-        {data.fieldId && (
-          <div className="text-xs text-gray-600">ID: {data.fieldId}</div>
-        )}
+    <div style={{
+      background: '#1267e8',
+      color: '#fff',
+      border: '2px solid #0e55cc',
+      borderRadius: 8,
+      padding: '8px 14px',
+      minWidth: 140,
+      boxShadow: '0 2px 8px rgba(18,103,232,0.3)',
+    }}>
+      <Handle type="target" position={Position.Left} style={{ background: '#fff' }} />
+      <div style={{ fontSize: 10, opacity: 0.75, marginBottom: 2, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+        {data.type ?? 'FIELD'}
       </div>
-      <Handle type="source" position={Position.Bottom} />
+      <div style={{ fontSize: 13, fontWeight: 700, fontFamily: 'monospace' }}>{data.label}</div>
+      {data.subtitle && (
+        <div style={{ fontSize: 11, opacity: 0.8, marginTop: 2 }}>{data.subtitle}</div>
+      )}
+      <Handle type="source" position={Position.Right} style={{ background: '#fff' }} />
     </div>
   )
 }

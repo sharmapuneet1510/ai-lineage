@@ -1,25 +1,22 @@
-import { Handle, Position } from 'reactflow'
+import { Handle, Position, NodeProps } from 'reactflow'
 
-export interface XPathNodeData {
-  label: string
-  expression?: string
-  source?: string
-}
-
-export default function XPathNode({ data }: { data: XPathNodeData }) {
+export function XPathNode({ data }: NodeProps) {
   return (
-    <div className="px-4 py-3 rounded-lg border-2 border-green-500 bg-green-50 shadow-md min-w-max">
-      <Handle type="target" position={Position.Top} />
-      <div className="flex flex-col gap-1">
-        <div className="text-sm font-bold text-green-900">{data.label}</div>
-        {data.expression && (
-          <div className="text-xs text-green-700 font-mono">Expr: {data.expression}</div>
-        )}
-        {data.source && (
-          <div className="text-xs text-gray-600">Source: {data.source}</div>
-        )}
+    <div style={{
+      background: '#00b96b',
+      color: '#fff',
+      border: '2px solid #009e5a',
+      borderRadius: 8,
+      padding: '8px 14px',
+      minWidth: 140,
+      boxShadow: '0 2px 8px rgba(0,185,107,0.3)',
+    }}>
+      <Handle type="target" position={Position.Left} style={{ background: '#fff' }} />
+      <div style={{ fontSize: 10, opacity: 0.75, marginBottom: 2, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+        XPath
       </div>
-      <Handle type="source" position={Position.Bottom} />
+      <div style={{ fontSize: 13, fontWeight: 700, fontFamily: 'monospace' }}>{data.label}</div>
+      <Handle type="source" position={Position.Right} style={{ background: '#fff' }} />
     </div>
   )
 }
