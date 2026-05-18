@@ -19,7 +19,7 @@ export function Header() {
     <header className="app-header">
       <div className="header-breadcrumb">
         {crumbs.map((crumb, i) => (
-          <span key={i} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span key={i} className="header-breadcrumb-item">
             {i > 0 && <span className="header-breadcrumb-sep">/</span>}
             <span className={i === crumbs.length - 1 ? 'header-breadcrumb-current' : ''}>
               {crumb}

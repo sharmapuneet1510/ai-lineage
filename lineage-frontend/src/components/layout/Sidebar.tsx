@@ -47,6 +47,7 @@ export function Sidebar() {
             key={to}
             to={to}
             className={`sidebar-item${isActive(to) ? ' active' : ''}`}
+            aria-current={isActive(to) ? 'page' : undefined}
           >
             <Icon size={16} className="sidebar-item-icon" />
             {label}
@@ -55,10 +56,15 @@ export function Sidebar() {
 
         <div className="sidebar-section-label" style={{ marginTop: 16 }}>System</div>
         {BOTTOM_ITEMS.map(({ to, label, Icon }) => (
-          <a key={to} href="#" className="sidebar-item">
+          <NavLink
+            key={to}
+            to={to}
+            className={`sidebar-item${isActive(to) ? ' active' : ''}`}
+            aria-current={isActive(to) ? 'page' : undefined}
+          >
             <Icon size={16} className="sidebar-item-icon" />
             {label}
-          </a>
+          </NavLink>
         ))}
       </nav>
 

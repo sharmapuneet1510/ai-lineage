@@ -164,6 +164,12 @@
 
 .header-breadcrumb-sep { color: var(--color-border); }
 
+.header-breadcrumb-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .header-breadcrumb-current {
   color: var(--color-text);
   font-weight: 600;
