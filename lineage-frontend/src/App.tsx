@@ -1,6 +1,7 @@
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClient } from './app/queryClient'
+import { AppLayout } from './components/layout/AppLayout'
 import DashboardPage from './features/dashboard/DashboardPage'
 import FieldListPage from './features/fields/FieldListPage'
 import Field360Page from './features/fields/Field360Page'
@@ -8,22 +9,14 @@ import FieldComparisonPage from './features/comparison/FieldComparisonPage'
 import ImpactAnalysisPage from './features/impact/ImpactAnalysisPage'
 import GraphExplorerPage from './features/graphExplorer/GraphExplorerPage'
 import GlobalSearchPage from './features/search/GlobalSearchPage'
-import './App.css'
-import './styles/dashboard.css'
+import './styles/global.css'
+import './styles/components.css'
 
-function App() {
+export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Router>
-        <div className="app">
-          <nav>
-            <Link to="/">Dashboard</Link>
-            <Link to="/fields">Fields</Link>
-            <Link to="/comparison">Comparison</Link>
-            <Link to="/impact">Impact</Link>
-            <Link to="/graph">Graph Explorer</Link>
-            <Link to="/search">Global Search</Link>
-          </nav>
+      <BrowserRouter>
+        <AppLayout>
           <Routes>
             <Route path="/" element={<DashboardPage />} />
             <Route path="/fields" element={<FieldListPage />} />
@@ -33,10 +26,8 @@ function App() {
             <Route path="/graph" element={<GraphExplorerPage />} />
             <Route path="/search" element={<GlobalSearchPage />} />
           </Routes>
-        </div>
-      </Router>
+        </AppLayout>
+      </BrowserRouter>
     </QueryClientProvider>
   )
 }
-
-export default App

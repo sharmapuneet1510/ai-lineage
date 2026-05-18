@@ -1,7 +1,7 @@
 import { NavLink, useLocation } from 'react-router-dom'
 import {
   LayoutDashboard, Database, GitBranch, BarChart2,
-  Share2, Shield, GitCompare, Globe, Settings, Network,
+  Share2, GitCompare, Settings, Network,
 } from 'lucide-react'
 import '../../styles/layout.css'
 
