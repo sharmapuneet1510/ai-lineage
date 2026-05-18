@@ -1,6 +1,10 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClient } from './app/queryClient'
+import FieldListPage from './features/fields/FieldListPage'
+import Field360Page from './features/fields/Field360Page'
+import FieldComparisonPage from './features/comparison/FieldComparisonPage'
+import ImpactAnalysisPage from './features/impact/ImpactAnalysisPage'
 import './App.css'
 
 function App() {
@@ -8,10 +12,17 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <Router>
         <div className="app">
-          <h1>Lineage Platform</h1>
-          <p>Coming soon...</p>
+          <nav>
+            <Link to="/fields">Fields</Link>
+            <Link to="/comparison">Comparison</Link>
+            <Link to="/impact">Impact</Link>
+          </nav>
           <Routes>
-            {/* Routes will be added here */}
+            <Route path="/fields" element={<FieldListPage />} />
+            <Route path="/fields/:fieldId" element={<Field360Page />} />
+            <Route path="/comparison" element={<FieldComparisonPage />} />
+            <Route path="/impact" element={<ImpactAnalysisPage />} />
+            <Route path="/" element={<FieldListPage />} />
           </Routes>
         </div>
       </Router>
