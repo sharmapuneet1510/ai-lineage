@@ -4,10 +4,6 @@ import { Share2, Search, X, Info } from 'lucide-react'
 
 const API = import.meta.env.VITE_API_BASE_URL
 
-const TYPE_MAP: Record<string, string> = {
-  Field: 'field', XsltVariable: 'xslt', XPath: 'xpath', JavaMethod: 'java',
-}
-
 function nodeTypeClass(type: string) {
   const map: Record<string, string> = {
     Field: 'badge-blue', XsltVariable: 'badge-yellow', XPath: 'badge-green', JavaMethod: 'badge-purple',
