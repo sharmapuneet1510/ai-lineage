@@ -53,3 +53,7 @@ Visit https://reactjs.org/link/error-boundaries to learn more about error bounda
     at renderRootSync (http://localhost:5175/node_modules/.vite/deps/chunk-WERSD76P.js?v=4fd79fea:19116:15)
     at recoverFromConcurrentError (http://localhost:5175/node_modules/.vite/deps/chunk-WERSD76P.js?v=4fd79fea:18736:28)
     at performSyncWorkOnRoot (http://localhost:5175/node_modules/.vite/deps/chunk-WERSD76P.js?v=4fd79fea:18879:28)
+[  196725ms] [ERROR] SyntaxError: The requested module '/src/features/comparison/FieldComparisonPage.tsx?t=1779096920112' does not provide an export named 'default' @ http://localhost:5175/@vite/client:173
+[  196725ms] [ERROR] [hmr] Failed to reload /src/App.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://localhost:5175/@vite/client:175
+[  232733ms] [ERROR] SyntaxError: The requested module '/src/features/comparison/FieldComparisonPage.tsx?t=1779096920112' does not provide an export named 'default' @ http://localhost:5175/@vite/client:173
+[  232733ms] [ERROR] [hmr] Failed to reload /src/App.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://localhost:5175/@vite/client:175
