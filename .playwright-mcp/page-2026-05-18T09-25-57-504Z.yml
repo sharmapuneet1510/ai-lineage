@@ -1,0 +1,99 @@
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - generic [ref=e5]:
+      - img [ref=e7]
+      - generic [ref=e11]:
+        - generic [ref=e12]: Data Lineage
+        - generic [ref=e13]: Platform v1.0
+    - navigation [ref=e14]:
+      - generic [ref=e15]: Navigation
+      - link "Dashboard" [ref=e16] [cursor=pointer]:
+        - /url: /
+        - img [ref=e17]
+        - text: Dashboard
+      - link "Fields" [ref=e22] [cursor=pointer]:
+        - /url: /fields
+        - img [ref=e23]
+        - text: Fields
+      - link "Lineage Explorer" [ref=e27] [cursor=pointer]:
+        - /url: /fields/1
+        - img [ref=e28]
+        - text: Lineage Explorer
+      - link "Graph Explorer" [ref=e32] [cursor=pointer]:
+        - /url: /graph
+        - img [ref=e33]
+        - text: Graph Explorer
+      - link "Comparison" [ref=e39] [cursor=pointer]:
+        - /url: /comparison
+        - img [ref=e40]
+        - text: Comparison
+      - link "Impact Analysis" [ref=e45] [cursor=pointer]:
+        - /url: /impact
+        - img [ref=e46]
+        - text: Impact Analysis
+      - link "Global Search" [ref=e51] [cursor=pointer]:
+        - /url: /search
+        - img [ref=e52]
+        - text: Global Search
+      - generic [ref=e53]: System
+      - link "Settings" [ref=e54] [cursor=pointer]:
+        - /url: "#"
+        - img [ref=e55]
+        - text: Settings
+    - generic [ref=e58]:
+      - generic [ref=e59]: PS
+      - generic [ref=e60]:
+        - generic [ref=e61]: Puneet Sharma
+        - generic [ref=e62]: LINEAGE_ADMIN
+  - generic [ref=e63]:
+    - banner [ref=e64]:
+      - generic [ref=e65]:
+        - generic [ref=e67]: Home
+        - generic [ref=e68]:
+          - generic [ref=e69]: /
+          - generic [ref=e70]: Graph Explorer
+      - generic [ref=e71]:
+        - button "Search" [ref=e72] [cursor=pointer]:
+          - img [ref=e73]
+        - button "Help" [ref=e76] [cursor=pointer]:
+          - img [ref=e77]
+        - button "Notifications" [ref=e80] [cursor=pointer]:
+          - img [ref=e81]
+    - main [ref=e84]:
+      - generic [ref=e86]:
+        - generic [ref=e87]:
+          - heading "Graph Explorer" [level=1] [ref=e88]
+          - paragraph [ref=e89]: Explore lineage and dependencies in the Neo4j knowledge graph
+        - generic [ref=e90]:
+          - generic [ref=e91]:
+            - img [ref=e92]
+            - heading "Search Nodes" [level=2] [ref=e95]
+          - generic [ref=e96]:
+            - textbox "Search by name, ID, or description..." [ref=e98]
+            - combobox [ref=e100]:
+              - option "All Types" [selected]
+              - option "Field"
+              - option "XsltVariable"
+              - option "XsltFile"
+              - option "XPath"
+              - option "JavaMethod"
+              - option "JavaClass"
+              - option "DownstreamSystem"
+              - option "Database"
+              - option "Table"
+            - button "Search" [disabled] [ref=e102]:
+              - img [ref=e103]
+              - text: Search
+        - generic [ref=e106]:
+          - generic [ref=e108]:
+            - generic [ref=e110]:
+              - img [ref=e111]
+              - heading "Graph Visualization" [level=2] [ref=e116]
+            - generic [ref=e118]:
+              - img [ref=e119]
+              - paragraph [ref=e124]: No graph visualization yet
+              - paragraph [ref=e125]: React Flow integration for interactive graph rendering
+          - generic [ref=e127]:
+            - img [ref=e128]
+            - paragraph [ref=e133]: Select a node to view details
+            - paragraph [ref=e134]: Search results will appear here

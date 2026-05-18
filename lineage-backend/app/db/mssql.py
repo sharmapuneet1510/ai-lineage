@@ -1,19 +1,37 @@
-from sqlalchemy import create_engine, Engine
+from sqlalchemy import create_engine, Engine, event
 from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.pool import QueuePool
 from app.core.config import settings
 from typing import Optional
+import pymssql
 
 engine: Optional[Engine] = None
 SessionLocal: Optional[sessionmaker] = None
 
 def init_mssql() -> Engine:
     global engine, SessionLocal
-    connection_string = (
-        f"mssql+pyodbc://{settings.mssql_username}:{settings.mssql_password}"
-        f"@{settings.mssql_host}:{settings.mssql_port}/{settings.mssql_database}"
-        f"?driver={settings.mssql_driver}&TrustServerCertificate={settings.mssql_trust_certificate}"
+
+    # Create custom connection function for pymssql with explicit parameters
+    def get_conn():
+        return pymssql.connect(
+            host=settings.mssql_host,
+            port=int(settings.mssql_port),
+            user=settings.mssql_username,
+            password=settings.mssql_password,
+            database=settings.mssql_database,
+            timeout=10
+        )
+
+    # Use creator function instead of connection URL string
+    engine = create_engine(
+        "mssql+pymssql://",
+        creator=get_conn,
+        poolclass=QueuePool,
+        pool_size=5,
+        max_overflow=10,
+        pool_pre_ping=True,
+        echo=False
     )
-    engine = create_engine(connection_string, pool_size=10, max_overflow=20, pool_pre_ping=True, echo=False)
     SessionLocal = sessionmaker(bind=engine, class_=Session, expire_on_commit=False)
     return engine
 

@@ -3,8 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { fieldApi } from './fieldApi'
 import { useState } from 'react'
 import { ChevronLeft } from 'lucide-react'
-import { Node, Edge } from 'reactflow'
-import LineageGraph from '../../components/graph/LineageGraph'
+import { LineagePipeline } from '../../components/graph/LineagePipeline'
 import LoadingSpinner from '../../components/common/LoadingSpinner'
 import ErrorState from '../../components/common/ErrorState'
 import AccessDeniedState from '../../components/common/AccessDeniedState'
@@ -75,13 +74,6 @@ export default function Field360Page() {
     { id: 'downstream', label: 'Downstream', icon: '➡️' }
   ]
 
-  // Mock lineage graph data
-  const graphNodes: Node[] = [
-    { id: 'field-1', data: { label: field.business_name || field.internal_field_name }, position: { x: 0, y: 0 }, type: 'field' },
-  ]
-
-  const graphEdges: Edge[] = []
-
   return (
     <div className="field360-page">
       {/* Header */}
@@ -129,26 +121,20 @@ export default function Field360Page() {
 
       {/* Main Content */}
       <div className="field360-content">
-        {/* Left Panel - Lineage Graph */}
-        <section className="field360-graph-section">
-          <div className="section-card">
-            <div className="section-card-header">
-              <h2 className="section-card-title">Lineage Graph</h2>
-            </div>
-            <div className="lineage-graph-container">
-              <LineageGraph
-                nodes={graphNodes}
-                edges={graphEdges}
-                onNodeClick={(nodeId: string) => {
-                  // Handle node click - can be extended later
-                  console.log('Node clicked:', nodeId)
-                }}
-              />
-            </div>
+        {/* Lineage Pipeline Section */}
+        <section className="field360-pipeline-section">
+          <div className="section-card-header">
+            <h2 className="section-card-title">Lineage Pipeline</h2>
           </div>
+          <LineagePipeline
+            field={field}
+            xsltVariables={data?.data?.data?.xslt_variables || []}
+            javaMethods={data?.data?.data?.java_methods || []}
+            downstreamSystems={data?.data?.data?.downstream_systems || []}
+          />
         </section>
 
-        {/* Right Panel - Details */}
+        {/* Details Panel */}
         <section className="field360-details-section">
           {/* Tab Bar */}
           <div className="tab-bar">

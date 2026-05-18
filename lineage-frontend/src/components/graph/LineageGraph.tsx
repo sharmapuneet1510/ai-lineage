@@ -32,11 +32,11 @@ export default function LineageGraph({
   onNodeClick,
   onEdgeClick,
 }: LineageGraphProps) {
-  const handleNodeClick = (event: React.MouseEvent, node: Node) => {
+  const handleNodeClick = (_event: React.MouseEvent, node: Node) => {
     onNodeClick?.(node.id)
   }
 
-  const handleEdgeClick = (event: React.MouseEvent, edge: Edge) => {
+  const handleEdgeClick = (_event: React.MouseEvent, edge: Edge) => {
     onEdgeClick?.(edge.id)
   }
 

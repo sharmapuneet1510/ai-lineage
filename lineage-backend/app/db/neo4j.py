@@ -8,8 +8,7 @@ def init_neo4j() -> Driver:
     global driver
     driver = GraphDatabase.driver(
         settings.neo4j_uri,
-        auth=(settings.neo4j_username, settings.neo4j_password),
-        max_pool_size=50
+        auth=(settings.neo4j_username, settings.neo4j_password)
     )
     return driver
 

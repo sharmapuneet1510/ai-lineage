@@ -101,8 +101,8 @@
 
 /* Main Content */
 .field360-content {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  flex-direction: column;
   gap: 24px;
   padding: 24px 32px;
   overflow: hidden;
@@ -110,19 +110,27 @@
   min-height: 0;
 }
 
-/* Graph Section */
-.field360-graph-section {
+/* Pipeline Section */
+.field360-pipeline-section {
   display: flex;
   flex-direction: column;
-  min-height: 0;
+  gap: 12px;
+  flex-shrink: 0;
 }
 
-.lineage-graph-container {
-  flex: 1;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  background: var(--color-surface);
+.section-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0;
+  border-bottom: none;
+  background: transparent;
+}
+
+.section-card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
 }
 
 /* Details Section */
@@ -130,6 +138,7 @@
   display: flex;
   flex-direction: column;
   min-height: 0;
+  flex: 1;
   background: var(--color-surface);
   border-radius: var(--radius-md);
   border: 1px solid var(--color-border);
@@ -364,18 +373,7 @@
 /* Responsive */
 @media (max-width: 1400px) {
   .field360-content {
-    grid-template-columns: 1fr;
     gap: 20px;
-  }
-
-  .field360-graph-section {
-    order: 2;
-    min-height: 300px;
-  }
-
-  .field360-details-section {
-    order: 1;
-    min-height: 400px;
   }
 }
 
