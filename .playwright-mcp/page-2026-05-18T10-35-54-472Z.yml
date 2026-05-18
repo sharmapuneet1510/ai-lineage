@@ -1,0 +1,137 @@
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - generic [ref=e5]:
+      - img [ref=e7]
+      - generic [ref=e11]:
+        - generic [ref=e12]: Data Lineage
+        - generic [ref=e13]: Platform v1.0
+    - navigation [ref=e14]:
+      - generic [ref=e15]: Navigation
+      - link "Dashboard" [ref=e16] [cursor=pointer]:
+        - /url: /
+        - img [ref=e17]
+        - text: Dashboard
+      - link "Fields" [ref=e22] [cursor=pointer]:
+        - /url: /fields
+        - img [ref=e23]
+        - text: Fields
+      - link "Lineage Explorer" [ref=e27] [cursor=pointer]:
+        - /url: /fields/1
+        - img [ref=e28]
+        - text: Lineage Explorer
+      - link "Graph Explorer" [ref=e32] [cursor=pointer]:
+        - /url: /graph
+        - img [ref=e33]
+        - text: Graph Explorer
+      - link "Comparison" [ref=e39] [cursor=pointer]:
+        - /url: /comparison
+        - img [ref=e40]
+        - text: Comparison
+      - link "Impact Analysis" [ref=e45] [cursor=pointer]:
+        - /url: /impact
+        - img [ref=e46]
+        - text: Impact Analysis
+      - link "Global Search" [ref=e51] [cursor=pointer]:
+        - /url: /search
+        - img [ref=e52]
+        - text: Global Search
+      - generic [ref=e53]: System
+      - link "Settings" [ref=e54] [cursor=pointer]:
+        - /url: "#"
+        - img [ref=e55]
+        - text: Settings
+    - generic [ref=e58]:
+      - generic [ref=e59]: PS
+      - generic [ref=e60]:
+        - generic [ref=e61]: Puneet Sharma
+        - generic [ref=e62]: LINEAGE_ADMIN
+  - generic [ref=e63]:
+    - banner [ref=e64]:
+      - generic [ref=e65]:
+        - generic [ref=e67]: Home
+        - generic [ref=e68]:
+          - generic [ref=e69]: /
+          - generic [ref=e70]: Fields
+      - generic [ref=e71]:
+        - button "Search" [ref=e72] [cursor=pointer]:
+          - img [ref=e73]
+        - button "Help" [ref=e76] [cursor=pointer]:
+          - img [ref=e77]
+        - button "Notifications" [ref=e80] [cursor=pointer]:
+          - img [ref=e81]
+    - main [ref=e84]:
+      - generic [ref=e85]:
+        - generic [ref=e86]:
+          - heading "Fields" [level=1] [ref=e87]
+          - paragraph [ref=e88]: Search and explore all fields in your system
+        - generic [ref=e90]:
+          - generic [ref=e91]:
+            - text: Search
+            - textbox "Search by internal name, business name, or jurisdiction..." [ref=e92]
+          - generic [ref=e93]:
+            - button "CRITICAL" [ref=e94]
+            - button "HIGH" [ref=e95]
+            - button "MEDIUM" [ref=e96]
+            - button "LOW" [ref=e97]
+        - table [ref=e106]:
+          - rowgroup [ref=e107]:
+            - row "Internal Name Business Name Jurisdiction Criticality Status" [ref=e108]:
+              - columnheader "Internal Name" [ref=e109]
+              - columnheader "Business Name" [ref=e110]
+              - columnheader "Jurisdiction" [ref=e111]
+              - columnheader "Criticality" [ref=e112]
+              - columnheader "Status" [ref=e113]
+          - rowgroup [ref=e114]:
+            - row "COUNTERPARTY_NAME Counterparty Legal Name HIGH APPROVED" [ref=e115]:
+              - cell "COUNTERPARTY_NAME" [ref=e116]
+              - cell "Counterparty Legal Name" [ref=e117]
+              - cell [ref=e118]
+              - cell "HIGH" [ref=e119]
+              - cell "APPROVED" [ref=e120]
+            - row "TRADE_RATE Exchange Rate MEDIUM APPROVED" [ref=e121]:
+              - cell "TRADE_RATE" [ref=e122]
+              - cell "Exchange Rate" [ref=e123]
+              - cell [ref=e124]
+              - cell "MEDIUM" [ref=e125]
+              - cell "APPROVED" [ref=e126]
+            - row "PROFIT_LOSS Realized P&L MEDIUM APPROVED" [ref=e127]:
+              - cell "PROFIT_LOSS" [ref=e128]
+              - cell "Realized P&L" [ref=e129]
+              - cell [ref=e130]
+              - cell "MEDIUM" [ref=e131]
+              - cell "APPROVED" [ref=e132]
+            - row "SETTLEMENT_AMOUNT Settlement Amount HIGH APPROVED" [ref=e133]:
+              - cell "SETTLEMENT_AMOUNT" [ref=e134]
+              - cell "Settlement Amount" [ref=e135]
+              - cell [ref=e136]
+              - cell "HIGH" [ref=e137]
+              - cell "APPROVED" [ref=e138]
+            - row "TRADE_TIMESTAMP Trade Execution Timestamp HIGH APPROVED" [ref=e139]:
+              - cell "TRADE_TIMESTAMP" [ref=e140]
+              - cell "Trade Execution Timestamp" [ref=e141]
+              - cell [ref=e142]
+              - cell "HIGH" [ref=e143]
+              - cell "APPROVED" [ref=e144]
+            - row "TRADE_ID Trade Identifier HIGH APPROVED" [ref=e145]:
+              - cell "TRADE_ID" [ref=e146]
+              - cell "Trade Identifier" [ref=e147]
+              - cell [ref=e148]
+              - cell "HIGH" [ref=e149]
+              - cell "APPROVED" [ref=e150]
+            - row "NOTIONAL_VALUE Trade Notional Amount MEDIUM APPROVED" [ref=e151]:
+              - cell "NOTIONAL_VALUE" [ref=e152]
+              - cell "Trade Notional Amount" [ref=e153]
+              - cell [ref=e154]
+              - cell "MEDIUM" [ref=e155]
+              - cell "APPROVED" [ref=e156]
+            - row "SETTLEMENT_DATE Trade Settlement Date MEDIUM PENDING" [ref=e157]:
+              - cell "SETTLEMENT_DATE" [ref=e158]
+              - cell "Trade Settlement Date" [ref=e159]
+              - cell [ref=e160]
+              - cell "MEDIUM" [ref=e161]
+              - cell "PENDING" [ref=e162]
+        - generic [ref=e163]:
+          - paragraph [ref=e164]: "Page 1 of 0 | Total: 0 fields"
+          - generic [ref=e165]:
+            - button "← Previous" [disabled] [ref=e166]
+            - button "Next →" [ref=e167]

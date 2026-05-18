@@ -1,0 +1,200 @@
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - generic [ref=e5]:
+      - img [ref=e7]
+      - generic [ref=e11]:
+        - generic [ref=e12]: Data Lineage
+        - generic [ref=e13]: Platform v1.0
+    - navigation [ref=e14]:
+      - generic [ref=e15]: Navigation
+      - link "Dashboard" [ref=e16] [cursor=pointer]:
+        - /url: /
+        - img [ref=e17]
+        - text: Dashboard
+      - link "Fields" [ref=e22] [cursor=pointer]:
+        - /url: /fields
+        - img [ref=e23]
+        - text: Fields
+      - link "Lineage Explorer" [ref=e27] [cursor=pointer]:
+        - /url: /fields/1
+        - img [ref=e28]
+        - text: Lineage Explorer
+      - link "Graph Explorer" [ref=e32] [cursor=pointer]:
+        - /url: /graph
+        - img [ref=e33]
+        - text: Graph Explorer
+      - link "Comparison" [ref=e39] [cursor=pointer]:
+        - /url: /comparison
+        - img [ref=e40]
+        - text: Comparison
+      - link "Impact Analysis" [ref=e45] [cursor=pointer]:
+        - /url: /impact
+        - img [ref=e46]
+        - text: Impact Analysis
+      - link "Global Search" [ref=e51] [cursor=pointer]:
+        - /url: /search
+        - img [ref=e52]
+        - text: Global Search
+      - generic [ref=e53]: System
+      - link "Settings" [ref=e54] [cursor=pointer]:
+        - /url: "#"
+        - img [ref=e55]
+        - text: Settings
+    - generic [ref=e58]:
+      - generic [ref=e59]: PS
+      - generic [ref=e60]:
+        - generic [ref=e61]: Puneet Sharma
+        - generic [ref=e62]: LINEAGE_ADMIN
+  - generic [ref=e63]:
+    - banner [ref=e64]:
+      - generic [ref=e65]:
+        - generic [ref=e67]: Home
+        - generic [ref=e68]:
+          - generic [ref=e69]: /
+          - generic [ref=e70]: Fields
+      - generic [ref=e71]:
+        - button "Search" [ref=e72] [cursor=pointer]:
+          - img [ref=e73]
+        - button "Help" [ref=e76] [cursor=pointer]:
+          - img [ref=e77]
+        - button "Notifications" [ref=e80] [cursor=pointer]:
+          - img [ref=e81]
+    - main [ref=e84]:
+      - generic [ref=e85]:
+        - generic [ref=e87]:
+          - heading "Fields" [level=1] [ref=e88]
+          - paragraph [ref=e89]: 0 fields across all jurisdictions
+        - generic [ref=e90]:
+          - generic [ref=e91]:
+            - generic [ref=e92]:
+              - img [ref=e93]
+              - textbox "Search fields..." [ref=e96]
+            - generic [ref=e97]:
+              - img
+              - combobox [ref=e98]:
+                - option "All Jurisdictions" [selected]
+                - option "JFSA"
+                - option "MAS"
+                - option "ASIC"
+          - table [ref=e100]:
+            - rowgroup [ref=e101]:
+              - row "Field Name Business Name Jurisdiction Data Type Criticality Status" [ref=e102]:
+                - columnheader "Field Name" [ref=e103]
+                - columnheader "Business Name" [ref=e104]
+                - columnheader "Jurisdiction" [ref=e105]
+                - columnheader "Data Type" [ref=e106]
+                - columnheader "Criticality" [ref=e107]
+                - columnheader "Status" [ref=e108]
+                - columnheader [ref=e109]
+            - rowgroup [ref=e110]:
+              - row "COUNTERPARTY_NAME COUNTERPARTY_NAME VARCHAR(200) HIGH APPROVED" [ref=e195]:
+                - cell "COUNTERPARTY_NAME" [ref=e196]
+                - cell "COUNTERPARTY_NAME" [ref=e197]
+                - cell [ref=e198]
+                - cell "VARCHAR(200)" [ref=e200]
+                - cell "HIGH" [ref=e201]:
+                  - generic [ref=e202]: HIGH
+                - cell "APPROVED" [ref=e203]:
+                  - generic [ref=e204]: APPROVED
+                - cell [ref=e205]:
+                  - link [ref=e206] [cursor=pointer]:
+                    - /url: /fields/3
+                    - img [ref=e207]
+              - row "TRADE_RATE TRADE_RATE DECIMAL(10,6) MEDIUM APPROVED" [ref=e211]:
+                - cell "TRADE_RATE" [ref=e212]
+                - cell "TRADE_RATE" [ref=e213]
+                - cell [ref=e214]
+                - cell "DECIMAL(10,6)" [ref=e216]
+                - cell "MEDIUM" [ref=e217]:
+                  - generic [ref=e218]: MEDIUM
+                - cell "APPROVED" [ref=e219]:
+                  - generic [ref=e220]: APPROVED
+                - cell [ref=e221]:
+                  - link [ref=e222] [cursor=pointer]:
+                    - /url: /fields/7
+                    - img [ref=e223]
+              - row "PROFIT_LOSS PROFIT_LOSS DECIMAL(18,2) MEDIUM APPROVED" [ref=e227]:
+                - cell "PROFIT_LOSS" [ref=e228]
+                - cell "PROFIT_LOSS" [ref=e229]
+                - cell [ref=e230]
+                - cell "DECIMAL(18,2)" [ref=e232]
+                - cell "MEDIUM" [ref=e233]:
+                  - generic [ref=e234]: MEDIUM
+                - cell "APPROVED" [ref=e235]:
+                  - generic [ref=e236]: APPROVED
+                - cell [ref=e237]:
+                  - link [ref=e238] [cursor=pointer]:
+                    - /url: /fields/6
+                    - img [ref=e239]
+              - row "SETTLEMENT_AMOUNT SETTLEMENT_AMOUNT DECIMAL(18,2) HIGH APPROVED" [ref=e243]:
+                - cell "SETTLEMENT_AMOUNT" [ref=e244]
+                - cell "SETTLEMENT_AMOUNT" [ref=e245]
+                - cell [ref=e246]
+                - cell "DECIMAL(18,2)" [ref=e248]
+                - cell "HIGH" [ref=e249]:
+                  - generic [ref=e250]: HIGH
+                - cell "APPROVED" [ref=e251]:
+                  - generic [ref=e252]: APPROVED
+                - cell [ref=e253]:
+                  - link [ref=e254] [cursor=pointer]:
+                    - /url: /fields/8
+                    - img [ref=e255]
+              - row "TRADE_TIMESTAMP TRADE_TIMESTAMP DATETIME HIGH APPROVED" [ref=e259]:
+                - cell "TRADE_TIMESTAMP" [ref=e260]
+                - cell "TRADE_TIMESTAMP" [ref=e261]
+                - cell [ref=e262]
+                - cell "DATETIME" [ref=e264]
+                - cell "HIGH" [ref=e265]:
+                  - generic [ref=e266]: HIGH
+                - cell "APPROVED" [ref=e267]:
+                  - generic [ref=e268]: APPROVED
+                - cell [ref=e269]:
+                  - link [ref=e270] [cursor=pointer]:
+                    - /url: /fields/2
+                    - img [ref=e271]
+              - row "TRADE_ID TRADE_ID VARCHAR(50) HIGH APPROVED" [ref=e275]:
+                - cell "TRADE_ID" [ref=e276]
+                - cell "TRADE_ID" [ref=e277]
+                - cell [ref=e278]
+                - cell "VARCHAR(50)" [ref=e280]
+                - cell "HIGH" [ref=e281]:
+                  - generic [ref=e282]: HIGH
+                - cell "APPROVED" [ref=e283]:
+                  - generic [ref=e284]: APPROVED
+                - cell [ref=e285]:
+                  - link [ref=e286] [cursor=pointer]:
+                    - /url: /fields/1
+                    - img [ref=e287]
+              - row "NOTIONAL_VALUE NOTIONAL_VALUE DECIMAL(18,2) MEDIUM APPROVED" [ref=e291]:
+                - cell "NOTIONAL_VALUE" [ref=e292]
+                - cell "NOTIONAL_VALUE" [ref=e293]
+                - cell [ref=e294]
+                - cell "DECIMAL(18,2)" [ref=e296]
+                - cell "MEDIUM" [ref=e297]:
+                  - generic [ref=e298]: MEDIUM
+                - cell "APPROVED" [ref=e299]:
+                  - generic [ref=e300]: APPROVED
+                - cell [ref=e301]:
+                  - link [ref=e302] [cursor=pointer]:
+                    - /url: /fields/4
+                    - img [ref=e303]
+              - row "SETTLEMENT_DATE SETTLEMENT_DATE DATE MEDIUM PENDING" [ref=e307]:
+                - cell "SETTLEMENT_DATE" [ref=e308]
+                - cell "SETTLEMENT_DATE" [ref=e309]
+                - cell [ref=e310]
+                - cell "DATE" [ref=e312]
+                - cell "MEDIUM" [ref=e313]:
+                  - generic [ref=e314]: MEDIUM
+                - cell "PENDING" [ref=e315]:
+                  - generic [ref=e316]: PENDING
+                - cell [ref=e317]:
+                  - link [ref=e318] [cursor=pointer]:
+                    - /url: /fields/5
+                    - img [ref=e319]
+          - generic [ref=e186]:
+            - generic [ref=e187]: Page 1 of 1 · 0 total
+            - generic [ref=e188]:
+              - button [disabled] [ref=e189]:
+                - img [ref=e190]
+              - button [disabled] [ref=e192]:
+                - img [ref=e193]

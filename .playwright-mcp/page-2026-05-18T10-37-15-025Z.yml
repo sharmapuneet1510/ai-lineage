@@ -1,0 +1,136 @@
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - generic [ref=e5]:
+      - img [ref=e7]
+      - generic [ref=e11]:
+        - generic [ref=e12]: Data Lineage
+        - generic [ref=e13]: Platform v1.0
+    - navigation [ref=e14]:
+      - generic [ref=e15]: Navigation
+      - link "Dashboard" [ref=e16] [cursor=pointer]:
+        - /url: /
+        - img [ref=e17]
+        - text: Dashboard
+      - link "Fields" [ref=e22] [cursor=pointer]:
+        - /url: /fields
+        - img [ref=e23]
+        - text: Fields
+      - link "Lineage Explorer" [ref=e27] [cursor=pointer]:
+        - /url: /fields/1
+        - img [ref=e28]
+        - text: Lineage Explorer
+      - link "Graph Explorer" [ref=e32] [cursor=pointer]:
+        - /url: /graph
+        - img [ref=e33]
+        - text: Graph Explorer
+      - link "Comparison" [ref=e39] [cursor=pointer]:
+        - /url: /comparison
+        - img [ref=e40]
+        - text: Comparison
+      - link "Impact Analysis" [ref=e45] [cursor=pointer]:
+        - /url: /impact
+        - img [ref=e46]
+        - text: Impact Analysis
+      - link "Global Search" [ref=e51] [cursor=pointer]:
+        - /url: /search
+        - img [ref=e52]
+        - text: Global Search
+      - generic [ref=e53]: System
+      - link "Settings" [ref=e54] [cursor=pointer]:
+        - /url: "#"
+        - img [ref=e55]
+        - text: Settings
+    - generic [ref=e58]:
+      - generic [ref=e59]: PS
+      - generic [ref=e60]:
+        - generic [ref=e61]: Puneet Sharma
+        - generic [ref=e62]: LINEAGE_ADMIN
+  - generic [ref=e63]:
+    - banner [ref=e64]:
+      - generic [ref=e65]:
+        - generic [ref=e67]: Home
+        - generic [ref=e68]:
+          - generic [ref=e69]: /
+          - generic [ref=e70]: Fields
+      - generic [ref=e71]:
+        - button "Search" [ref=e72] [cursor=pointer]:
+          - img [ref=e73]
+        - button "Help" [ref=e76] [cursor=pointer]:
+          - img [ref=e77]
+        - button "Notifications" [ref=e80] [cursor=pointer]:
+          - img [ref=e81]
+    - main [ref=e84]:
+      - generic [ref=e85]:
+        - generic [ref=e87]:
+          - heading "Fields" [level=1] [ref=e88]
+          - paragraph [ref=e89]: 0 fields across all jurisdictions
+        - generic [ref=e90]:
+          - generic [ref=e91]:
+            - generic [ref=e92]:
+              - img [ref=e93]
+              - textbox "Search fields..." [ref=e96]
+            - generic [ref=e97]:
+              - img
+              - combobox [ref=e98]:
+                - option "All Jurisdictions" [selected]
+                - option "JFSA"
+                - option "MAS"
+                - option "ASIC"
+          - table [ref=e100]:
+            - rowgroup [ref=e101]:
+              - row "Field Name Business Name Jurisdiction Data Type Criticality Status" [ref=e102]:
+                - columnheader "Field Name" [ref=e103]
+                - columnheader "Business Name" [ref=e104]
+                - columnheader "Jurisdiction" [ref=e105]
+                - columnheader "Data Type" [ref=e106]
+                - columnheader "Criticality" [ref=e107]
+                - columnheader "Status" [ref=e108]
+                - columnheader [ref=e109]
+            - rowgroup [ref=e110]:
+              - row [ref=e111]:
+                - cell [ref=e112]
+                - cell [ref=e114]
+                - cell [ref=e116]
+                - cell [ref=e118]
+                - cell [ref=e120]
+                - cell [ref=e122]
+                - cell [ref=e124]
+              - row [ref=e126]:
+                - cell [ref=e127]
+                - cell [ref=e129]
+                - cell [ref=e131]
+                - cell [ref=e133]
+                - cell [ref=e135]
+                - cell [ref=e137]
+                - cell [ref=e139]
+              - row [ref=e141]:
+                - cell [ref=e142]
+                - cell [ref=e144]
+                - cell [ref=e146]
+                - cell [ref=e148]
+                - cell [ref=e150]
+                - cell [ref=e152]
+                - cell [ref=e154]
+              - row [ref=e156]:
+                - cell [ref=e157]
+                - cell [ref=e159]
+                - cell [ref=e161]
+                - cell [ref=e163]
+                - cell [ref=e165]
+                - cell [ref=e167]
+                - cell [ref=e169]
+              - row [ref=e171]:
+                - cell [ref=e172]
+                - cell [ref=e174]
+                - cell [ref=e176]
+                - cell [ref=e178]
+                - cell [ref=e180]
+                - cell [ref=e182]
+                - cell [ref=e184]
+          - generic [ref=e186]:
+            - generic [ref=e187]: Page 1 of 1 · 0 total
+            - generic [ref=e188]:
+              - button [disabled] [ref=e189]:
+                - img [ref=e190]
+              - button [disabled] [ref=e192]:
+                - img [ref=e193]

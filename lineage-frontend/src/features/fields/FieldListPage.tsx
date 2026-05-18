@@ -1,163 +1,177 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
+import { Search, Filter, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react'
 import { fieldApi } from './fieldApi'
 import { useDebounce } from '../../hooks/useDebounce'
-import LoadingSpinner from '../../components/common/LoadingSpinner'
-import ErrorState from '../../components/common/ErrorState'
-import EmptyState from '../../components/common/EmptyState'
 
-function CriticalityBadge({ criticality }: { criticality: string }) {
-  const colorMap: { [key: string]: string } = {
-    'CRITICAL': 'bg-red-100 text-red-800',
-    'HIGH': 'bg-orange-100 text-orange-800',
-    'MEDIUM': 'bg-yellow-100 text-yellow-800',
-    'LOW': 'bg-green-100 text-green-800',
-  }
-  return (
-    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${colorMap[criticality] || 'bg-gray-100 text-gray-800'}`}>
-      {criticality || 'UNKNOWN'}
-    </span>
-  )
+const CRITICALITY_CLASS: Record<string, string> = {
+  HIGH: 'badge-red',
+  MEDIUM: 'badge-yellow',
+  LOW: 'badge-green',
 }
 
-function StatusBadge({ status }: { status: string }) {
-  const colorMap: { [key: string]: string } = {
-    'ACTIVE': 'bg-green-50 text-green-700 border border-green-200',
-    'INACTIVE': 'bg-gray-50 text-gray-700 border border-gray-200',
-    'ARCHIVED': 'bg-slate-50 text-slate-700 border border-slate-200',
-  }
-  return (
-    <span className={`px-3 py-1 rounded text-sm font-medium ${colorMap[status] || 'bg-gray-50 text-gray-700 border border-gray-200'}`}>
-      {status}
-    </span>
-  )
+const STATUS_CLASS: Record<string, string> = {
+  APPROVED: 'badge-green',
+  PENDING: 'badge-yellow',
+  DEPRECATED: 'badge-gray',
 }
 
 export default function FieldListPage() {
   const [search, setSearch] = useState('')
+  const [jurisdiction, setJurisdiction] = useState('')
   const [page, setPage] = useState(1)
-  const [filterCriticality, setFilterCriticality] = useState('')
-  const debouncedSearch = useDebounce(search, 500)
+  const debouncedSearch = useDebounce(search, 400)
 
-  const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ['fields', debouncedSearch, page, filterCriticality],
-    queryFn: () => fieldApi.searchFields(undefined, debouncedSearch, page),
+  const { data, isLoading } = useQuery({
+    queryKey: ['fields', debouncedSearch, jurisdiction, page],
+    queryFn: () => fieldApi.searchFields(jurisdiction || undefined, debouncedSearch || undefined, page),
   })
 
-  const items = data?.data?.data?.items || []
-  const total = data?.data?.data?.total || 0
-  const hasItems = items.length > 0
+  const fields = data?.data?.data?.items ?? []
+  const total = data?.data?.data?.total ?? 0
+  const totalPages = data?.data?.data?.totalPages ?? 1
 
   return (
-    <div className="page">
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold text-gray-900 mb-2">Fields</h1>
-        <p className="text-gray-600">Search and explore all fields in your system</p>
-      </div>
-
-      <div className="bg-white rounded-lg shadow-md border border-gray-100 p-6 mb-6">
-        <div className="flex flex-col gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Search</label>
-            <input
-              type="text"
-              placeholder="Search by internal name, business name, or jurisdiction..."
-              value={search}
-              onChange={(e) => { setSearch(e.target.value); setPage(1) }}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'].map((c) => (
-              <button
-                key={c}
-                onClick={() => setFilterCriticality(filterCriticality === c ? '' : c)}
-                className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-                  filterCriticality === c
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                {c}
-              </button>
-            ))}
-          </div>
+    <div className="page-content">
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
+        <div>
+          <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--color-text)', marginBottom: 4 }}>
+            Fields
+          </h1>
+          <p style={{ fontSize: 13, color: 'var(--color-muted)' }}>
+            {total} fields across all jurisdictions
+          </p>
         </div>
       </div>
 
-      {isLoading && <LoadingSpinner message="Loading fields..." />}
+      <div className="section-card">
+        {/* Filter bar */}
+        <div className="filter-bar">
+          <div style={{ position: 'relative', flex: 1, minWidth: 200 }}>
+            <Search size={14} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--color-muted)' }} />
+            <input
+              className="input"
+              style={{ paddingLeft: 32 }}
+              placeholder="Search fields..."
+              value={search}
+              onChange={e => { setSearch(e.target.value); setPage(1) }}
+            />
+          </div>
+          <div style={{ position: 'relative' }}>
+            <Filter size={14} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--color-muted)', pointerEvents: 'none' }} />
+            <select
+              className="input select"
+              style={{ paddingLeft: 30, width: 160 }}
+              value={jurisdiction}
+              onChange={e => { setJurisdiction(e.target.value); setPage(1) }}
+            >
+              <option value="">All Jurisdictions</option>
+              <option value="JFSA">JFSA</option>
+              <option value="MAS">MAS</option>
+              <option value="ASIC">ASIC</option>
+            </select>
+          </div>
+        </div>
 
-      {error && (
-        <ErrorState
-          message={error instanceof Error ? error.message : "Failed to load fields"}
-          onRetry={() => refetch()}
-        />
-      )}
-
-      {!isLoading && !error && !hasItems && (
-        <EmptyState
-          message="No fields found"
-          icon="📭"
-          subtext={search ? "Try adjusting your search criteria" : "Start by searching for a field"}
-        />
-      )}
-
-      {!isLoading && !error && hasItems && (
-        <>
-          <div className="bg-white rounded-lg shadow-md border border-gray-100 overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b bg-gray-50">
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Internal Name</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Business Name</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Jurisdiction</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Criticality</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Status</th>
+        {/* Table */}
+        <div className="data-table-wrap">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Field Name</th>
+                <th>Business Name</th>
+                <th>Jurisdiction</th>
+                <th>Data Type</th>
+                <th>Criticality</th>
+                <th>Status</th>
+                <th style={{ width: 60 }}></th>
+              </tr>
+            </thead>
+            <tbody>
+              {isLoading ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={i}>
+                    {Array.from({ length: 7 }).map((_, j) => (
+                      <td key={j}>
+                        <div style={{ height: 14, background: '#f1f5f9', borderRadius: 4, width: j === 6 ? 24 : '80%' }} />
+                      </td>
+                    ))}
                   </tr>
-                </thead>
-                <tbody>
-                  {items.map((f: any) => (
-                    <tr key={f.field_id} className="border-b hover:bg-blue-50 transition-colors">
-                      <td className="px-6 py-4 text-sm font-medium text-gray-900">{f.internal_field_name}</td>
-                      <td className="px-6 py-4 text-sm text-gray-700">{f.business_name}</td>
-                      <td className="px-6 py-4 text-sm text-gray-700">{f.jurisdiction_code}</td>
-                      <td className="px-6 py-4 text-sm">
-                        <CriticalityBadge criticality={f.criticality} />
-                      </td>
-                      <td className="px-6 py-4 text-sm">
-                        <StatusBadge status={f.status} />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+                ))
+              ) : fields.length === 0 ? (
+                <tr>
+                  <td colSpan={7}>
+                    <div className="empty-state">
+                      <div className="empty-state-title">No fields found</div>
+                      <div className="empty-state-sub">Try adjusting your search or filter</div>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                fields.map((field: any) => (
+                  <tr key={field.field_id}>
+                    <td>
+                      <span style={{ fontFamily: 'monospace', fontSize: 12, color: 'var(--color-text)', fontWeight: 600 }}>
+                        {field.internal_field_name}
+                      </span>
+                    </td>
+                    <td style={{ color: 'var(--color-text-secondary)' }}>
+                      {field.business_display_name || field.internal_field_name}
+                    </td>
+                    <td>
+                      <span className="badge badge-blue">{field.jurisdiction_code}</span>
+                    </td>
+                    <td style={{ fontFamily: 'monospace', fontSize: 12, color: 'var(--color-muted)' }}>
+                      {field.data_type}
+                    </td>
+                    <td>
+                      <span className={`badge ${CRITICALITY_CLASS[field.criticality] ?? 'badge-gray'}`}>
+                        {field.criticality}
+                      </span>
+                    </td>
+                    <td>
+                      <span className={`badge ${STATUS_CLASS[field.status] ?? 'badge-gray'}`}>
+                        {field.status}
+                      </span>
+                    </td>
+                    <td>
+                      <Link to={`/fields/${field.field_id}`} style={{ color: 'var(--color-primary)', display: 'flex' }}>
+                        <ExternalLink size={14} />
+                      </Link>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
 
-          <div className="mt-6 flex justify-between items-center px-2">
-            <p className="text-sm text-gray-600">
-              Page <span className="font-semibold">{page}</span> of <span className="font-semibold">{Math.ceil(total / 25)}</span> | Total: <span className="font-semibold">{total}</span> fields
-            </p>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setPage(Math.max(1, page - 1))}
-                disabled={page === 1}
-                className="px-4 py-2 bg-white border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                ← Previous
-              </button>
-              <button
-                onClick={() => setPage(page + 1)}
-                disabled={items.length === 0}
-                className="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                Next →
-              </button>
-            </div>
+        {/* Pagination */}
+        <div className="pagination">
+          <span className="pagination-info">
+            Page {page} of {totalPages} · {total} total
+          </span>
+          <div className="pagination-controls">
+            <button
+              className="btn btn-secondary"
+              style={{ padding: '6px 10px' }}
+              disabled={page <= 1}
+              onClick={() => setPage(p => p - 1)}
+            >
+              <ChevronLeft size={14} />
+            </button>
+            <button
+              className="btn btn-secondary"
+              style={{ padding: '6px 10px' }}
+              disabled={page >= totalPages}
+              onClick={() => setPage(p => p + 1)}
+            >
+              <ChevronRight size={14} />
+            </button>
           </div>
-        </>
-      )}
+        </div>
+      </div>
     </div>
   )
 }

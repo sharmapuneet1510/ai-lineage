@@ -1,116 +1,121 @@
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
-import ErrorState from '../../components/common/ErrorState'
+import { LayoutDashboard, Database, Globe, AlertTriangle, TrendingUp, Activity } from 'lucide-react'
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL
+const API = import.meta.env.VITE_API_BASE_URL
 
-function StatCard({
-  icon,
-  title,
-  value,
-  color = 'blue',
-  isLoading = false,
-}: {
-  icon: string
-  title: string
-  value: string | number
-  color?: 'blue' | 'green' | 'red' | 'purple'
-  isLoading?: boolean
-}) {
-  const colorClasses = {
-    blue: 'text-blue-600 bg-blue-50',
-    green: 'text-green-600 bg-green-50',
-    red: 'text-red-600 bg-red-50',
-    purple: 'text-purple-600 bg-purple-50',
-  }
-
-  return (
-    <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow border border-gray-100">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-gray-600 font-medium text-sm">{title}</h3>
-        <div className={`text-3xl ${colorClasses[color]}`}>{icon}</div>
-      </div>
-      {isLoading ? (
-        <div className="h-8 bg-gray-200 rounded animate-pulse" />
-      ) : (
-        <p className="text-4xl font-bold text-gray-900">{value}</p>
-      )}
-    </div>
-  )
+interface DashboardSummary {
+  total_jurisdictions: number
+  total_fields: number
+  lineage_coverage_percent: number
+  high_risk_fields: number
 }
 
 export default function DashboardPage() {
-  const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ['dashboard'],
-    queryFn: () => axios.get(`${API_BASE}/dashboard/summary`),
+  const { data, isLoading } = useQuery({
+    queryKey: ['dashboard-summary'],
+    queryFn: () => axios.get<{ data: DashboardSummary }>(`${API}/dashboard/summary`),
   })
 
-  const summary = data?.data?.data || {}
+  const summary = data?.data?.data
 
-  if (error) {
-    return (
-      <ErrorState
-        message="Failed to load dashboard data"
-        onRetry={() => refetch()}
-      />
-    )
-  }
-
-  const coverage = summary.total_fields > 0
-    ? Math.round((summary.fields_with_lineage / summary.total_fields) * 100)
-    : 0
+  const stats = [
+    {
+      label: 'Total Fields',
+      value: summary?.total_fields ?? '—',
+      Icon: Database,
+      color: '#1267e8',
+      bg: '#dbeafe',
+    },
+    {
+      label: 'Jurisdictions',
+      value: summary?.total_jurisdictions ?? '—',
+      Icon: Globe,
+      color: '#00b96b',
+      bg: '#dcfce7',
+    },
+    {
+      label: 'Lineage Coverage',
+      value: summary ? `${summary.lineage_coverage_percent}%` : '—',
+      Icon: TrendingUp,
+      color: '#f59e0b',
+      bg: '#fef9c3',
+    },
+    {
+      label: 'High Risk Fields',
+      value: summary?.high_risk_fields ?? '—',
+      Icon: AlertTriangle,
+      color: '#ef4444',
+      bg: '#fee2e2',
+    },
+  ]
 
   return (
-    <div className="page dashboard">
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold text-gray-900 mb-2">Dashboard</h1>
-        <p className="text-gray-600">Overview of your data lineage platform</p>
+    <div className="page-content">
+      <div style={{ marginBottom: 24 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+          <LayoutDashboard size={20} color="var(--color-primary)" />
+          <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--color-text)' }}>Dashboard</h1>
+        </div>
+        <p style={{ fontSize: 13, color: 'var(--color-muted)' }}>
+          Overview of your data lineage platform
+        </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <StatCard
-          icon="🏛️"
-          title="Total Jurisdictions"
-          value={summary.total_jurisdictions || 0}
-          color="blue"
-          isLoading={isLoading}
-        />
-        <StatCard
-          icon="📊"
-          title="Total Fields"
-          value={summary.total_fields || 0}
-          color="purple"
-          isLoading={isLoading}
-        />
-        <StatCard
-          icon="📈"
-          title="Lineage Coverage"
-          value={`${coverage}%`}
-          color="green"
-          isLoading={isLoading}
-        />
-        <StatCard
-          icon="⚠️"
-          title="High Risk Fields"
-          value={summary.high_risk_fields || 0}
-          color={summary.high_risk_fields > 0 ? 'red' : 'green'}
-          isLoading={isLoading}
-        />
-      </div>
+      {isLoading ? (
+        <div className="stat-grid">
+          {[1,2,3,4].map(i => (
+            <div key={i} className="stat-card" style={{ opacity: 0.5 }}>
+              <div className="stat-card-icon" style={{ background: '#f1f5f9', width: 42, height: 42 }} />
+              <div>
+                <div style={{ width: 60, height: 28, background: '#f1f5f9', borderRadius: 6 }} />
+                <div style={{ width: 100, height: 14, background: '#f1f5f9', borderRadius: 4, marginTop: 6 }} />
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="stat-grid">
+          {stats.map(({ label, value, Icon, color, bg }) => (
+            <div key={label} className="stat-card">
+              <div className="stat-card-icon" style={{ background: bg }}>
+                <Icon size={20} color={color} />
+              </div>
+              <div>
+                <div className="stat-card-value">{value}</div>
+                <div className="stat-card-label">{label}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <section className="bg-white p-6 rounded-lg shadow-md border border-gray-100">
-          <h2 className="text-xl font-bold mb-4 text-gray-900">Lineage Coverage by Jurisdiction</h2>
-          <div className="text-gray-500 text-center py-8">
-            <p>Chart visualization would be displayed here</p>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+        <div className="section-card">
+          <div className="section-card-header">
+            <span className="section-card-title" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Activity size={14} color="var(--color-primary)" />
+              Recent Activity
+            </span>
           </div>
-        </section>
-        <section className="bg-white p-6 rounded-lg shadow-md border border-gray-100">
-          <h2 className="text-xl font-bold mb-4 text-gray-900">Recent Changes</h2>
-          <div className="text-gray-500 text-center py-8">
-            <p>Timeline of recent changes would be displayed here</p>
+          <div style={{ padding: '40px 20px', textAlign: 'center', color: 'var(--color-muted)', fontSize: 13 }}>
+            No recent activity to display
           </div>
-        </section>
+        </div>
+
+        <div className="section-card">
+          <div className="section-card-header">
+            <span className="section-card-title" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <AlertTriangle size={14} color="var(--color-warning)" />
+              High Risk Fields
+            </span>
+          </div>
+          <div style={{ padding: '40px 20px', textAlign: 'center', color: 'var(--color-muted)', fontSize: 13 }}>
+            {summary?.high_risk_fields
+              ? `${summary.high_risk_fields} fields require attention`
+              : 'No high risk fields detected'}
+          </div>
+        </div>
       </div>
     </div>
   )
