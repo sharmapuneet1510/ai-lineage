@@ -1,296 +1,172 @@
 import { useState } from 'react'
 import axios from 'axios'
-import LoadingSpinner from '../../components/common/LoadingSpinner'
-import ErrorState from '../../components/common/ErrorState'
-import { Search, Network, X, ExternalLink } from 'lucide-react'
+import { Share2, Search, X, Info } from 'lucide-react'
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api'
+const API = import.meta.env.VITE_API_BASE_URL
 
-const nodeTypeColors: Record<string, string> = {
-  Field: 'bg-blue-100 border-blue-300 text-blue-900',
-  XsltVariable: 'bg-purple-100 border-purple-300 text-purple-900',
-  XsltFile: 'bg-purple-50 border-purple-200 text-purple-800',
-  XPath: 'bg-pink-100 border-pink-300 text-pink-900',
-  JavaMethod: 'bg-orange-100 border-orange-300 text-orange-900',
-  JavaClass: 'bg-orange-50 border-orange-200 text-orange-800',
-  DownstreamSystem: 'bg-green-100 border-green-300 text-green-900',
-  Database: 'bg-indigo-100 border-indigo-300 text-indigo-900',
-  Table: 'bg-indigo-50 border-indigo-200 text-indigo-800',
+const TYPE_MAP: Record<string, string> = {
+  Field: 'field', XsltVariable: 'xslt', XPath: 'xpath', JavaMethod: 'java',
 }
 
-export default function GraphExplorerPage() {
-  const [searchQuery, setSearchQuery] = useState('')
-  const [selectedNode, setSelectedNode] = useState<any>(null)
+function nodeTypeClass(type: string) {
+  const map: Record<string, string> = {
+    Field: 'badge-blue', XsltVariable: 'badge-yellow', XPath: 'badge-green', JavaMethod: 'badge-purple',
+  }
+  return map[type] ?? 'badge-gray'
+}
+
+export function GraphExplorerPage() {
+  const [query, setQuery] = useState('')
   const [nodeType, setNodeType] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [searchResults, setSearchResults] = useState<any[]>([])
-  const [error, setError] = useState<string | null>(null)
-  const [expandedNeighbors, setExpandedNeighbors] = useState<any[]>([])
-  const [isLoadingNeighbors, setIsLoadingNeighbors] = useState(false)
-
-  const nodeTypeOptions = ['Field', 'XsltVariable', 'XsltFile', 'XPath', 'JavaMethod', 'JavaClass', 'DownstreamSystem', 'Database', 'Table']
+  const [selectedNode, setSelectedNode] = useState<any>(null)
+  const [hasSearched, setHasSearched] = useState(false)
 
   const handleSearch = async () => {
-    if (!searchQuery?.trim()) {
-      setError('Please enter a search query')
-      return
-    }
-
+    if (!query) return
     setIsLoading(true)
-    setError(null)
-    setSearchResults([])
-    setSelectedNode(null)
-    setExpandedNeighbors([])
-
+    setHasSearched(true)
     try {
-      const response = await axios.post(`${API_BASE}/graph/search`, {
-        query: searchQuery,
-        type: nodeType || undefined,
-      })
-      setSearchResults(response.data?.data?.nodes || [])
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to search graph')
-      console.error('Search failed:', err)
+      const res = await axios.post(
+        `${API}/graph/search`,
+        { query, node_types: nodeType ? [nodeType] : undefined },
+        { headers: { 'X-User': 'puneet.sharma' } },
+      )
+      const results = res.data?.data?.nodes ?? res.data?.data ?? []
+      setSearchResults(Array.isArray(results) ? results : [])
+    } catch {
+      setSearchResults([])
     } finally {
       setIsLoading(false)
     }
   }
 
-  const handleNodeSelect = async (node: any) => {
-    setSelectedNode(node)
-    setIsLoadingNeighbors(true)
-    setExpandedNeighbors([])
-    try {
-      const response = await axios.get(`${API_BASE}/graph/neighbors/${node.id}`)
-      setExpandedNeighbors(response.data?.data?.neighbors || [])
-    } catch (err) {
-      console.error('Failed to load neighbors:', err)
-      setExpandedNeighbors([])
-    } finally {
-      setIsLoadingNeighbors(false)
-    }
-  }
-
-  const nodeColor = (type: string) => nodeTypeColors[type] || 'bg-gray-100 border-gray-300 text-gray-900'
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6 md:p-8">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-slate-900 mb-2">Graph Explorer</h1>
-          <p className="text-lg text-slate-600">Explore lineage and dependencies in the Neo4j knowledge graph</p>
+    <div className="page-content" style={{ display: 'flex', flexDirection: 'column', height: '100%', padding: 0 }}>
+      {/* Header */}
+      <div style={{ padding: '20px 28px', borderBottom: '1px solid var(--color-border)', background: 'var(--color-surface)', display: 'flex', alignItems: 'center', gap: 10 }}>
+        <Share2 size={18} color="var(--color-primary)" />
+        <h1 style={{ fontSize: 18, fontWeight: 700, color: 'var(--color-text)', flex: 1 }}>Graph Explorer</h1>
+      </div>
+
+      {/* Search bar */}
+      <div style={{ padding: '14px 28px', borderBottom: '1px solid var(--color-border)', background: 'var(--color-bg)', display: 'flex', gap: 10 }}>
+        <div style={{ position: 'relative', flex: 1 }}>
+          <Search size={14} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--color-muted)' }} />
+          <input
+            className="input"
+            style={{ paddingLeft: 32 }}
+            placeholder="Search graph nodes (e.g. v_trade_id, TRADE_ID...)"
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && handleSearch()}
+          />
         </div>
+        <select
+          className="input select"
+          style={{ width: 180 }}
+          value={nodeType}
+          onChange={e => setNodeType(e.target.value)}
+        >
+          <option value="">All Node Types</option>
+          <option value="Field">Field</option>
+          <option value="XsltVariable">XSLT Variable</option>
+          <option value="XPath">XPath</option>
+          <option value="JavaMethod">Java Method</option>
+        </select>
+        <button className="btn btn-primary" disabled={isLoading || !query} onClick={handleSearch}>
+          <Search size={14} />
+          {isLoading ? 'Searching...' : 'Search'}
+        </button>
+      </div>
 
-        {/* Search Bar */}
-        <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6 mb-6">
-          <div className="flex items-center gap-2 mb-4">
-            <Search className="w-5 h-5 text-slate-600" />
-            <h2 className="text-lg font-semibold text-slate-900">Search Nodes</h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-            {/* Search Input */}
-            <div className="md:col-span-6">
-              <input
-                type="text"
-                placeholder="Search by name, ID, or description..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 placeholder-slate-500"
-              />
+      {/* Main content */}
+      <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+        {/* Graph canvas */}
+        <div style={{ flex: 1, position: 'relative' }}>
+          {!hasSearched ? (
+            <div className="empty-state" style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+              <Share2 size={40} style={{ opacity: 0.15, marginBottom: 16 }} />
+              <div className="empty-state-title">Search to explore the lineage graph</div>
+              <div className="empty-state-sub">Enter a field name, XSLT variable, or XPath expression</div>
             </div>
-
-            {/* Type Filter */}
-            <div className="md:col-span-3">
-              <select
-                value={nodeType}
-                onChange={(e) => setNodeType(e.target.value)}
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
-              >
-                <option value="">All Types</option>
-                {nodeTypeOptions.map((type) => (
-                  <option key={type} value={type}>
-                    {type}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Search Button */}
-            <div className="md:col-span-3">
-              <button
-                onClick={handleSearch}
-                disabled={isLoading || !searchQuery?.trim()}
-                className="w-full px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2"
-              >
-                <Search className="w-4 h-4" />
-                {isLoading ? 'Searching...' : 'Search'}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Error State */}
-        {error && <ErrorState message={error} onRetry={handleSearch} />}
-
-        {/* Loading State */}
-        {isLoading && <LoadingSpinner message="Searching graph nodes..." />}
-
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Graph Canvas & Results */}
-          <div className="lg:col-span-2">
-            <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
-              {/* Canvas Header */}
-              <div className="px-6 py-4 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-slate-100">
-                <div className="flex items-center gap-2">
-                  <Network className="w-5 h-5 text-slate-600" />
-                  <h2 className="text-lg font-semibold text-slate-900">Graph Visualization</h2>
-                </div>
-              </div>
-
-              {/* Canvas */}
-              <div className="p-8 bg-gradient-to-b from-slate-50 to-slate-100 min-h-[400px] border-b border-slate-200">
-                {!searchResults.length ? (
-                  <div className="flex flex-col items-center justify-center h-[400px] text-center">
-                    <Network className="w-16 h-16 text-slate-300 mb-4" />
-                    <p className="text-slate-500 font-medium">No graph visualization yet</p>
-                    <p className="text-slate-400 text-sm mt-1">React Flow integration for interactive graph rendering</p>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="font-semibold text-slate-900">Search Results ({searchResults.length})</h3>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      {searchResults.map((node, idx) => (
-                        <button
-                          key={idx}
-                          onClick={() => handleNodeSelect(node)}
-                          className={`p-3 rounded-lg border-2 text-left transition-all ${
-                            selectedNode?.id === node.id
-                              ? 'border-blue-500 bg-blue-50 shadow-md'
-                              : `border-slate-200 bg-white hover:border-slate-300 hover:shadow-sm ${nodeColor(node.type)}`
-                          }`}
-                        >
-                          <p className="font-semibold text-sm truncate">{node.name}</p>
-                          <p className="text-xs text-slate-600 mt-1">{node.type}</p>
-                          {node.description && <p className="text-xs text-slate-500 mt-1 line-clamp-2">{node.description}</p>}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Node Details Panel */}
-          {selectedNode ? (
-            <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden flex flex-col h-fit sticky top-6">
-              {/* Header */}
-              <div className="px-6 py-4 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-slate-100 flex items-center justify-between">
-                <h3 className="font-semibold text-slate-900">Node Details</h3>
-                <button
-                  onClick={() => {
-                    setSelectedNode(null)
-                    setExpandedNeighbors([])
-                  }}
-                  className="text-slate-500 hover:text-slate-700 transition-colors"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              {/* Content */}
-              <div className="p-6 space-y-4 overflow-y-auto max-h-[600px]">
-                {/* Node Type Badge */}
-                <div>
-                  <p className="text-xs font-semibold text-slate-600 uppercase mb-2">Type</p>
-                  <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold border ${nodeColor(selectedNode.type)}`}>
-                    {selectedNode.type}
-                  </span>
-                </div>
-
-                {/* Name */}
-                <div>
-                  <p className="text-xs font-semibold text-slate-600 uppercase mb-1">Name</p>
-                  <p className="text-sm font-medium text-slate-900 break-words">{selectedNode.name || 'N/A'}</p>
-                </div>
-
-                {/* ID */}
-                <div>
-                  <p className="text-xs font-semibold text-slate-600 uppercase mb-1">ID</p>
-                  <p className="text-xs text-slate-700 break-all font-mono bg-slate-50 p-2 rounded">{selectedNode.id || 'N/A'}</p>
-                </div>
-
-                {/* Description */}
-                {selectedNode.description && (
-                  <div>
-                    <p className="text-xs font-semibold text-slate-600 uppercase mb-1">Description</p>
-                    <p className="text-sm text-slate-700 line-clamp-3">{selectedNode.description}</p>
-                  </div>
-                )}
-
-                {/* Properties */}
-                {selectedNode.properties && Object.keys(selectedNode.properties).length > 0 && (
-                  <div>
-                    <p className="text-xs font-semibold text-slate-600 uppercase mb-2">Properties</p>
-                    <div className="space-y-2">
-                      {Object.entries(selectedNode.properties).map(([key, value]: any) => (
-                        <div key={key} className="bg-slate-50 p-2 rounded text-xs">
-                          <p className="font-medium text-slate-700">{key}</p>
-                          <p className="text-slate-600 break-words">{String(value)}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Neighbors */}
-                <div className="pt-4 border-t border-slate-200">
-                  <div className="flex items-center gap-2 mb-3">
-                    {isLoadingNeighbors ? (
-                      <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-                    ) : (
-                      <ExternalLink className="w-4 h-4 text-slate-600" />
-                    )}
-                    <p className="text-xs font-semibold text-slate-600 uppercase">
-                      Connected Nodes ({expandedNeighbors.length})
-                    </p>
-                  </div>
-
-                  {expandedNeighbors.length > 0 ? (
-                    <div className="space-y-2">
-                      {expandedNeighbors.map((neighbor, idx) => (
-                        <button
-                          key={idx}
-                          onClick={() => handleNodeSelect(neighbor)}
-                          className="w-full text-left p-2 rounded bg-slate-50 hover:bg-slate-100 transition-colors border border-slate-200"
-                        >
-                          <p className="text-xs font-semibold text-slate-900 truncate">{neighbor.name}</p>
-                          <p className="text-xs text-slate-600">{neighbor.type}</p>
-                        </button>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-xs text-slate-500 italic">No connected nodes</p>
-                  )}
-                </div>
-              </div>
+          ) : searchResults.length === 0 ? (
+            <div className="empty-state" style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+              <div className="empty-state-title">No nodes found</div>
+              <div className="empty-state-sub">Try a different search term</div>
             </div>
           ) : (
-            <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6 h-fit sticky top-6">
-              <div className="text-center py-8">
-                <Network className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-                <p className="text-slate-600 font-medium">Select a node to view details</p>
-                <p className="text-slate-400 text-sm mt-1">Search results will appear here</p>
+            <div style={{ padding: '20px', overflow: 'auto', height: '100%' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 12 }}>
+                {searchResults.map((node: any, idx: number) => (
+                  <div
+                    key={idx}
+                    onClick={() => setSelectedNode(node)}
+                    style={{
+                      padding: 12,
+                      background: selectedNode?.id === node.id ? 'var(--color-primary)' : 'var(--color-surface)',
+                      border: `1px solid ${selectedNode?.id === node.id ? 'var(--color-primary)' : 'var(--color-border)'}`,
+                      borderRadius: 'var(--radius-sm)',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s',
+                      color: selectedNode?.id === node.id ? '#fff' : 'var(--color-text)',
+                    }}
+                    onMouseEnter={(e) => {
+                      if (selectedNode?.id !== node.id) {
+                        e.currentTarget.style.borderColor = 'var(--color-primary)'
+                        e.currentTarget.style.background = 'var(--color-bg)'
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (selectedNode?.id !== node.id) {
+                        e.currentTarget.style.borderColor = 'var(--color-border)'
+                        e.currentTarget.style.background = 'var(--color-surface)'
+                      }
+                    }}
+                  >
+                    <div style={{ fontSize: 13, fontWeight: 700, fontFamily: 'monospace' }}>
+                      {node.name}
+                    </div>
+                    <div style={{ fontSize: 10, opacity: 0.7, marginTop: 4 }}>
+                      {node.type}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}
         </div>
+
+        {/* Right panel */}
+        {selectedNode && (
+          <div style={{ width: 300, borderLeft: '1px solid var(--color-border)', background: 'var(--color-surface)', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ padding: '14px 16px', borderBottom: '1px solid var(--color-border)', display: 'flex', alignItems: 'center', gap: 10 }}>
+              <Info size={14} color="var(--color-primary)" />
+              <span style={{ fontWeight: 600, fontSize: 13, flex: 1 }}>Node Details</span>
+              <button
+                onClick={() => setSelectedNode(null)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-muted)' }}
+              >
+                <X size={16} />
+              </button>
+            </div>
+            <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div>
+                <div style={{ fontSize: 11, color: 'var(--color-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>Name</div>
+                <div style={{ fontFamily: 'monospace', fontSize: 14, fontWeight: 700, color: 'var(--color-text)' }}>{selectedNode.name}</div>
+              </div>
+              <div>
+                <div style={{ fontSize: 11, color: 'var(--color-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>Type</div>
+                <span className={`badge ${nodeTypeClass(selectedNode.type)}`}>{selectedNode.type}</span>
+              </div>
+              <div>
+                <div style={{ fontSize: 11, color: 'var(--color-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>Node ID</div>
+                <div style={{ fontFamily: 'monospace', fontSize: 12, color: 'var(--color-text-secondary)' }}>{selectedNode.id}</div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

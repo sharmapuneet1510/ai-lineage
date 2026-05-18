@@ -57,3 +57,9 @@ Visit https://reactjs.org/link/error-boundaries to learn more about error bounda
 [  196725ms] [ERROR] [hmr] Failed to reload /src/App.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://localhost:5175/@vite/client:175
 [  232733ms] [ERROR] SyntaxError: The requested module '/src/features/comparison/FieldComparisonPage.tsx?t=1779096920112' does not provide an export named 'default' @ http://localhost:5175/@vite/client:173
 [  232733ms] [ERROR] [hmr] Failed to reload /src/App.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://localhost:5175/@vite/client:175
+[  250693ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5175/src/features/graphExplorer/GraphExplorerPage.tsx?t=1779096974099:0
+[  250694ms] [ERROR] [hmr] Failed to reload /src/features/graphExplorer/GraphExplorerPage.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://localhost:5175/@vite/client:175
+[  268987ms] [ERROR] SyntaxError: The requested module '/src/features/comparison/FieldComparisonPage.tsx?t=1779096920112' does not provide an export named 'default' @ http://localhost:5175/@vite/client:173
+[  268987ms] [ERROR] [hmr] Failed to reload /src/App.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://localhost:5175/@vite/client:175
+[  304295ms] [ERROR] SyntaxError: The requested module '/src/features/comparison/FieldComparisonPage.tsx?t=1779096920112' does not provide an export named 'default' @ http://localhost:5175/@vite/client:173
+[  304295ms] [ERROR] [hmr] Failed to reload /src/App.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://localhost:5175/@vite/client:175

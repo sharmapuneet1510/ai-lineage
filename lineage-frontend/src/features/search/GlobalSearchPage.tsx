@@ -1,246 +1,193 @@
-import { useState, useMemo } from 'react'
+import { useState } from 'react'
+import { Search, X, Database, GitBranch, Share2 } from 'lucide-react'
 import axios from 'axios'
-import LoadingSpinner from '../../components/common/LoadingSpinner'
-import ErrorState from '../../components/common/ErrorState'
-import EmptyState from '../../components/common/EmptyState'
-import { Search, X } from 'lucide-react'
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api'
+const API = import.meta.env.VITE_API_BASE_URL
 
 interface SearchResult {
-  id: string
+  id: string | number
   name: string
   type: string
   location?: string
   description?: string
 }
 
-const typeConfig: Record<string, { icon: string; color: string; label: string }> = {
-  Field: { icon: '📋', color: 'bg-blue-100 text-blue-700 border-blue-200', label: 'Field' },
-  XsltVariable: { icon: '⚙️', color: 'bg-purple-100 text-purple-700 border-purple-200', label: 'XSLT Variable' },
-  XsltFile: { icon: '📄', color: 'bg-purple-50 text-purple-700 border-purple-100', label: 'XSLT File' },
-  JavaMethod: { icon: '☕', color: 'bg-orange-100 text-orange-700 border-orange-200', label: 'Java Method' },
-  JavaClass: { icon: '🔷', color: 'bg-orange-50 text-orange-700 border-orange-100', label: 'Java Class' },
-  XPath: { icon: '🔍', color: 'bg-pink-100 text-pink-700 border-pink-200', label: 'XPath' },
-  DownstreamSystem: { icon: '🌍', color: 'bg-green-100 text-green-700 border-green-200', label: 'System' },
-  Database: { icon: '🗄️', color: 'bg-indigo-100 text-indigo-700 border-indigo-200', label: 'Database' },
-  Table: { icon: '📊', color: 'bg-indigo-50 text-indigo-700 border-indigo-100', label: 'Table' },
-  ValidationRule: { icon: '✓', color: 'bg-cyan-100 text-cyan-700 border-cyan-200', label: 'Validation Rule' },
+const TYPE_CONFIG: Record<string, { color: string; badgeClass: string; Icon: any }> = {
+  Field: { color: '#1267e8', badgeClass: 'badge-blue', Icon: Database },
+  XsltVariable: { color: '#f59e0b', badgeClass: 'badge-yellow', Icon: GitBranch },
+  XPath: { color: '#00b96b', badgeClass: 'badge-green', Icon: Share2 },
+  JavaMethod: { color: '#8b5cf6', badgeClass: 'badge-purple', Icon: GitBranch },
 }
 
-export default function GlobalSearchPage() {
+function getConfig(type: string) {
+  return TYPE_CONFIG[type] ?? { color: '#667085', badgeClass: 'badge-gray', Icon: Search }
+}
+
+export function GlobalSearchPage() {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<SearchResult[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [hasSearched, setHasSearched] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [selectedType, setSelectedType] = useState<string | null>(null)
+  const [error, setError] = useState(false)
 
-  const handleSearch = async () => {
-    if (!query.trim()) return
-
+  const handleSearch = async (q: string) => {
+    if (!q.trim()) return
     setIsLoading(true)
     setHasSearched(true)
-    setError(null)
-
+    setError(false)
     try {
-      const response = await axios.get(`${API_BASE}/search/global`, {
-        params: { q: query },
+      const res = await axios.get(`${API}/search/global`, {
+        params: { q },
+        headers: { 'X-User': 'puneet.sharma' },
       })
-      setResults(response.data.data?.items || response.data.data || [])
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Search failed')
+      const data = res.data?.data?.items ?? res.data?.data ?? []
+      setResults(Array.isArray(data) ? data : [])
+    } catch {
+      setError(true)
       setResults([])
-      console.error('Search failed:', err)
     } finally {
       setIsLoading(false)
     }
   }
 
-  const handleClear = () => {
-    setQuery('')
-    setResults([])
-    setHasSearched(false)
-    setError(null)
-    setSelectedType(null)
-  }
-
-  // Group results by type
-  const groupedResults = useMemo(() => {
-    const groups: Record<string, SearchResult[]> = {}
-    results.forEach((result) => {
-      if (!groups[result.type]) {
-        groups[result.type] = []
-      }
-      groups[result.type].push(result)
-    })
-    return Object.entries(groups).sort(([a], [b]) => a.localeCompare(b))
-  }, [results])
-
-  // Filter by selected type
-  const filteredResults = selectedType ? results.filter((r) => r.type === selectedType) : results
-
-  const filteredGroupedResults = useMemo(() => {
-    const groups: Record<string, SearchResult[]> = {}
-    filteredResults.forEach((result) => {
-      if (!groups[result.type]) {
-        groups[result.type] = []
-      }
-      groups[result.type].push(result)
-    })
-    return Object.entries(groups).sort(([a], [b]) => a.localeCompare(b))
-  }, [filteredResults])
+  // Group by type
+  const grouped = results.reduce<Record<string, SearchResult[]>>((acc, r) => {
+    const t = r.type ?? 'Other'
+    if (!acc[t]) acc[t] = []
+    acc[t].push(r)
+    return acc
+  }, {})
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6 md:p-8">
-      <div className="max-w-5xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-slate-900 mb-2">Global Search</h1>
-          <p className="text-lg text-slate-600">Search across fields, variables, methods, systems, and more</p>
+    <div className="page-content">
+      <div style={{ marginBottom: 24 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
+          <Search size={20} color="var(--color-primary)" />
+          <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--color-text)' }}>Global Search</h1>
         </div>
+        <p style={{ fontSize: 13, color: 'var(--color-muted)' }}>
+          Search across fields, XSLT variables, XPath expressions, and Java methods
+        </p>
+      </div>
 
-        {/* Search Bar */}
-        <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6 mb-6">
-          <div className="flex gap-2">
-            <div className="flex-1 relative">
-              <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400">
-                <Search className="w-5 h-5" />
-              </div>
-              <input
-                type="text"
-                placeholder="Search fields, variables, methods, systems, databases..."
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                autoFocus
-                className="w-full pl-12 pr-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 placeholder-slate-500"
-              />
-              {query && (
-                <button
-                  onClick={handleClear}
-                  title="Clear search"
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              )}
-            </div>
-            <button
-              onClick={handleSearch}
-              disabled={isLoading || !query.trim()}
-              className="px-8 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors flex items-center gap-2 whitespace-nowrap"
-            >
-              <Search className="w-4 h-4" />
-              {isLoading ? 'Searching...' : 'Search'}
-            </button>
+      {/* Search bar */}
+      <div className="section-card" style={{ marginBottom: 20 }}>
+        <div style={{ padding: '16px 20px', display: 'flex', gap: 10 }}>
+          <div style={{ position: 'relative', flex: 1 }}>
+            <Search size={14} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--color-muted)' }} />
+            <input
+              className="input"
+              style={{ paddingLeft: 36, paddingRight: query ? 36 : 12, fontSize: 14 }}
+              placeholder="Search for fields, variables, methods..."
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleSearch(query)}
+              autoFocus
+            />
+            {query && (
+              <button
+                onClick={() => { setQuery(''); setResults([]); setHasSearched(false) }}
+                style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-muted)' }}
+              >
+                <X size={14} />
+              </button>
+            )}
+          </div>
+          <button
+            className="btn btn-primary"
+            disabled={isLoading || !query}
+            onClick={() => handleSearch(query)}
+          >
+            {isLoading ? 'Searching...' : 'Search'}
+          </button>
+        </div>
+      </div>
+
+      {/* Results */}
+      {error && (
+        <div className="section-card" style={{ borderColor: 'var(--color-danger)' }}>
+          <div style={{ padding: 20, color: 'var(--color-danger)', fontSize: 13 }}>
+            Error performing search. Please try again.
           </div>
         </div>
+      )}
 
-        {/* Error State */}
-        {error && <ErrorState message={error} onRetry={handleSearch} />}
+      {!hasSearched && !error && (
+        <div className="section-card">
+          <div className="empty-state">
+            <Search size={36} style={{ opacity: 0.15, marginBottom: 16 }} />
+            <div className="empty-state-title">Start typing to search</div>
+            <div className="empty-state-sub">
+              Search across TRADE_ID, v_trade_id, /trade/tradeId, and more
+            </div>
+          </div>
+        </div>
+      )}
 
-        {/* Loading State */}
-        {isLoading && <LoadingSpinner message="Searching across all entities..." />}
+      {hasSearched && !isLoading && !error && results.length === 0 && (
+        <div className="section-card">
+          <div className="empty-state">
+            <div className="empty-state-title">No results for "{query}"</div>
+            <div className="empty-state-sub">Try a different search term or check spelling</div>
+          </div>
+        </div>
+      )}
 
-        {/* Empty State - No Search */}
-        {!hasSearched && !isLoading && !error && (
-          <EmptyState message="Start searching" icon="🔍" subtext="Find fields, variables, methods, systems, and other resources" />
-        )}
-
-        {/* Empty State - No Results */}
-        {hasSearched && !isLoading && !error && results.length === 0 && (
-          <EmptyState message={`No results found for "${query}"`} icon="🔍" subtext="Try a different search term or broaden your search" />
-        )}
-
-        {/* Results with Grouping */}
-        {filteredGroupedResults.length > 0 && (
-          <div className="space-y-6">
-            {/* Filter Tags */}
-            {results.length > 0 && (
-              <div className="flex flex-wrap gap-2 items-center">
-                <span className="text-sm text-slate-600 font-medium">Filter:</span>
-                <button
-                  onClick={() => setSelectedType(null)}
-                  className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                    selectedType === null
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
-                  }`}
-                >
-                  All ({results.length})
-                </button>
-                {groupedResults.map(([type, typeResults]) => (
-                  <button
-                    key={type}
-                    onClick={() => setSelectedType(type)}
-                    className={`px-3 py-1 rounded-full text-sm font-medium transition-colors flex items-center gap-1 ${
-                      selectedType === type
-                        ? 'bg-blue-600 text-white'
-                        : `${typeConfig[type]?.color || 'bg-slate-200 text-slate-700'} hover:opacity-80`
-                    }`}
-                  >
-                    {typeConfig[type]?.icon || '•'} {type} ({typeResults.length})
-                  </button>
-                ))}
+      {Object.entries(grouped).map(([type, items]) => {
+        const cfg = getConfig(type)
+        const { Icon } = cfg
+        return (
+          <div key={type} className="section-card">
+            <div className="section-card-header">
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Icon size={14} color={cfg.color} />
+                <span className="section-card-title">{type}</span>
+                <span className={`badge ${cfg.badgeClass}`}>{items.length}</span>
               </div>
-            )}
-
-            {/* Results */}
-            <div className="space-y-6">
-              {filteredGroupedResults.map(([type, typeResults]) => (
-                <div key={type} className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
-                  {/* Group Header */}
-                  <div className={`px-6 py-4 border-b border-slate-200 ${typeConfig[type]?.color?.split(' ').slice(0, 2).join(' ') || 'bg-slate-100'}`}>
-                    <h3 className="text-lg font-semibold text-slate-900">
-                      {typeConfig[type]?.icon || '•'} {type} ({typeResults.length})
-                    </h3>
+            </div>
+            <div className="data-table-wrap">
+              {items.map((result, idx) => (
+                <div
+                  key={idx}
+                  style={{
+                    display: 'flex', alignItems: 'flex-start', gap: 14,
+                    padding: '14px 20px',
+                    borderBottom: idx < items.length - 1 ? '1px solid var(--color-border-light)' : 'none',
+                    transition: 'background 0.12s',
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.background = 'var(--color-bg)')}
+                  onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                >
+                  <div style={{
+                    width: 36, height: 36, borderRadius: 'var(--radius-sm)',
+                    background: `${cfg.color}15`, color: cfg.color,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    flexShrink: 0, marginTop: 2,
+                  }}>
+                    <Icon size={16} />
                   </div>
-
-                  {/* Results */}
-                  <div className="divide-y divide-slate-200">
-                    {typeResults.map((result, idx) => (
-                      <div
-                        key={idx}
-                        className="p-6 hover:bg-slate-50 transition-colors cursor-pointer"
-                      >
-                        <div className="flex items-start justify-between gap-4 mb-2">
-                          <div className="flex-1 min-w-0">
-                            <h4 className="text-lg font-semibold text-slate-900 truncate">{result.name}</h4>
-                            {result.location && (
-                              <p className="text-sm text-slate-600 mt-1 flex items-center gap-1">
-                                📍 {result.location}
-                              </p>
-                            )}
-                          </div>
-                          <span
-                            className={`px-3 py-1 rounded-full text-xs font-semibold border whitespace-nowrap flex-shrink-0 ${
-                              typeConfig[type]?.color || 'bg-slate-100 text-slate-700 border-slate-200'
-                            }`}
-                          >
-                            {typeConfig[type]?.label || type}
-                          </span>
-                        </div>
-                        {result.description && (
-                          <p className="text-slate-700 text-sm line-clamp-2 mt-2">{result.description}</p>
-                        )}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 3 }}>
+                      <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text)', fontFamily: 'monospace' }}>
+                        {result.name}
+                      </span>
+                      <span className={`badge ${cfg.badgeClass}`}>{result.type}</span>
+                    </div>
+                    {result.location && (
+                      <div style={{ fontSize: 12, color: 'var(--color-muted)', marginBottom: 3 }}>{result.location}</div>
+                    )}
+                    {result.description && (
+                      <div style={{ fontSize: 13, color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>
+                        {result.description}
                       </div>
-                    ))}
+                    )}
                   </div>
                 </div>
               ))}
             </div>
-
-            {/* Summary */}
-            <div className="bg-slate-100 rounded-lg p-4 text-center">
-              <p className="text-slate-700">
-                Showing <strong>{filteredResults.length}</strong> result{filteredResults.length !== 1 ? 's' : ''} of{' '}
-                <strong>{results.length}</strong> total
-              </p>
-            </div>
           </div>
-        )}
-      </div>
+        )
+      })}
     </div>
   )
 }
