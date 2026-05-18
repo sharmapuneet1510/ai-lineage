@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { fieldApi } from './fieldApi'
 import { useState } from 'react'
 import { ChevronLeft } from 'lucide-react'
-import { LineagePipeline } from '../../components/graph/LineagePipeline'
+import { LineageGraph } from '../../components/graph/LineageGraph'
 import LoadingSpinner from '../../components/common/LoadingSpinner'
 import ErrorState from '../../components/common/ErrorState'
 import AccessDeniedState from '../../components/common/AccessDeniedState'
@@ -121,16 +121,19 @@ export default function Field360Page() {
 
       {/* Main Content */}
       <div className="field360-content">
-        {/* Lineage Pipeline Section */}
+        {/* Lineage Graph Section */}
         <section className="field360-pipeline-section">
           <div className="section-card-header">
-            <h2 className="section-card-title">Lineage Pipeline</h2>
+            <h2 className="section-card-title">Data Transformation Flow</h2>
           </div>
-          <LineagePipeline
-            field={field}
-            xsltVariables={data?.data?.data?.xslt_variables || []}
-            javaMethods={data?.data?.data?.java_methods || []}
-            downstreamSystems={data?.data?.data?.downstream_systems || []}
+          <LineageGraph
+            data={{
+              field,
+              xslt_variables: data?.data?.data?.xslt_variables || [],
+              java_methods: data?.data?.data?.java_methods || [],
+              downstream_systems: data?.data?.data?.downstream_systems || [],
+            }}
+            height={420}
           />
         </section>
 
