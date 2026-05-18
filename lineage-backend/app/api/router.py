@@ -10,7 +10,8 @@ from app.api.routes import (
     graph_routes,
     jurisdiction_routes,
     export_routes,
-    dashboard_routes
+    dashboard_routes,
+    search_routes,
 )
 
 router = APIRouter()
@@ -25,3 +26,4 @@ router.include_router(graph_routes.router)
 router.include_router(jurisdiction_routes.router)
 router.include_router(export_routes.router)
 router.include_router(dashboard_routes.router)
+router.include_router(search_routes.router)

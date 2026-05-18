@@ -6,6 +6,8 @@ import FieldListPage from './features/fields/FieldListPage'
 import Field360Page from './features/fields/Field360Page'
 import FieldComparisonPage from './features/comparison/FieldComparisonPage'
 import ImpactAnalysisPage from './features/impact/ImpactAnalysisPage'
+import GraphExplorerPage from './features/graphExplorer/GraphExplorerPage'
+import GlobalSearchPage from './features/search/GlobalSearchPage'
 import './App.css'
 import './styles/dashboard.css'
 
@@ -19,6 +21,8 @@ function App() {
             <Link to="/fields">Fields</Link>
             <Link to="/comparison">Comparison</Link>
             <Link to="/impact">Impact</Link>
+            <Link to="/graph">Graph Explorer</Link>
+            <Link to="/search">Global Search</Link>
           </nav>
           <Routes>
             <Route path="/" element={<DashboardPage />} />
@@ -26,6 +30,8 @@ function App() {
             <Route path="/fields/:fieldId" element={<Field360Page />} />
             <Route path="/comparison" element={<FieldComparisonPage />} />
             <Route path="/impact" element={<ImpactAnalysisPage />} />
+            <Route path="/graph" element={<GraphExplorerPage />} />
+            <Route path="/search" element={<GlobalSearchPage />} />
           </Routes>
         </div>
       </Router>
