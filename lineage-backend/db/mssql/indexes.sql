@@ -1,0 +1,10 @@
+CREATE INDEX idx_fields_jurisdiction ON regulatory_fields(jurisdiction_id);
+CREATE INDEX idx_fields_internal_name ON regulatory_fields(internal_field_name);
+CREATE INDEX idx_fields_business_name ON regulatory_fields(business_name);
+CREATE INDEX idx_fields_status ON regulatory_fields(status);
+CREATE INDEX idx_fields_criticality ON regulatory_fields(criticality);
+CREATE INDEX idx_user_roles ON app_user_roles(user_id);
+CREATE INDEX idx_screen_access_role ON app_screen_access(role_id);
+CREATE INDEX idx_jurisdiction_access_role ON app_jurisdiction_access(role_id);
+CREATE INDEX idx_audit_entity ON audit_log(entity_type, entity_id);
+CREATE INDEX idx_audit_date ON audit_log(performed_at);

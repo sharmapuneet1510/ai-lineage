@@ -1,0 +1,11 @@
+CREATE CONSTRAINT field_internal_name IF NOT EXISTS FOR (f:Field) REQUIRE f.internalName IS UNIQUE;
+CREATE INDEX field_business_name IF NOT EXISTS FOR (f:Field) ON (f.businessName);
+CREATE INDEX field_jurisdiction IF NOT EXISTS FOR (f:Field) ON (f.jurisdictionCode);
+CREATE CONSTRAINT xslt_variable_name IF NOT EXISTS FOR (v:XsltVariable) REQUIRE v.name IS UNIQUE;
+CREATE INDEX xslt_variable_file IF NOT EXISTS FOR (v:XsltVariable) ON (v.fileName);
+CREATE CONSTRAINT xpath_value IF NOT EXISTS FOR (x:XPath) REQUIRE x.path IS UNIQUE;
+CREATE CONSTRAINT java_method_name IF NOT EXISTS FOR (m:JavaMethod) REQUIRE m.name IS UNIQUE;
+CREATE INDEX java_class_name IF NOT EXISTS FOR (c:JavaClass) ON (c.name);
+CREATE INDEX downstream_system_name IF NOT EXISTS FOR (d:DownstreamSystem) ON (d.name);
+CREATE CONSTRAINT business_concept_name IF NOT EXISTS FOR (bc:BusinessConcept) REQUIRE bc.name IS UNIQUE;
+CREATE CONSTRAINT jurisdiction_code IF NOT EXISTS FOR (j:Jurisdiction) REQUIRE j.code IS UNIQUE;
