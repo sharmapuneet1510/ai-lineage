@@ -161,41 +161,77 @@ VITE_APP_NAME=Data Lineage Platform
 
 ### Pages
 
+#### Dashboard
+- Real-time key metrics: Total Fields, Jurisdictions, Lineage Coverage, High Risk Fields
+- Visual stat cards with icons and color-coded backgrounds
+- Activity feed and risk indicators
+- Professional data visualization
+
 #### Field Search & Discovery
-- Advanced search with debouncing
+- Advanced search with debouncing (400ms)
 - Filtering by jurisdiction, criticality, and status
+- Professional data tables with badges
 - Pagination support
 - Loading and error states
 
 #### Field 360 View
 - Comprehensive field details
+- React Flow-based data lineage graph visualization
 - Multiple tabs: Overview, Business, Technical, XSLT, Java, Downstream
+- Color-coded transformation nodes (Field, XSLT, XPath, Java)
 - Error handling and access control
+- Back navigation with history support
 
 #### Field Comparison
 - Compare fields across jurisdictions
-- Attribute-level comparison
+- Attribute-level comparison table
 - Multi-jurisdiction support
+- Input validation and error states
 
 #### Impact Analysis
-- Analyze impact of changes
+- Analyze impact of changes on downstream components
 - Support for multiple source types: Field, XSLT Variable, Java Method, XPath
-- Severity indicators
+- Severity indicators with color badges (HIGH/MEDIUM/LOW)
+- Real-time analysis with Enter key support
 
 #### Graph Explorer
-- Interactive Neo4j graph visualization
-- Node search and details
-- Relationship exploration
+- Interactive React Flow canvas for graph visualization
+- Node search with type filtering
+- Dynamic node positioning and layout
+- Node details panel with inspection tools
+- Mini-map for navigation
+- Empty state guidance
 
 #### Global Search
-- Cross-entity search
-- Type filtering
-- Real-time search results
+- Cross-entity search across all components
+- Type filtering (Field, XSLT Variable, XPath, Java Method)
+- Results grouped by type with icons
+- Real-time search with clear button
+- Result metadata display
 
-#### Dashboard
-- Key metrics visualization
-- Lineage coverage statistics
-- High-risk field identification
+### Visual Design
+
+#### Color Scheme
+- Sidebar: Dark Navy (#082044)
+- Primary: Blue (#1267e8)
+- Success: Green (#00b96b)
+- Warning: Amber (#f59e0b)
+- Danger: Red (#ef4444)
+
+#### Animations & Transitions
+- ✨ Smooth page transitions (150-350ms)
+- 🎯 Button hover effects with elevation
+- ⌨️ Input focus animations
+- 📑 Tab switch animations
+- 🎬 Modal animations
+- 🎨 Card hover effects with shadow elevation
+
+#### Components
+- Professional sidebar navigation with active states
+- Responsive header with breadcrumb navigation
+- Accessibility-compliant form inputs
+- Color-coded badge system
+- Modal dialogs with animations
 
 ## Styling
 
@@ -341,7 +377,7 @@ Global error handling with error boundaries (can be added)
 npm run build
 ```
 
-Output in `dist/` directory
+Output in `dist/` directory (452KB JS, 24.76KB CSS)
 
 ### Docker
 
@@ -350,14 +386,26 @@ Output in `dist/` directory
 docker build -t lineage-frontend:latest .
 
 # Run container
-docker run -p 80:5173 lineage-frontend:latest
+docker run -p 3000:3000 lineage-frontend:latest
 ```
 
-### Docker Compose
+### Docker Compose (Full Stack)
 
 ```bash
-docker-compose up -d frontend
+# Start all services (frontend + backend + databases)
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop services
+docker-compose down
 ```
+
+Accesses all services at:
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:8000
+- Neo4j Browser: http://localhost:7474
 
 ### Environment-Specific Builds
 
@@ -368,6 +416,11 @@ VITE_APP_ENV=production npm run build
 # Staging build
 VITE_APP_ENV=staging npm run build
 ```
+
+### See Also
+
+- [DEPLOYMENT.md](../DEPLOYMENT.md) - Full deployment guide
+- [SECURITY.md](../SECURITY.md) - Security hardening and best practices
 
 ## Troubleshooting
 
