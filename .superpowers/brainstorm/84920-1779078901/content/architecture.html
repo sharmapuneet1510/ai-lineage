@@ -1,0 +1,91 @@
+<h2>Data Lineage Platform Architecture</h2>
+<p class="subtitle">How components interact: ai-infra → Backend → Frontend</p>
+
+<div class="mockup">
+  <div class="mockup-header">System Architecture</div>
+  <div class="mockup-body" style="font-family: monospace; font-size: 12px; line-height: 1.6; padding: 20px; background: #f5f5f5; border-radius: 4px;">
+    <div style="margin-bottom: 20px;">
+      <strong style="color: #d84315;">🐳 ai-infra (Docker Compose)</strong>
+      <div style="margin-left: 20px; margin-top: 10px;">
+        <div>├── MSSQL Server (localhost:1433)</div>
+        <div>├── Neo4j (localhost:7687)</div>
+        <div>└── Other services</div>
+      </div>
+    </div>
+
+    <div style="margin-bottom: 20px;">
+      <strong style="color: #1976d2;">⚙️ lineage-backend (Python FastAPI)</strong>
+      <div style="margin-left: 20px; margin-top: 10px;">
+        <div>├── .env (points to ai-infra services)</div>
+        <div>│   ├── MSSQL_HOST=localhost:1433</div>
+        <div>│   └── NEO4J_URI=bolt://localhost:7687</div>
+        <div>├── app/core/config.py (Pydantic Settings)</div>
+        <div>├── db/mssql.py (SQLAlchemy connection)</div>
+        <div>├── db/neo4j.py (Neo4j driver connection)</div>
+        <div>├── api/routes/ (40+ endpoints)</div>
+        <div>└── services/ (business logic)</div>
+      </div>
+    </div>
+
+    <div style="margin-bottom: 20px;">
+      <strong style="color: #388e3c;">⚛️ lineage-frontend (React + TypeScript)</strong>
+      <div style="margin-left: 20px; margin-top: 10px;">
+        <div>├── .env (VITE_API_BASE_URL=http://localhost:8000/api)</div>
+        <div>├── services/apiClient.ts (REST client)</div>
+        <div>├── features/ (screens)</div>
+        <div>└── components/ (shared UI)</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mockup" style="margin-top: 20px;">
+  <div class="mockup-header">Data Flow During Development</div>
+  <div class="mockup-body" style="padding: 20px;">
+    <div style="background: #e3f2fd; padding: 15px; border-radius: 4px; margin-bottom: 15px;">
+      <strong>Phase 1: Setup (Day 1)</strong>
+      <div style="margin-top: 10px; font-size: 13px;">
+        <div>1. Clone monorepo</div>
+        <div>2. Run: <code>ai-infra/docker-compose up</code></div>
+        <div>3. Backend connects to running MSSQL + Neo4j</div>
+        <div>4. Run seed scripts to populate databases</div>
+      </div>
+    </div>
+
+    <div style="background: #f3e5f5; padding: 15px; border-radius: 4px; margin-bottom: 15px;">
+      <strong>Phase 2: Build In Parallel</strong>
+      <div style="margin-top: 10px; font-size: 13px;">
+        <div>Track A: Backend APIs</div>
+        <div style="margin-left: 20px;">→ Implement routes that call MSSQL/Neo4j</div>
+        <div style="margin-left: 20px;">→ Test with curl / Swagger UI</div>
+        <div></div>
+        <div>Track B: Frontend UI</div>
+        <div style="margin-left: 20px;">→ Build components with mock API responses</div>
+        <div style="margin-left: 20px;">→ Use hardcoded data initially</div>
+        <div></div>
+        <div>Track C: Database Setup</div>
+        <div style="margin-left: 20px;">→ Fine-tune schemas + indexes</div>
+        <div style="margin-left: 20px;">→ Load realistic seed data</div>
+      </div>
+    </div>
+
+    <div style="background: #e8f5e9; padding: 15px; border-radius: 4px;">
+      <strong>Phase 3: Integration (Week 2+)</strong>
+      <div style="margin-top: 10px; font-size: 13px;">
+        <div>React UI → REST API → MSSQL / Neo4j</div>
+        <div>Frontend switches from mock to real API calls</div>
+        <div>End-to-end testing with real data</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top: 20px;">
+  <h3>Key Points</h3>
+  <ul style="font-size: 14px;">
+    <li><strong>Separation of Concerns:</strong> ai-infra owns infrastructure, lineage-platform owns app logic</li>
+    <li><strong>Configuration:</strong> Each component reads its own .env, references ai-infra services by hostname/port</li>
+    <li><strong>Independent Work:</strong> Backend, frontend, and DB setup can progress in parallel</li>
+    <li><strong>Local Development:</strong> Single docker-compose.yml in ai-infra spins up all services</li>
+  </ul>
+</div>

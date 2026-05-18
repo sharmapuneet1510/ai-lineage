@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(superpowers:brainstorming)",
+      "Bash(/Users/puneetsharma/.claude/plugins/cache/claude-plugins-official/superpowers/5.1.0/skills/brainstorming/scripts/start-server.sh *)",
+      "Bash(git add *)",
+      "Bash(git commit -m 'docs: add lineage platform MVP design specification *)",
+      "Bash(git init *)"
+    ]
+  }
+}
