@@ -9,7 +9,7 @@ const SEVERITY_CLASS: Record<string, string> = {
   HIGH: 'badge-red', MEDIUM: 'badge-yellow', LOW: 'badge-green', CRITICAL: 'badge-red',
 }
 
-export function ImpactAnalysisPage() {
+export default function ImpactAnalysisPage() {
   const [sourceType, setSourceType] = useState('FIELD')
   const [sourceValue, setSourceValue] = useState('')
   const [hasRun, setHasRun] = useState(false)

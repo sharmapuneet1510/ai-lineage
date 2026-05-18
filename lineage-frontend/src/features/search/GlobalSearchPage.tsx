@@ -23,7 +23,7 @@ function getConfig(type: string) {
   return TYPE_CONFIG[type] ?? { color: '#667085', badgeClass: 'badge-gray', Icon: Search }
 }
 
-export function GlobalSearchPage() {
+export default function GlobalSearchPage() {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<SearchResult[]>([])
   const [isLoading, setIsLoading] = useState(false)

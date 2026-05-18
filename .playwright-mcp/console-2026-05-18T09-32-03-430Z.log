@@ -63,3 +63,13 @@ Visit https://reactjs.org/link/error-boundaries to learn more about error bounda
 [  268987ms] [ERROR] [hmr] Failed to reload /src/App.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://localhost:5175/@vite/client:175
 [  304295ms] [ERROR] SyntaxError: The requested module '/src/features/comparison/FieldComparisonPage.tsx?t=1779096920112' does not provide an export named 'default' @ http://localhost:5175/@vite/client:173
 [  304295ms] [ERROR] [hmr] Failed to reload /src/App.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://localhost:5175/@vite/client:175
+[  324173ms] [ERROR] SyntaxError: The requested module '/src/features/fields/Field360Page.tsx?t=1779097047569' does not provide an export named 'default' @ http://localhost:5175/@vite/client:173
+[  324173ms] [ERROR] [hmr] Failed to reload /src/App.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://localhost:5175/@vite/client:175
+[  326389ms] [ERROR] SyntaxError: The requested module '/src/features/comparison/FieldComparisonPage.tsx?t=1779096920112' does not provide an export named 'default' @ http://localhost:5175/@vite/client:173
+[  326389ms] [ERROR] [hmr] Failed to reload /src/App.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://localhost:5175/@vite/client:175
+[  355938ms] [ERROR] SyntaxError: The requested module '/src/features/search/GlobalSearchPage.tsx?t=1779097027690' does not provide an export named 'default' @ http://localhost:5175/@vite/client:173
+[  355939ms] [ERROR] [hmr] Failed to reload /src/App.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://localhost:5175/@vite/client:175
+[  363206ms] [ERROR] SyntaxError: The requested module '/src/features/search/GlobalSearchPage.tsx?t=1779097027690' does not provide an export named 'default' @ http://localhost:5175/@vite/client:173
+[  363206ms] [ERROR] [hmr] Failed to reload /src/App.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://localhost:5175/@vite/client:175
+[  366034ms] [ERROR] SyntaxError: The requested module '/src/features/search/GlobalSearchPage.tsx?t=1779097027690' does not provide an export named 'default' @ http://localhost:5175/@vite/client:173
+[  366035ms] [ERROR] [hmr] Failed to reload /src/App.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://localhost:5175/@vite/client:175

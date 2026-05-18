@@ -15,7 +15,7 @@ function nodeTypeClass(type: string) {
   return map[type] ?? 'badge-gray'
 }
 
-export function GraphExplorerPage() {
+export default function GraphExplorerPage() {
   const [query, setQuery] = useState('')
   const [nodeType, setNodeType] = useState('')
   const [isLoading, setIsLoading] = useState(false)

@@ -5,7 +5,7 @@ import { GitCompare, Search, AlertCircle } from 'lucide-react'
 
 const API = import.meta.env.VITE_API_BASE_URL
 
-export function FieldComparisonPage() {
+export default function FieldComparisonPage() {
   const [concept, setConcept] = useState('')
   const [jurisdictions, setJurisdictions] = useState('')
   const [enabled, setEnabled] = useState(false)
