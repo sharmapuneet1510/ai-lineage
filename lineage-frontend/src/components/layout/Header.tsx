@@ -8,6 +8,7 @@ const ROUTE_LABELS: Record<string, string[]> = {
   '/impact': ['Home', 'Impact Analysis'],
   '/graph': ['Home', 'Graph Explorer'],
   '/search': ['Home', 'Global Search'],
+  '/settings': ['Home', 'Settings'],
 }
 
 export function Header() {

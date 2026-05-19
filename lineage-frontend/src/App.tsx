@@ -9,6 +9,7 @@ import FieldComparisonPage from './features/comparison/FieldComparisonPage'
 import ImpactAnalysisPage from './features/impact/ImpactAnalysisPage'
 import GraphExplorerPage from './features/graphExplorer/GraphExplorerPage'
 import GlobalSearchPage from './features/search/GlobalSearchPage'
+import SettingsPage from './features/settings/SettingsPage'
 import './styles/global.css'
 import './styles/components.css'
 
@@ -25,6 +26,7 @@ export default function App() {
             <Route path="/impact" element={<ImpactAnalysisPage />} />
             <Route path="/graph" element={<GraphExplorerPage />} />
             <Route path="/search" element={<GlobalSearchPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
           </Routes>
         </AppLayout>
       </BrowserRouter>
