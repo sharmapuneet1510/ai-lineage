@@ -24,7 +24,8 @@ export function Sidebar() {
 
   const isActive = (to: string) => {
     if (to === '/') return location.pathname === '/'
-    if (to.startsWith('/fields/')) return false
+    if (to === '/fields') return location.pathname === '/fields'
+    if (to.startsWith('/fields/')) return location.pathname.startsWith(to)
     return location.pathname.startsWith(to)
   }
 
