@@ -8,7 +8,7 @@ import '../../styles/layout.css'
 const NAV_ITEMS = [
   { to: '/', label: 'Dashboard', Icon: LayoutDashboard },
   { to: '/fields', label: 'Fields', Icon: Database },
-  { to: '/fields/1', label: 'Lineage Explorer', Icon: GitBranch },
+  { to: '/fields/*', label: 'Lineage Explorer', Icon: GitBranch },
   { to: '/graph', label: 'Graph Explorer', Icon: Share2 },
   { to: '/comparison', label: 'Comparison', Icon: GitCompare },
   { to: '/impact', label: 'Impact Analysis', Icon: Network },
@@ -25,7 +25,7 @@ export function Sidebar() {
   const isActive = (to: string) => {
     if (to === '/') return location.pathname === '/'
     if (to === '/fields') return location.pathname === '/fields'
-    if (to.startsWith('/fields/')) return location.pathname.startsWith(to)
+    if (to === '/fields/*') return /^\/fields\/\d+$/.test(location.pathname)
     return location.pathname.startsWith(to)
   }
 
