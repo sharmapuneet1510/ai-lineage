@@ -2255,12 +2255,10 @@ def main(argv: list[str] | None = None) -> int:
     try:
         summary = run(config, sink, modules=args.module)
     except FatalRunError as exc:
-        sink.close()
         print(f"run aborted: {exc}", file=sys.stderr)
         return 1
     finally:
-        pass
-    sink.close()
+        sink.close()
 
     write_indexes(sink.facts, out_dir)
     (out_dir / "run_summary.json").write_text(
