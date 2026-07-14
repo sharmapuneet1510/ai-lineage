@@ -16,6 +16,22 @@ from lxml import etree
 from app.parsing.facts import Fact, ParseIssue, Provenance, Severity
 from app.parsing.registry import register
 
+# Hardened against entity-expansion attacks (billion laughs) and XXE:
+#   resolve_entities=False -> internal/external entities are left as
+#     unresolved etree.Entity nodes instead of being expanded, so a
+#     "billion laughs" payload never allocates the exponential blow-up.
+#   no_network=True        -> external entities/DTDs are never fetched
+#     over the network even if resolution were somehow attempted.
+#   huge_tree=False         -> keeps lxml's built-in depth/size guards
+#     active (do not raise this to bypass them).
+# Reused across calls: building an XMLParser per document is wasteful and
+# this configuration is immutable and thread-safe to share.
+_PARSER = etree.XMLParser(
+    resolve_entities=False,
+    no_network=True,
+    huge_tree=False,
+)
+
 
 @register
 class XmlParser:
@@ -26,13 +42,34 @@ class XmlParser:
         self, source: str, base: Provenance
     ) -> Iterator[Fact | ParseIssue]:
         try:
-            root = etree.fromstring(source.encode("utf-8"))
-        except etree.XMLSyntaxError as exc:
+            root = etree.fromstring(source.encode("utf-8"), _PARSER)
+        except (etree.XMLSyntaxError, ValueError) as exc:
             yield ParseIssue(
                 severity=Severity.ERROR,
                 parser=self.type,
                 file=base.file,
                 message=f"malformed XML: {exc}",
+                provenance=base,
+            )
+            return
+
+        entity_refs = [el.text for el in root.iter() if el.tag is etree.Entity]
+        if entity_refs:
+            # resolve_entities=False leaves internal/external entity
+            # references unexpanded in the tree (this is what defeats
+            # billion-laughs and file-read XXE). Surface that as an
+            # explicit error, up front, rather than silently emitting a
+            # partial or incorrect set of facts — a document that relied
+            # on entity expansion no longer parses the way it used to,
+            # and that must be visible, not silent.
+            yield ParseIssue(
+                severity=Severity.ERROR,
+                parser=self.type,
+                file=base.file,
+                message=(
+                    "XML entity references are not expanded for security "
+                    f"reasons: {', '.join(sorted(set(entity_refs)))}"
+                ),
                 provenance=base,
             )
             return
