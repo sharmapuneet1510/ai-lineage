@@ -1,5 +1,7 @@
+import errno
 import hashlib
 import os
+from pathlib import Path
 
 import pytest
 
@@ -215,3 +217,155 @@ def test_stat_failure_yields_parse_issue_not_crash(tmp_path, monkeypatch):
     assert issues[0].file == "bad.xml"
     assert "stat" in issues[0].message.lower() or "permission" in issues[0].message.lower()
     assert source_files[0].rel_path == "good.xml"
+
+
+def _patched_scandir_raising_for_subdir(subdir_name: str, exc: Exception):
+    """Return an os.scandir replacement that raises `exc` when scanning the
+    directory named `subdir_name`, and otherwise behaves normally.
+    """
+    original_scandir = os.scandir
+
+    def patched(path="."):
+        if str(path).rstrip(os.sep).endswith(subdir_name):
+            raise exc
+        return original_scandir(path)
+
+    return patched, original_scandir
+
+
+def test_include_glob_directory_scan_failure_yields_issue_not_crash(tmp_path, monkeypatch):
+    """An OSError with an errno outside pathlib's ignored set (ESTALE), raised while
+    the INCLUDE glob's generator scans a subdirectory, must not crash walk_module.
+
+    Before the fix, `for p in root.glob(pattern):` in `_matching_files` had no
+    try/except around the iteration itself (only around `p.is_file()` inside the
+    loop body), so this OSError propagated straight out of `list(walk_module(...))`.
+    """
+    (tmp_path / "src" / "sub").mkdir(parents=True)
+    (tmp_path / "src" / "sub" / "deep.xml").write_text("<deep/>")
+    (tmp_path / "src" / "other.txt").write_text("plain text")
+
+    module = ModuleConfig(
+        name="m",
+        root="./src",
+        parsers=[
+            # Recursive: this is the pattern whose scan into "sub" fails.
+            ParserBinding(type="xml", include=["**/*.xml"]),
+            # Non-recursive: never scans into "sub" at all, so this binding's
+            # matches must be entirely unaffected by the other pattern's failure.
+            ParserBinding(type="txt", include=["*.txt"]),
+        ],
+    )
+    config = ParseConfig(
+        version=1, modules=[module], options=Options(), config_dir=tmp_path
+    )
+
+    patched, original_scandir = _patched_scandir_raising_for_subdir(
+        "sub", OSError(errno.ESTALE, "Stale file handle")
+    )
+    monkeypatch.setattr(os, "scandir", patched)
+
+    # Must not raise.
+    results = list(walk_module(module, config))
+
+    issues = [r for r in results if isinstance(r, ParseIssue)]
+    source_files = [r for r in results if isinstance(r, SourceFile)]
+
+    scan_issues = [i for i in issues if "directory scan failed" in i.message.lower()]
+    assert len(scan_issues) == 1
+    assert scan_issues[0].severity == Severity.ERROR
+    assert scan_issues[0].parser == "xml"
+    assert "incomplete" in scan_issues[0].message.lower()
+
+    # The other binding (unrelated pattern) must still have been processed.
+    assert any(
+        sf.parser_type == "txt" and sf.rel_path == "other.txt" for sf in source_files
+    )
+
+
+def test_exclude_glob_directory_scan_failure_yields_issue_not_crash(tmp_path, monkeypatch):
+    """An OSError with an errno outside pathlib's ignored set (ESTALE), raised while
+    the EXCLUDE glob's generator scans a subdirectory, must not crash walk_module.
+
+    Before the fix, `excluded.update(root.glob(pattern))` had no guard at all, so
+    this OSError propagated straight out of `list(walk_module(...))`.
+    """
+    (tmp_path / "src" / "sub").mkdir(parents=True)
+    (tmp_path / "src" / "sub" / "deep.xml").write_text("<deep/>")
+    (tmp_path / "src" / "keep.xml").write_text("<keep/>")
+    (tmp_path / "src" / "other.txt").write_text("plain text")
+
+    module = ModuleConfig(
+        name="m",
+        root="./src",
+        parsers=[
+            # Non-recursive include (never scans into "sub") + recursive exclude
+            # (does scan into "sub", and that's the scan that fails). This
+            # isolates the failure to the exclude side only.
+            ParserBinding(
+                type="xml", include=["*.xml"], exclude=["**/sub/**"]
+            ),
+            # Unrelated pattern that never touches "sub"; must be unaffected.
+            ParserBinding(type="txt", include=["*.txt"]),
+        ],
+    )
+    config = ParseConfig(
+        version=1, modules=[module], options=Options(), config_dir=tmp_path
+    )
+
+    patched, original_scandir = _patched_scandir_raising_for_subdir(
+        "sub", OSError(errno.ESTALE, "Stale file handle")
+    )
+    monkeypatch.setattr(os, "scandir", patched)
+
+    # Must not raise.
+    results = list(walk_module(module, config))
+
+    issues = [r for r in results if isinstance(r, ParseIssue)]
+    source_files = [r for r in results if isinstance(r, SourceFile)]
+
+    scan_issues = [i for i in issues if "directory scan failed" in i.message.lower()]
+    assert len(scan_issues) == 1
+    assert scan_issues[0].severity == Severity.ERROR
+    assert scan_issues[0].parser == "xml"
+    assert "included" in scan_issues[0].message.lower()
+
+    # keep.xml (outside the exclude subtree) is unaffected either way.
+    assert any(sf.rel_path == "keep.xml" for sf in source_files)
+
+    # The other binding (unrelated pattern) must still have been processed.
+    assert any(
+        sf.parser_type == "txt" and sf.rel_path == "other.txt" for sf in source_files
+    )
+
+
+def test_permission_error_during_glob_scan_is_swallowed_by_pathlib(tmp_path, monkeypatch):
+    """A PermissionError raised by os.scandir while the glob generator scans a
+    subdirectory is swallowed internally by pathlib's own selector machinery
+    (unlike ESTALE/EIO/etc which propagate). Confirm this: walk_module does not
+    raise, matches outside the unreadable subdirectory are still returned, and
+    no ParseIssue is produced for it — the directory is simply skipped, exactly
+    as if it had no matches.
+    """
+    (tmp_path / "src" / "sub").mkdir(parents=True)
+    (tmp_path / "src" / "sub" / "bad.xml").write_text("<bad/>")
+    (tmp_path / "src" / "good.xml").write_text("<good/>")
+
+    config, module = _config(
+        tmp_path, ParserBinding(type="xml", include=["**/*.xml"])
+    )
+
+    patched, original_scandir = _patched_scandir_raising_for_subdir(
+        "sub", PermissionError(errno.EACCES, "Permission denied")
+    )
+    monkeypatch.setattr(os, "scandir", patched)
+
+    results = list(walk_module(module, config))
+
+    issues = [r for r in results if isinstance(r, ParseIssue)]
+    source_files = [r for r in results if isinstance(r, SourceFile)]
+
+    # pathlib swallows the PermissionError itself during iteration, so no
+    # "directory scan failed" issue should be produced for it.
+    assert not any("directory scan failed" in i.message.lower() for i in issues)
+    assert [sf.rel_path for sf in source_files] == ["good.xml"]
