@@ -132,6 +132,71 @@ def test_external_entity_is_not_resolved_into_facts():
     assert all("root:" not in str(item) for item in results)
 
 
+def test_entity_in_attribute_value_yields_an_error_issue_and_no_facts():
+    # libxml2 substitutes entities into attribute values during
+    # attribute-value normalization, below resolve_entities=False, leaving
+    # no etree.Entity node anywhere in the tree. Without the DTD refusal,
+    # this would silently emit an "attribute" fact with value "PWNED" as
+    # if it were literal source data.
+    payload = """<?xml version="1.0"?>
+<!DOCTYPE order [ <!ENTITY xxe "PWNED"> ]>
+<order id="&xxe;"><price>1</price></order>
+"""
+    results = _parse(payload)
+    assert len(results) == 1
+    issue = results[0]
+    assert isinstance(issue, ParseIssue)
+    assert issue.severity == Severity.ERROR
+    assert issue.parser == "xml"
+    assert issue.file == "order.xml"
+    facts = [f for f in results if isinstance(f, Fact)]
+    assert not facts
+    assert not any(f.attrs.get("value") == "PWNED" for f in facts)
+
+
+def test_entity_amplification_in_attribute_value_yields_an_error_issue_and_does_not_expand():
+    # Bounded amplification chain (10x per level, 3 levels = 10^3 = 1,000x)
+    # placed in an ATTRIBUTE VALUE rather than element text. Kept small so a
+    # regression cannot hang or OOM the test suite, but large enough to
+    # prove the entity is never expanded into the attribute at all.
+    payload = """<?xml version="1.0"?>
+<!DOCTYPE order [
+ <!ENTITY a "lol">
+ <!ENTITY b "&a;&a;&a;&a;&a;&a;&a;&a;&a;&a;">
+ <!ENTITY c "&b;&b;&b;&b;&b;&b;&b;&b;&b;&b;">
+]>
+<order id="&c;"><price>1</price></order>
+"""
+    results = _parse(payload)
+    assert len(results) == 1
+    issue = results[0]
+    assert isinstance(issue, ParseIssue)
+    assert issue.severity == Severity.ERROR
+    assert issue.parser == "xml"
+    assert issue.file == "order.xml"
+    facts = [f for f in results if isinstance(f, Fact)]
+    assert not facts
+    assert not any("lol" in str(f.attrs.get("value")) for f in facts)
+
+
+def test_benign_dtd_with_no_entities_is_also_refused():
+    # Pins the "refuse ALL DTDs" decision, not just "refuse entities" — a
+    # DTD with no <!ENTITY> declarations at all must still be refused, so a
+    # later author cannot quietly narrow the check back to entities-only.
+    payload = """<?xml version="1.0"?>
+<!DOCTYPE order [ <!ELEMENT order (price)> <!ELEMENT price (#PCDATA)> ]>
+<order><price>1</price></order>
+"""
+    results = _parse(payload)
+    assert len(results) == 1
+    issue = results[0]
+    assert isinstance(issue, ParseIssue)
+    assert issue.severity == Severity.ERROR
+    assert issue.parser == "xml"
+    assert issue.file == "order.xml"
+    assert not [f for f in results if isinstance(f, Fact)]
+
+
 def test_hardening_does_not_change_well_formed_xml_behavior():
     # Regression guard: the hardened parser must emit exactly the same
     # element/attribute facts for ordinary, entity-free XML as before.
