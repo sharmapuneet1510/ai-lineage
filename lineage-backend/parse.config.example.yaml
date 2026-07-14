@@ -1,0 +1,20 @@
+# Copy to parse.config.yaml and point the roots at your source.
+# Full field reference: docs/superpowers/specs/2026-07-14-parser-foundation-design.md
+version: 1
+
+modules:
+  - name: order-intake
+    root: ./src/intake
+    parsers:
+      - type: xml
+        include: ["**/*.xml"]
+        exclude: ["**/test/**"]
+
+xsd_stores:
+  - name: outbound
+    root: ./schemas/out
+
+options:
+  encoding: utf-8
+  fail_on: never       # never | error
+  output_dir: ./out
