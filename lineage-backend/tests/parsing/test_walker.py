@@ -1,4 +1,7 @@
 import hashlib
+import os
+
+import pytest
 
 from app.parsing.config import ModuleConfig, Options, ParseConfig, ParserBinding
 from app.parsing.facts import ParseIssue, Severity
@@ -119,6 +122,7 @@ def test_exclude_deeply_nested_files(tmp_path):
     assert paths == ["keep.xml"]
 
 
+@pytest.mark.skipif(os.geteuid() == 0, reason="root bypasses permission bits")
 def test_unreadable_file_yields_parse_issue_not_crash(tmp_path):
     """Verify that an unreadable file yields a ParseIssue and walk continues."""
     (tmp_path / "src").mkdir()
@@ -170,3 +174,44 @@ def test_unknown_encoding_yields_parse_issue_not_crash(tmp_path):
     assert issue.file == "a.xml"
     assert "unknown encoding" in issue.message.lower()
     assert "utf8x" in issue.message
+
+
+def test_stat_failure_yields_parse_issue_not_crash(tmp_path, monkeypatch):
+    """Verify that a stat failure on one file doesn't crash walk and is yielded as ParseIssue.
+
+    This test proves that Finding 1 is fixed: a PermissionError on is_file() is caught
+    inside _matching_files, emitted as ParseIssue downstream, and other files continue
+    to be processed.
+    """
+    from pathlib import Path
+
+    (tmp_path / "src").mkdir()
+    (tmp_path / "src" / "good.xml").write_text("<a/>")
+    (tmp_path / "src" / "bad.xml").write_text("<b/>")
+
+    # Monkeypatch Path.is_file to raise PermissionError for bad.xml
+    original_is_file = Path.is_file
+
+    def patched_is_file(self):
+        if "bad.xml" in str(self):
+            raise PermissionError("mocked permission denied")
+        return original_is_file(self)
+
+    monkeypatch.setattr(Path, "is_file", patched_is_file)
+
+    config, module = _config(
+        tmp_path,
+        ParserBinding(type="xml", include=["**/*.xml"]),
+    )
+    results = list(walk_module(module, config))
+
+    # Should have one ParseIssue (for bad.xml) and one SourceFile (for good.xml)
+    issues = [r for r in results if isinstance(r, ParseIssue)]
+    source_files = [r for r in results if isinstance(r, SourceFile)]
+
+    assert len(issues) == 1, f"Expected 1 issue, got {len(issues)}"
+    assert len(source_files) == 1, f"Expected 1 source file, got {len(source_files)}"
+    assert issues[0].severity == Severity.ERROR
+    assert issues[0].file == "bad.xml"
+    assert "stat" in issues[0].message.lower() or "permission" in issues[0].message.lower()
+    assert source_files[0].rel_path == "good.xml"

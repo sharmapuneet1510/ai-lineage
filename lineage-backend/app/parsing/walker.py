@@ -29,10 +29,25 @@ def walk_module(
 
     A file matched by two bindings is yielded once per binding — legitimate for
     e.g. an .xml file that is also an XSLT. Dedup is not the walker's concern.
+
+    Never raises: all parse failures yield ParseIssue(severity=ERROR).
     """
     root = config.resolve(module.root)
     for binding in module.parsers:
-        for abs_path in _matching_files(root, binding):
+        matched_files, failed_paths = _matching_files(root, binding)
+
+        # Emit issues for files that couldn't be stat'd (before per-file read errors)
+        for abs_path, error_msg in failed_paths:
+            rel_path = abs_path.relative_to(root).as_posix()
+            yield ParseIssue(
+                severity=Severity.ERROR,
+                parser=binding.type,
+                file=rel_path,
+                message=f"cannot stat file: {error_msg}",
+            )
+
+        # Process matched files
+        for abs_path in matched_files:
             rel_path = abs_path.relative_to(root).as_posix()
             try:
                 data = abs_path.read_bytes()
@@ -70,10 +85,27 @@ def walk_module(
             )
 
 
-def _matching_files(root: Path, binding: ParserBinding) -> list[Path]:
+def _matching_files(
+    root: Path, binding: ParserBinding
+) -> tuple[list[Path], list[tuple[Path, str]]]:
+    """Match files by binding globs, catching stat errors.
+
+    Returns:
+        (matched_files, failed_paths) where failed_paths is [(abs_path, error_msg), ...]
+        for files that could not be stat'd. Matched files are sorted; failed paths are in
+        glob order.
+    """
     included: set[Path] = set()
+    failed: list[tuple[Path, str]] = []
+
     for pattern in binding.include:
-        included.update(p for p in root.glob(pattern) if p.is_file())
+        for p in root.glob(pattern):
+            try:
+                if p.is_file():
+                    included.add(p)
+            except OSError as exc:
+                # Stat failure (e.g., PermissionError, ESTALE). Collect it and continue.
+                failed.append((p, str(exc)))
 
     excluded: set[Path] = set()
     for pattern in binding.exclude:
@@ -84,4 +116,4 @@ def _matching_files(root: Path, binding: ParserBinding) -> list[Path]:
         for p in included
         if not any(p == e or e in p.parents for e in excluded)
     ]
-    return sorted(kept)
+    return sorted(kept), failed
