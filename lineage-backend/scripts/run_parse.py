@@ -7,14 +7,24 @@ import json
 import sys
 from pathlib import Path
 
+# Running this file directly (`python scripts/run_parse.py`) puts `scripts/`
+# on sys.path, not the lineage-backend/ project root, so `import app...`
+# below would fail with ModuleNotFoundError. Insert the project root (this
+# script's parent's parent) before the app.* imports so both
+# `python scripts/run_parse.py` and `python -m scripts.run_parse` work.
+# Do NOT reorder this above the stdlib imports or move it after the app.*
+# imports — the app.* imports below depend on it running first. Linters
+# will flag "import not at top of file"; that is expected and intentional.
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
 # Importing a parser module runs its @register decorator. Without this the
 # registry is empty and every run fails with an unknown-type error.
-import app.parsing.parsers.xml  # noqa: F401
-from app.parsing.config import ConfigError, FailOn, load_config
-from app.parsing.facts import Fact, ParseIssue
-from app.parsing.index import write_indexes
-from app.parsing.runner import FatalRunError, RunSummary, run
-from app.parsing.sinks import JsonlFactSink
+import app.parsing.parsers.xml  # noqa: F401,E402
+from app.parsing.config import ConfigError, FailOn, load_config  # noqa: E402
+from app.parsing.facts import Fact, ParseIssue  # noqa: E402
+from app.parsing.index import write_indexes  # noqa: E402
+from app.parsing.runner import FatalRunError, RunSummary, run  # noqa: E402
+from app.parsing.sinks import JsonlFactSink  # noqa: E402
 
 
 class _CollectingJsonlSink:

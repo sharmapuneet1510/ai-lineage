@@ -262,6 +262,10 @@ cd lineage-backend
 python scripts/run_parse.py --config parse.config.yaml
 ```
 
+(`python -m scripts.run_parse --config parse.config.yaml` also works — the script inserts the
+`lineage-backend/` project root onto `sys.path` itself so both invocation styles resolve
+`app.parsing...` imports correctly.)
+
 Options:
 
 | Flag | Default | Meaning |
