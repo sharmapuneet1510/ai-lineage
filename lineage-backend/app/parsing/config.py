@@ -8,7 +8,7 @@ from enum import Enum
 from pathlib import Path
 
 import yaml
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 SUPPORTED_VERSIONS = {1}
 
@@ -23,6 +23,8 @@ class FailOn(str, Enum):
 
 
 class ParserBinding(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     type: str
     include: list[str]
     exclude: list[str] = []
@@ -30,24 +32,32 @@ class ParserBinding(BaseModel):
 
 
 class ModuleConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     name: str
     root: str
     parsers: list[ParserBinding] = Field(min_length=1)
 
 
 class XsdStore(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     name: str
     root: str
     include: list[str] = ["**/*.xsd"]
 
 
 class Options(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     encoding: str = "utf-8"
     fail_on: FailOn = FailOn.NEVER
     output_dir: str = "./out"
 
 
 class ParseConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     version: int
     modules: list[ModuleConfig] = Field(min_length=1)
     xsd_stores: list[XsdStore] = []
@@ -73,8 +83,11 @@ def load_config(path: Path) -> ParseConfig:
     if not isinstance(raw, dict):
         raise ConfigError(f"{path}: config must be a YAML mapping")
 
+    if "config_dir" in raw:
+        raise ConfigError(f"{path}: config_dir is managed internally and cannot be set")
+
     try:
-        config = ParseConfig(**raw, config_dir=path.parent)
+        config = ParseConfig.model_validate({**raw, "config_dir": path.parent})
     except ValidationError as exc:
         raise ConfigError(f"{path}: {exc}") from exc
 

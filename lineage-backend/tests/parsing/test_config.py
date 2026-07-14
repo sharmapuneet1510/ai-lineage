@@ -96,3 +96,68 @@ def test_missing_root_directory_is_rejected(tmp_path):
 def test_malformed_yaml_is_rejected(tmp_path):
     with pytest.raises(ConfigError):
         load_config(_write(tmp_path, "version: 1\n  modules: [oops\n"))
+
+
+def test_duplicate_xsd_store_names_are_rejected(tmp_path):
+    dupe = """
+version: 1
+modules:
+  - name: pricing-core
+    root: ./src/pricing
+    parsers:
+      - type: xml
+        include: ["**/*.xml"]
+xsd_stores:
+  - name: dupe
+    root: ./schemas/out
+  - name: dupe
+    root: ./schemas/out
+"""
+    with pytest.raises(ConfigError, match="duplicate"):
+        load_config(_write(tmp_path, dupe))
+
+
+def test_unknown_top_level_key_is_rejected(tmp_path):
+    bad = """
+version: 1
+modules:
+  - name: pricing-core
+    root: ./src/pricing
+    parsers:
+      - type: java
+        include: ["**/*.java"]
+xsd_store:
+  name: outbound
+  root: ./schemas/out
+"""
+    with pytest.raises(ConfigError):
+        load_config(_write(tmp_path, bad))
+
+
+def test_unknown_module_key_is_rejected(tmp_path):
+    bad = """
+version: 1
+modules:
+  - name: pricing-core
+    roots: ./src/pricing
+    parsers:
+      - type: java
+        include: ["**/*.java"]
+"""
+    with pytest.raises(ConfigError):
+        load_config(_write(tmp_path, bad))
+
+
+def test_config_dir_key_in_yaml_is_rejected(tmp_path):
+    bad = """
+version: 1
+modules:
+  - name: pricing-core
+    root: ./src/pricing
+    parsers:
+      - type: java
+        include: ["**/*.java"]
+config_dir: ./invalid
+"""
+    with pytest.raises(ConfigError):
+        load_config(_write(tmp_path, bad))
