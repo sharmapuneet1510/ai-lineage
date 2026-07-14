@@ -1,6 +1,6 @@
 import hashlib
 
-from app.parsing.config import FailOn, ModuleConfig, Options, ParseConfig, ParserBinding
+from app.parsing.config import ModuleConfig, Options, ParseConfig, ParserBinding
 from app.parsing.facts import ParseIssue, Severity
 from app.parsing.walker import SourceFile, sha256_bytes, walk_module
 
@@ -100,3 +100,73 @@ def test_one_file_matched_by_two_bindings_is_yielded_twice(tmp_path):
     types = sorted(r.parser_type for r in walk_module(module, config))
 
     assert types == ["xml", "xslt"]
+
+
+def test_exclude_deeply_nested_files(tmp_path):
+    """Verify that deeply nested files (2+ levels) inside excluded directories are also excluded."""
+    (tmp_path / "src" / "test" / "sub" / "deep").mkdir(parents=True)
+    (tmp_path / "src" / "keep.xml").write_text("<a/>")
+    (tmp_path / "src" / "test" / "skip.xml").write_text("<a/>")
+    (tmp_path / "src" / "test" / "sub" / "deep.xml").write_text("<a/>")
+    (tmp_path / "src" / "test" / "sub" / "deep" / "deeper.xml").write_text("<a/>")
+
+    config, module = _config(
+        tmp_path,
+        ParserBinding(type="xml", include=["**/*.xml"], exclude=["**/test/**"]),
+    )
+    paths = sorted(r.rel_path for r in walk_module(module, config))
+
+    assert paths == ["keep.xml"]
+
+
+def test_unreadable_file_yields_parse_issue_not_crash(tmp_path):
+    """Verify that an unreadable file yields a ParseIssue and walk continues."""
+    (tmp_path / "src").mkdir()
+    (tmp_path / "src" / "good.xml").write_text("<a/>")
+    unreadable = tmp_path / "src" / "bad.xml"
+    unreadable.write_text("<b/>")
+    unreadable.chmod(0o000)
+
+    try:
+        config, module = _config(
+            tmp_path,
+            ParserBinding(type="xml", include=["**/*.xml"]),
+        )
+        results = list(walk_module(module, config))
+
+        # Should have one ParseIssue (for bad.xml) and one SourceFile (for good.xml)
+        issues = [r for r in results if isinstance(r, ParseIssue)]
+        source_files = [r for r in results if isinstance(r, SourceFile)]
+
+        assert len(issues) == 1
+        assert len(source_files) == 1
+        assert issues[0].severity == Severity.ERROR
+        assert issues[0].file == "bad.xml"
+        assert "cannot read file" in issues[0].message.lower()
+        assert source_files[0].rel_path == "good.xml"
+    finally:
+        # Restore permissions for cleanup
+        unreadable.chmod(0o644)
+
+
+def test_unknown_encoding_yields_parse_issue_not_crash(tmp_path):
+    """Verify that an unknown encoding codec name yields a ParseIssue with correct message."""
+    (tmp_path / "src").mkdir()
+    (tmp_path / "src" / "a.xml").write_text("<a/>")
+
+    config, module = _config(
+        tmp_path,
+        ParserBinding(type="xml", include=["**/*.xml"]),
+    )
+    # Override the encoding to an invalid codec name
+    config.options.encoding = "utf8x"
+
+    results = list(walk_module(module, config))
+
+    assert len(results) == 1
+    issue = results[0]
+    assert isinstance(issue, ParseIssue)
+    assert issue.severity == Severity.ERROR
+    assert issue.file == "a.xml"
+    assert "unknown encoding" in issue.message.lower()
+    assert "utf8x" in issue.message

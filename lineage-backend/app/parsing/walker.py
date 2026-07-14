@@ -34,17 +34,30 @@ def walk_module(
     for binding in module.parsers:
         for abs_path in _matching_files(root, binding):
             rel_path = abs_path.relative_to(root).as_posix()
-            data = abs_path.read_bytes()
             try:
-                text = data.decode(config.options.encoding)
-            except UnicodeDecodeError as exc:
+                data = abs_path.read_bytes()
+            except OSError as exc:
                 yield ParseIssue(
                     severity=Severity.ERROR,
                     parser=binding.type,
                     file=rel_path,
                     message=(
-                        f"cannot decode as {config.options.encoding}: {exc}"
+                        f"cannot read file: {exc}"
                     ),
+                )
+                continue
+            try:
+                text = data.decode(config.options.encoding)
+            except (UnicodeDecodeError, LookupError) as exc:
+                if isinstance(exc, LookupError):
+                    message = f"unknown encoding {config.options.encoding!r}: {exc}"
+                else:
+                    message = f"cannot decode as {config.options.encoding}: {exc}"
+                yield ParseIssue(
+                    severity=Severity.ERROR,
+                    parser=binding.type,
+                    file=rel_path,
+                    message=message,
                 )
                 continue
             yield SourceFile(
