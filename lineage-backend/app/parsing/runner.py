@@ -2,7 +2,7 @@
 import time
 from collections import Counter
 from datetime import datetime, timezone
-from typing import Iterator
+from typing import Callable, Iterator
 
 from pydantic import BaseModel
 
@@ -15,6 +15,10 @@ from app.parsing.walker import SourceFile, walk_module
 
 class FatalRunError(Exception):
     """The run cannot proceed."""
+
+    def __init__(self, message: str, summary: "RunSummary | None" = None) -> None:
+        super().__init__(message)
+        self.summary = summary
 
 
 class RunSummary(BaseModel):
@@ -40,31 +44,43 @@ def run(
     severities: Counter[str] = Counter()
     files = 0
 
+    def snapshot() -> RunSummary:
+        return RunSummary(
+            files_parsed=files,
+            facts=sum(kinds.values()),
+            facts_by_kind=dict(kinds),
+            issues_by_severity=dict(severities),
+            duration_s=round(time.monotonic() - started, 3),
+        )
+
+    def emit(item: Fact | ParseIssue) -> None:
+        try:
+            sink.emit(item)
+        except Exception as exc:
+            raise FatalRunError(
+                f"sink failed to emit: {type(exc).__name__}: {exc}",
+                summary=snapshot(),
+            ) from exc
+
     for module in selected:
         for walked in walk_module(module, config):
             if isinstance(walked, ParseIssue):
                 severities[walked.severity.value] += 1
-                sink.emit(walked)
-                _maybe_abort(config, walked)
+                emit(walked)
+                _maybe_abort(config, walked, snapshot)
                 continue
 
             files += 1
             for item in _parse_file(walked):
                 if isinstance(item, ParseIssue):
                     severities[item.severity.value] += 1
-                    sink.emit(item)
-                    _maybe_abort(config, item)
+                    emit(item)
+                    _maybe_abort(config, item, snapshot)
                 else:
                     kinds[item.kind] += 1
-                    sink.emit(item)
+                    emit(item)
 
-    return RunSummary(
-        files_parsed=files,
-        facts=sum(kinds.values()),
-        facts_by_kind=dict(kinds),
-        issues_by_severity=dict(severities),
-        duration_s=round(time.monotonic() - started, 3),
-    )
+    return snapshot()
 
 
 def _validate_parser_types(modules: list[ModuleConfig]) -> None:
@@ -78,6 +94,8 @@ def _validate_parser_types(modules: list[ModuleConfig]) -> None:
 
 
 def _parse_file(source: SourceFile) -> Iterator[Fact | ParseIssue]:
+    # `_validate_parser_types` already proved every configured type is registered,
+    # and the registry does not mutate mid-run, so this lookup cannot fail here.
     parser = get_parser(source.parser_type)
     base = Provenance(
         module=source.module,
@@ -99,10 +117,15 @@ def _parse_file(source: SourceFile) -> Iterator[Fact | ParseIssue]:
         )
 
 
-def _maybe_abort(config: ParseConfig, issue: ParseIssue) -> None:
+def _maybe_abort(
+    config: ParseConfig,
+    issue: ParseIssue,
+    snapshot: Callable[[], RunSummary],
+) -> None:
     if issue.severity == Severity.FATAL:
-        raise FatalRunError(f"{issue.file}: {issue.message}")
+        raise FatalRunError(f"{issue.file}: {issue.message}", summary=snapshot())
     if config.options.fail_on == FailOn.ERROR and issue.severity == Severity.ERROR:
         raise FatalRunError(
-            f"{issue.file}: {issue.message} (aborting: fail_on=error)"
+            f"{issue.file}: {issue.message} (aborting: fail_on=error)",
+            summary=snapshot(),
         )

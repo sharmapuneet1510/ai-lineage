@@ -8,7 +8,7 @@ from app.parsing.config import (
     ParseConfig,
     ParserBinding,
 )
-from app.parsing.facts import Severity
+from app.parsing.facts import Fact, Severity
 from app.parsing.parsers import xml as xml_parser_module  # registers "xml"
 from app.parsing.runner import FatalRunError, RunSummary, run
 from app.parsing.sinks import InMemoryFactSink
@@ -105,3 +105,61 @@ def test_a_parser_that_raises_becomes_an_issue_not_a_crash(tmp_path, monkeypatch
 
     assert summary.issues_by_severity[Severity.ERROR.value] == 1
     assert "parser bug" in sink.issues[0].message
+
+
+def test_a_parser_that_yields_facts_then_raises_keeps_the_facts(tmp_path, monkeypatch):
+    """The realistic failure mode: a parser produces good facts before it dies
+    mid-iteration. The facts already yielded must still reach the sink and be
+    counted, and an ERROR issue for the file must also be recorded."""
+    _src(tmp_path, "order.xml", "<order/>")
+
+    class YieldsThenExplodes:
+        type = "xml"
+        version = "0.0.0"
+
+        def parse(self, source, base):
+            yield Fact(kind="element", subject="order", provenance=base)
+            yield Fact(kind="element", subject="price", provenance=base)
+            raise RuntimeError("parser bug after two facts")
+
+    monkeypatch.setitem(registry._PARSERS, "xml", YieldsThenExplodes)
+    sink = InMemoryFactSink()
+
+    summary = run(_config(tmp_path), sink)
+
+    assert summary.facts_by_kind["element"] == 2
+    assert len(sink.facts) == 2
+    assert summary.issues_by_severity[Severity.ERROR.value] == 1
+    assert any(
+        i.file == "order.xml" and "parser bug after two facts" in i.message
+        for i in sink.issues
+    )
+
+
+def test_a_sink_failure_raises_fatal_run_error_with_the_partial_summary(tmp_path):
+    _src(tmp_path, "order.xml", "<order><price>42</price></order>")
+
+    class FailingSink:
+        def __init__(self) -> None:
+            self.calls = 0
+
+        def emit(self, item) -> None:
+            self.calls += 1
+            if self.calls == 2:
+                raise OSError("disk full")
+
+        def close(self) -> None:
+            pass
+
+    sink = FailingSink()
+
+    with pytest.raises(FatalRunError, match="sink") as exc_info:
+        run(_config(tmp_path), sink)
+
+    err = exc_info.value
+    assert err.summary is not None
+    assert isinstance(err.summary, RunSummary)
+    assert err.summary.files_parsed == 1
+    assert err.summary.facts_by_kind["element"] == 2
+    # the message must point at the sink, not send the user hunting for a bad file
+    assert "order.xml" not in str(err)
