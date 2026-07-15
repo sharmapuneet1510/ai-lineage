@@ -1,4 +1,5 @@
 
+
 # brainstorming visual companion
 .superpowers/
 
@@ -10,4 +11,8 @@ lineage-viewer/data/
 
 # runtime feedback store (created by the feedback API)
 feedback_store.json
+image**/**
 lineage-viewer/feedback_store.json
+node-modules/**
+*.log
+images-2/**.**
