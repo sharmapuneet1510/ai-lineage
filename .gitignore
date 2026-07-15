@@ -4,3 +4,6 @@
 
 __pycache__/
 *.pyc
+
+# viewer reads the user's parse output from here — not part of the repo
+lineage-viewer/data/
