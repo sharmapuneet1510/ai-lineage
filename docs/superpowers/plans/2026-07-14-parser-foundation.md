@@ -2057,14 +2057,29 @@ git commit -m "feat(parsing): Embedder port with null default, local and hosted 
 
 **Note:** the CLI must `import app.parsing.parsers.xml` so the `@register` decorator runs. Without that import the registry is empty and every run is a fatal unknown-type error.
 
+**Note:** the documented invocation is `python scripts/run_parse.py --config parse.config.yaml`
+(run directly, not with `-m`). Running a script directly puts `scripts/` on `sys.path`, not
+`lineage-backend/`, so the `app.parsing...` imports below would fail with
+`ModuleNotFoundError: No module named 'app'` unless the script first inserts the project root
+onto `sys.path` itself. The implementation therefore opens with a `sys.path.insert(0, ...)`
+bootstrap above the `app.*` imports — do not remove it, and do not "fix" the import ordering it
+requires; that reintroduces the bug. A subprocess-based test (Step 1) exercises the real
+invocation and is the only kind of test that can catch this class of bug — an in-process
+`main()` call cannot, because pytest already puts the project root on `sys.path` for you.
+
 - [ ] **Step 1: Write the failing tests**
 
 Create `lineage-backend/tests/parsing/test_cli.py`:
 
 ```python
 import json
+import subprocess
+import sys
+from pathlib import Path
 
 from scripts.run_parse import main
+
+BACKEND_ROOT = Path(__file__).resolve().parent.parent.parent
 
 CONFIG = """
 version: 1
@@ -2128,6 +2143,35 @@ def test_fail_on_error_flag_exits_one(tmp_path):
     (tmp_path / "src" / "bad.xml").write_text("<order><unclosed></order>")
 
     assert main(["--config", config_path, "--fail-on", "error"]) == 1
+
+
+def test_documented_invocation_runs_as_a_real_subprocess(tmp_path):
+    """Regression test for the documented `python scripts/run_parse.py` command.
+
+    In-process tests that call `main()` directly never exercise `sys.path` the
+    way a real invocation does — pytest already puts the project root on
+    `sys.path`, masking a bug where running the script directly (rather than
+    with `python -m`) fails with `ModuleNotFoundError: No module named 'app'`.
+    Only a genuine subprocess, launched exactly as a user would type it, can
+    catch that class of bug.
+    """
+    config_path = _project(tmp_path)
+
+    result = subprocess.run(
+        [sys.executable, "scripts/run_parse.py", "--config", config_path],
+        cwd=BACKEND_ROOT,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert "No module named 'app'" not in result.stderr
+
+    out = tmp_path / "out"
+    assert (out / "facts.jsonl").exists()
+    assert (out / "fields.json").exists()
+    assert (out / "evidence.idx").exists()
+    assert (out / "run_summary.json").exists()
 ```
 
 - [ ] **Step 2: Run tests to verify they fail**
@@ -2176,14 +2220,24 @@ import json
 import sys
 from pathlib import Path
 
+# Running this file directly (`python scripts/run_parse.py`) puts `scripts/`
+# on sys.path, not the lineage-backend/ project root, so `import app...`
+# below would fail with ModuleNotFoundError. Insert the project root (this
+# script's parent's parent) before the app.* imports so both
+# `python scripts/run_parse.py` and `python -m scripts.run_parse` work.
+# Do NOT reorder this above the stdlib imports or move it after the app.*
+# imports — the app.* imports below depend on it running first. Linters
+# will flag "import not at top of file"; that is expected and intentional.
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
 # Importing a parser module runs its @register decorator. Without this the
 # registry is empty and every run fails with an unknown-type error.
-import app.parsing.parsers.xml  # noqa: F401
-from app.parsing.config import ConfigError, FailOn, load_config
-from app.parsing.facts import Fact, ParseIssue
-from app.parsing.index import write_indexes
-from app.parsing.runner import FatalRunError, RunSummary, run
-from app.parsing.sinks import FactSink
+import app.parsing.parsers.xml  # noqa: F401,E402
+from app.parsing.config import ConfigError, FailOn, load_config  # noqa: E402
+from app.parsing.facts import Fact, ParseIssue  # noqa: E402
+from app.parsing.index import write_indexes  # noqa: E402
+from app.parsing.runner import FatalRunError, RunSummary, run  # noqa: E402
+from app.parsing.sinks import FactSink  # noqa: E402
 
 
 class _CollectingJsonlSink:
@@ -2255,12 +2309,10 @@ def main(argv: list[str] | None = None) -> int:
     try:
         summary = run(config, sink, modules=args.module)
     except FatalRunError as exc:
-        sink.close()
         print(f"run aborted: {exc}", file=sys.stderr)
         return 1
     finally:
-        pass
-    sink.close()
+        sink.close()
 
     write_indexes(sink.facts, out_dir)
     (out_dir / "run_summary.json").write_text(
@@ -2278,7 +2330,7 @@ if __name__ == "__main__":
 - [ ] **Step 4: Run tests to verify they pass**
 
 Run: `cd lineage-backend && python -m pytest tests/parsing/test_cli.py -v`
-Expected: PASS — 5 passed
+Expected: PASS — 6 passed
 
 - [ ] **Step 5: Commit**
 
@@ -2487,7 +2539,9 @@ git commit -m "docs(parsing): parser guide, Rule-1 guard test, CLAUDE.md"
 
 - `cd lineage-backend && python -m pytest tests/ -v` is green.
 - `python scripts/run_parse.py --config parse.config.example.yaml` (with roots pointed at
-  real sources) writes all four artifacts and prints a summary.
+  real sources) writes all four artifacts and prints a summary — run directly, exactly as
+  documented, not via `python -m scripts.run_parse` (both forms work, but the direct form is
+  what a user following the docs will type first).
 - A new parser can be added by reading `docs/PARSERS.md` alone.
 
 ## Deliberately not built

@@ -100,7 +100,7 @@ class Severity(str, Enum):
 
 class Provenance(BaseModel):
     module: str
-    file: str                        # repo-relative
+    file: str                        # module-relative — (module, file) together identify the file
     source_hash: str                 # sha256 of the file's bytes
     line_start: int | None = None
     line_end: int | None = None
@@ -261,6 +261,10 @@ every `parsers[].type` registered, module and store names unique, every `root` e
 cd lineage-backend
 python scripts/run_parse.py --config parse.config.yaml
 ```
+
+(`python -m scripts.run_parse --config parse.config.yaml` also works — the script inserts the
+`lineage-backend/` project root onto `sys.path` itself so both invocation styles resolve
+`app.parsing...` imports correctly.)
 
 Options:
 
