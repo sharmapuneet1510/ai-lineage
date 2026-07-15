@@ -53,6 +53,30 @@ Everything shown is a fact a parser literally observed — nothing is inferred. 
 value that is read downstream but has no producing fact is drawn as an explicit
 **gap**, not guessed at.
 
+## Review & feedback (optional backend)
+
+The viewer is read-only on its own. To let reviewers confirm, correct, flag a
+gap, or note a field — and to verify feedback before it's reused — run the small
+feedback API (no MSSQL/Neo4j needed):
+
+```bash
+cd ../lineage-backend
+FEEDBACK_STORE=../lineage-viewer/feedback_store.json \
+  python3 -m uvicorn scripts.feedback_server:app --port 8000
+```
+
+Then open the viewer pointed at it (the `?api=` is remembered afterwards):
+
+```
+http://localhost:8080/?api=http://localhost:8000/api
+```
+
+Each field gains a **Review & feedback** panel: submit feedback, and verify or
+reject entries. Feedback is stored as its own JSON layer and **never overwrites
+parsed facts** — only verified feedback is meant to be reused downstream. The
+same routes are also mounted in the main backend under `/api/feedback` when it
+runs with its databases.
+
 ## Notes
 
 - `data/` is git-ignored — it's your parse output, not part of the repo.

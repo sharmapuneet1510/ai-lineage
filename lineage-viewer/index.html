@@ -201,6 +201,36 @@
   .gapcard .gf { font-family: var(--mono); font-size: 12px; color: var(--gap); font-weight: 600; }
   .gapcard .gm { font-size: 12.5px; color: var(--ink-2); margin-top: 3px; }
 
+  /* feedback */
+  .fb-form { border: 1px solid var(--line-2); border-radius: 8px; padding: 13px; background: var(--surface); }
+  .fb-row { display: flex; gap: 9px; flex-wrap: wrap; margin-bottom: 9px; }
+  .fb-row .grow { flex: 1; min-width: 140px; }
+  .fb-form label { display: block; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; font-weight: 600; }
+  .fb-form select, .fb-form input, .fb-form textarea { width: 100%; padding: 7px 9px; border: 1px solid var(--line-2); border-radius: 6px; background: var(--surface); color: var(--ink); font-size: 13px; font-family: var(--sans); }
+  .fb-form textarea { resize: vertical; min-height: 56px; }
+  .fb-form :focus { outline: none; border-color: var(--accent); }
+  .fb-actions { display: flex; align-items: center; gap: 10px; }
+  .fb-submit { height: 34px; padding: 0 15px; border-radius: 6px; border: none; background: var(--accent); color: #fff; font-weight: 550; font-size: 13px; }
+  .fb-submit:hover { filter: brightness(1.06); }
+  .fb-note { font-size: 12px; color: var(--muted); }
+  .fb-item { border: 1px solid var(--line); border-radius: 8px; padding: 11px 13px; margin-top: 10px; background: var(--surface); }
+  .fb-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .fb-kind { font-size: 10px; letter-spacing: .05em; text-transform: uppercase; font-weight: 600; padding: 2px 8px; border-radius: 4px; border: 1px solid var(--chip-line); color: var(--chip-ink); background: var(--chip-bg); }
+  .fb-kind.correct { color: var(--link); border-color: color-mix(in srgb, var(--link) 40%, var(--chip-line)); }
+  .fb-kind.flag_gap { color: var(--gap); border-color: color-mix(in srgb, var(--gap) 40%, var(--chip-line)); }
+  .fb-kind.confirm { color: var(--ok); border-color: color-mix(in srgb, var(--ok) 40%, var(--chip-line)); }
+  .fb-status { font-size: 10px; letter-spacing: .05em; text-transform: uppercase; font-weight: 600; padding: 2px 8px; border-radius: 4px; }
+  .fb-status.unverified { color: var(--muted); background: var(--surface-2); border: 1px solid var(--line-2); }
+  .fb-status.verified { color: var(--ok); background: color-mix(in srgb, var(--ok) 12%, transparent); border: 1px solid color-mix(in srgb, var(--ok) 30%, transparent); }
+  .fb-status.rejected { color: var(--faint); background: var(--surface-2); border: 1px solid var(--line-2); text-decoration: line-through; }
+  .fb-who { margin-left: auto; font-family: var(--mono); font-size: 10.5px; color: var(--faint); }
+  .fb-body { color: var(--ink-2); font-size: 13.5px; margin: 8px 0 0; }
+  .fb-btns { display: flex; gap: 8px; margin-top: 9px; }
+  .fb-btn { font-size: 12px; padding: 4px 11px; border-radius: 5px; border: 1px solid var(--line-2); background: var(--surface); color: var(--ink-2); }
+  .fb-btn.verify { color: var(--ok); border-color: color-mix(in srgb, var(--ok) 40%, var(--line-2)); }
+  .fb-btn.reject { color: var(--link); border-color: color-mix(in srgb, var(--link) 40%, var(--line-2)); }
+  .fb-btn:hover { filter: brightness(.98); background: var(--surface-2); }
+
   @media (max-width: 900px) {
     .body { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
     .side { border-right: none; border-bottom: 1px solid var(--line); max-height: 38vh; }
@@ -417,6 +447,96 @@ function renderDoc(name){
   doc.appendChild(collapsible("Schema output mappings", String(iso.count), iso.node, iso.count===0));
   doc.appendChild(collapsible("Lineage graph",null, flowGraph(name), false));
   doc.appendChild(section("Evidence & provenance", s?String([...new Set([...s.producedBy,...s.consumedBy])].length):"0", evidence(name)));
+  doc.appendChild(feedbackSection(name));
+}
+
+/* ---- review & feedback (talks to the feedback API) ---------------------- */
+const _params = new URLSearchParams(location.search);
+if (_params.get("api")) { try{ localStorage.setItem("li-api", _params.get("api")); }catch(e){} }
+const API = (()=>{ try{ return localStorage.getItem("li-api") || "/api"; }catch(e){ return "/api"; } })();
+function reviewer(){ try{ return localStorage.getItem("li-reviewer")||""; }catch(e){ return ""; } }
+function setReviewer(v){ try{ localStorage.setItem("li-reviewer", v); }catch(e){} }
+async function postJSON(url, body){
+  const r = await fetch(url, {method:"POST", headers:{"content-type":"application/json"}, body:JSON.stringify(body)});
+  const j = await r.json().catch(()=>({}));
+  if (!r.ok) throw new Error((j.errors&&j.errors[0]&&j.errors[0].detail) || j.message || `HTTP ${r.status}`);
+  return j.data;
+}
+
+function feedbackSection(name){
+  const body = el("div","fb-host"); body.appendChild(el("div","empty","Loading feedback…"));
+  const sec = section("Review & feedback", null, body);
+  loadFeedback(name, sec); return sec;
+}
+async function loadFeedback(name, sec){
+  const host = sec.querySelector(".fb-host"); const cnt = sec.querySelector(".sn") || sec.querySelector(".sec-h");
+  let items = null;
+  try { const r = await fetch(`${API}/feedback?field_id=${encodeURIComponent(name)}`, {cache:"no-store"}); if (r.ok) items = (await r.json()).data || []; }
+  catch(e) { items = null; }
+  host.innerHTML = "";
+  if (items === null) { host.appendChild(fbDisconnected()); return; }
+  const h = sec.querySelector(".sec-h"); if (h && !h.querySelector(".sn")) h.insertBefore(el("span","sn",String(items.length)), h.querySelector("::after")||null);
+  host.appendChild(fbForm(name, sec));
+  const verified = items.filter(f=>f.status==="verified").length;
+  if (!items.length) host.appendChild(el("div","empty","No feedback yet. Confirm the field, propose a correction, or flag a gap."));
+  else { const note = el("div","fb-note"); note.style.margin="12px 0 2px"; note.textContent = `${items.length} entr${items.length===1?"y":"ies"} · ${verified} verified`; host.appendChild(note); items.slice().reverse().forEach(f=>host.appendChild(fbCard(f, name, sec))); }
+}
+function fbDisconnected(){
+  const d = el("div","empty");
+  d.innerHTML = `Feedback API not reachable at <code>${esc(API)}</code>.<span class="why">Start it: <code>python3 -m uvicorn scripts.feedback_server:app --port 8000</code> from lineage-backend, then open the viewer with <code>?api=http://localhost:8000/api</code></span>`;
+  return d;
+}
+function fbForm(name, sec){
+  const f = el("form","fb-form");
+  f.innerHTML =
+    `<div class="fb-row">`+
+      `<div class="grow"><label>Feedback</label><select name="kind">`+
+        `<option value="confirm">Confirm — looks right</option>`+
+        `<option value="correct">Correct — this is wrong</option>`+
+        `<option value="flag_gap">Flag gap — lineage incomplete</option>`+
+        `<option value="note">Note — comment</option>`+
+      `</select></div>`+
+      `<div class="grow"><label>About</label><select name="target">`+
+        `<option value="definition">Definition</option><option value="value">Value</option>`+
+        `<option value="lineage">Lineage</option><option value="downstream">Downstream</option>`+
+        `<option value="general">General</option></select></div>`+
+    `</div>`+
+    `<div class="fb-row"><div class="grow"><label>Detail</label><textarea name="body" placeholder="What's wrong, or what to confirm…"></textarea></div></div>`+
+    `<div class="fb-actions"><div style="width:190px"><label>Your name</label><input name="author" value="${esc(reviewer())}" placeholder="reviewer"></div>`+
+    `<button class="fb-submit" type="submit">Submit review</button><span class="fb-note" data-msg></span></div>`;
+  f.addEventListener("submit", async e => {
+    e.preventDefault();
+    const fd = new FormData(f); const author = (fd.get("author")||"").trim();
+    const msg = f.querySelector("[data-msg]");
+    if (!author) { msg.textContent = "Add your name."; return; }
+    setReviewer(author);
+    try {
+      await postJSON(`${API}/feedback`, {field_id:name, kind:fd.get("kind"), target:fd.get("target"), body:(fd.get("body")||"").trim(), author});
+      loadFeedback(name, sec);
+    } catch(err) { msg.textContent = String(err.message||err); }
+  });
+  return f;
+}
+function fbCard(fb, name, sec){
+  const c = el("div","fb-item");
+  const when = (fb.created_at||"").slice(0,16).replace("T"," ");
+  c.innerHTML =
+    `<div class="fb-top"><span class="fb-kind ${esc(fb.kind)}">${esc(fb.kind.replace("_"," "))}</span>`+
+    `<span class="fb-note">${esc(fb.target)}</span>`+
+    `<span class="fb-status ${esc(fb.status)}">${esc(fb.status)}</span>`+
+    `<span class="fb-who">${esc(fb.author)} · ${esc(when)}</span></div>`+
+    (fb.body?`<p class="fb-body">${esc(fb.body)}</p>`:"")+
+    (fb.status==="unverified"?`<div class="fb-btns"><button class="fb-btn verify">Verify</button><button class="fb-btn reject">Reject</button></div>`:
+      fb.verified_by?`<div class="fb-note" style="margin-top:8px">${fb.status} by ${esc(fb.verified_by)}</div>`:"");
+  const act = async (path) => {
+    const by = reviewer() || prompt("Your name (verifier):") || "";
+    if (!by.trim()) return; setReviewer(by.trim());
+    try { await postJSON(`${API}/feedback/${fb.id}/${path}`, {by:by.trim()}); loadFeedback(name, sec); }
+    catch(err){ alert(err.message||err); }
+  };
+  const vb = c.querySelector(".verify"); if (vb) vb.addEventListener("click", ()=>act("verify"));
+  const rb = c.querySelector(".reject"); if (rb) rb.addEventListener("click", ()=>act("reject"));
+  return c;
 }
 
 function section(title,count,body){ const sec=el("div","section"); const h=el("div","sec-h"); h.innerHTML=`<span class="st">${esc(title)}</span>`+(count!=null?`<span class="sn">${esc(count)}</span>`:""); const b=el("div","sec-body"); b.appendChild(body); sec.appendChild(h); sec.appendChild(b); return sec; }

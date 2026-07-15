@@ -7,3 +7,7 @@ __pycache__/
 
 # viewer reads the user's parse output from here — not part of the repo
 lineage-viewer/data/
+
+# runtime feedback store (created by the feedback API)
+feedback_store.json
+lineage-viewer/feedback_store.json

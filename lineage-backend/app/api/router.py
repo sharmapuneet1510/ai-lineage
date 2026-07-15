@@ -13,6 +13,7 @@ from app.api.routes import (
     dashboard_routes,
     search_routes,
 )
+from app.feedback.routes import router as feedback_router
 
 router = APIRouter()
 router.include_router(health_routes.router)
@@ -27,3 +28,4 @@ router.include_router(jurisdiction_routes.router)
 router.include_router(export_routes.router)
 router.include_router(dashboard_routes.router)
 router.include_router(search_routes.router)
+router.include_router(feedback_router)
