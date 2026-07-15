@@ -71,7 +71,13 @@ def write_indexes(facts: list[Fact], out_dir: Path) -> None:
 
 
 def _tokens_of(fact: Fact) -> list[str]:
-    tokens = [fact.subject, *fact.reads, *fact.writes, fact.provenance.file]
+    # `file` is module-relative (see Provenance.file); the file's identity is
+    # (module, file). Two different modules can each contain e.g. order.xml,
+    # so the bare filename would collide across modules and merge unrelated
+    # facts under one token — wrong attribution in an audit tool. Qualify it
+    # with the module. subject/reads/writes/symbol/xpath stay bare.
+    file_token = f"{fact.provenance.module}/{fact.provenance.file}"
+    tokens = [fact.subject, *fact.reads, *fact.writes, file_token]
     if fact.provenance.symbol:
         tokens.append(fact.provenance.symbol)
     if fact.provenance.xpath:

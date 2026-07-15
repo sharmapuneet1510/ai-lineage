@@ -97,6 +97,12 @@ def main(argv: list[str] | None = None) -> int:
         print(f"run aborted: {exc}", file=sys.stderr)
         if exc.summary is not None:
             print(format_summary(exc.summary, sink.issues), file=sys.stderr)
+            # A CI system parses run_summary.json after any run, fatal abort
+            # included. Without this, a fatal abort leaves no summary file at
+            # all even though a partial one was computed.
+            (out_dir / "run_summary.json").write_text(
+                json.dumps(exc.summary.model_dump(mode="json"), indent=2)
+            )
         return 1
     finally:
         sink.close()

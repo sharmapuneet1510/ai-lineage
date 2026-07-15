@@ -100,7 +100,7 @@ class Severity(str, Enum):
 
 class Provenance(BaseModel):
     module: str
-    file: str                        # repo-relative
+    file: str                        # module-relative — (module, file) together identify the file
     source_hash: str                 # sha256 of the file's bytes
     line_start: int | None = None
     line_end: int | None = None

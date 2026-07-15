@@ -31,7 +31,10 @@ class NullEmbedder:
     """The default. Semantic search off; full-text search unaffected."""
 
     def embed(self, texts: list[str]) -> list[list[float]]:
-        return []
+        # One empty vector per input — never drop the length, so a future
+        # `zip(texts, embedder.embed(texts))` caller gets a length mismatch
+        # loudly instead of silently zero pairs.
+        return [[] for _ in texts]
 
 
 class LocalEmbedder:

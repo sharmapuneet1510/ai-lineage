@@ -99,6 +99,7 @@ def load_config(path: Path) -> ParseConfig:
 
     _reject_duplicate_names(path, config)
     _reject_missing_roots(path, config)
+    _reject_bad_glob_patterns(path, config)
     return config
 
 
@@ -123,3 +124,34 @@ def _reject_missing_roots(path: Path, config: ParseConfig) -> None:
             raise ConfigError(
                 f"{path}: root for {name!r} does not exist: {resolved}"
             )
+
+
+def _check_glob_pattern(path: Path, owner: str, pattern: str) -> None:
+    """Reject a pattern that `Path.glob()` would later raise on.
+
+    `Path.glob()` raises `NotImplementedError` for an absolute pattern and
+    `ValueError` for a malformed pattern (e.g. a `**` component glued to other
+    text). Neither is caught by the walker's `except OSError` around glob
+    iteration, so an accepted-but-bad pattern crashes the whole run with a raw
+    traceback instead of a clean, attributable error. A bad pattern is a
+    config-authoring mistake, so it is rejected here, at load time.
+    """
+    # A nonexistent root is deliberate: this only needs to trigger pathlib's
+    # pattern validation (which raises before any directory is scanned for a
+    # bad pattern), not actually walk the filesystem.
+    try:
+        list(Path("/nonexistent-sentinel-for-glob-validation").glob(pattern))
+    except (ValueError, NotImplementedError) as exc:
+        raise ConfigError(
+            f"{path}: invalid glob pattern {pattern!r} for {owner}: {exc}"
+        ) from exc
+
+
+def _reject_bad_glob_patterns(path: Path, config: ParseConfig) -> None:
+    for module in config.modules:
+        for binding in module.parsers:
+            for pattern in (*binding.include, *binding.exclude):
+                _check_glob_pattern(path, f"module {module.name!r}", pattern)
+    for store in config.xsd_stores:
+        for pattern in store.include:
+            _check_glob_pattern(path, f"xsd_store {store.name!r}", pattern)

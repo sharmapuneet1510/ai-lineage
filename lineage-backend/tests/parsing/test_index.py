@@ -44,7 +44,21 @@ def test_evidence_index_maps_symbol_file_and_xpath():
     index = build_evidence_index(facts)
     assert index["tokens"]["Pricer.calc"] == [0]
     assert index["tokens"]["/Order/Price"] == [1]
-    assert index["tokens"]["out.xsl"] == [1]
+    assert index["tokens"]["pricing-core/out.xsl"] == [1]
+
+
+def test_evidence_index_qualifies_file_token_by_module_to_avoid_collisions():
+    # Two different modules each containing an order.xml must not merge into
+    # one "order.xml" token — that would misattribute facts across modules in
+    # an audit tool. The file token must be module-qualified.
+    facts = [
+        _fact("element", "order", module="module-a", file="order.xml"),
+        _fact("element", "order", module="module-b", file="order.xml"),
+    ]
+    index = build_evidence_index(facts)
+    assert index["tokens"]["module-a/order.xml"] == [0]
+    assert index["tokens"]["module-b/order.xml"] == [1]
+    assert "order.xml" not in index["tokens"]
 
 
 def test_one_token_can_map_to_several_facts():
@@ -106,3 +120,4 @@ def test_write_indexes_writes_both_files(tmp_path):
 
     assert fields == {"fields": []}
     assert evidence["tokens"]["order"] == [0]
+    assert evidence["tokens"]["pricing-core/Pricer.java"] == [0]

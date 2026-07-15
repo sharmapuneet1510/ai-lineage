@@ -126,6 +126,12 @@ def _matching_files(
     inside the loop body. That has to be guarded around the iteration, not
     just around per-item work like `is_file()`.
 
+    A malformed or absolute pattern (`ValueError` / `NotImplementedError`) is
+    normally rejected at config-load time (`config._reject_bad_glob_patterns`)
+    before it ever reaches here. The except clause below also catches those as
+    a belt-and-suspenders backstop, so even a pattern that somehow slips past
+    config validation becomes a ParseIssue instead of a crash.
+
     Returns:
         (matched_files, failed_paths, glob_failures)
         - failed_paths: [(abs_path, error_msg), ...] for files that could not be
@@ -150,10 +156,12 @@ def _matching_files(
                 except OSError as exc:
                     # Stat failure (e.g., PermissionError, ESTALE). Collect it and continue.
                     failed.append((p, str(exc)))
-        except OSError as exc:
-            # The glob generator itself raised while scanning a directory.
-            # Whatever was matched before the raise is already in `included`;
-            # the rest of this pattern's matches are lost.
+        except (OSError, ValueError, NotImplementedError) as exc:
+            # The glob generator itself raised while scanning a directory, or
+            # (belt-and-suspenders — config-load validation is the primary
+            # gate) the pattern itself was malformed/absolute. Whatever was
+            # matched before the raise is already in `included`; the rest of
+            # this pattern's matches are lost.
             glob_failures.append(("include", pattern, str(exc)))
 
     excluded: set[Path] = set()
@@ -161,7 +169,7 @@ def _matching_files(
         try:
             for p in root.glob(pattern):
                 excluded.add(p)
-        except OSError as exc:
+        except (OSError, ValueError, NotImplementedError) as exc:
             glob_failures.append(("exclude", pattern, str(exc)))
 
     kept = [

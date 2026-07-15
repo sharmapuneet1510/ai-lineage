@@ -20,7 +20,7 @@ class Provenance(BaseModel):
     """Where a fact came from. Required on every fact (Rule 3)."""
 
     module: str
-    file: str  # repo-relative
+    file: str  # module-relative — (module, file) together identify the file
     source_hash: str  # sha256 of the file's bytes
     parser: str
     parser_version: str

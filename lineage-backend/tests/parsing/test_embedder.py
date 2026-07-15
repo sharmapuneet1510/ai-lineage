@@ -14,9 +14,13 @@ def test_default_is_the_null_embedder():
     assert isinstance(embedder, NullEmbedder)
 
 
-def test_null_embedder_returns_no_vectors():
-    # Full-text search must work with no embedder configured.
-    assert NullEmbedder().embed(["price", "discount"]) == []
+def test_null_embedder_returns_one_empty_vector_per_input():
+    # Full-text search must work with no embedder configured, but the
+    # returned list must stay the same length as the input so a future
+    # `zip(texts, embedder.embed(texts))` caller doesn't silently get zero
+    # pairs instead of a length mismatch.
+    assert NullEmbedder().embed(["price", "discount"]) == [[], []]
+    assert NullEmbedder().embed([]) == []
 
 
 def test_unknown_mode_is_rejected():

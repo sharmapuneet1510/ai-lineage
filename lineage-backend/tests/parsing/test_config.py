@@ -135,16 +135,55 @@ xsd_store:
 
 
 def test_unknown_module_key_is_rejected(tmp_path):
+    # `root:` is kept (it's required) and a genuinely extra key is added, so
+    # this actually exercises extra="forbid" at the module level rather than
+    # merely tripping the required-field check.
     bad = """
 version: 1
 modules:
   - name: pricing-core
-    roots: ./src/pricing
+    root: ./src/pricing
+    bogus: oops
     parsers:
       - type: java
         include: ["**/*.java"]
 """
     with pytest.raises(ConfigError):
+        load_config(_write(tmp_path, bad))
+
+
+def test_unknown_options_key_is_rejected(tmp_path):
+    bad = VALID + "  output_dr: /tmp\n"
+    with pytest.raises(ConfigError):
+        load_config(_write(tmp_path, bad))
+
+
+def test_absolute_include_pattern_is_rejected(tmp_path):
+    # `root.glob("/abs/*.xml")` raises NotImplementedError at the walker,
+    # uncaught, with no ParseIssue — a raw crash. Must be rejected at
+    # config-load time instead, with a clean, actionable ConfigError.
+    bad = VALID.replace('include: ["**/*.java"]', 'include: ["/abs/*.java"]')
+    with pytest.raises(ConfigError, match="pricing-core"):
+        load_config(_write(tmp_path, bad))
+
+
+def test_malformed_double_star_include_pattern_is_rejected(tmp_path):
+    # `root.glob("**a/**")` raises ValueError at the walker, uncaught, with
+    # no ParseIssue — a raw crash. Must be rejected at config-load time.
+    bad = VALID.replace('include: ["**/*.java"]', 'include: ["**a/**"]')
+    with pytest.raises(ConfigError, match="pricing-core"):
+        load_config(_write(tmp_path, bad))
+
+
+def test_bad_exclude_pattern_is_rejected(tmp_path):
+    bad = VALID.replace('exclude: ["**/test/**"]', 'exclude: ["/abs/**"]')
+    with pytest.raises(ConfigError):
+        load_config(_write(tmp_path, bad))
+
+
+def test_bad_xsd_store_include_pattern_is_rejected(tmp_path):
+    bad = VALID.replace("root: ./schemas/out", 'root: ./schemas/out\n    include: ["**a/**"]')
+    with pytest.raises(ConfigError, match="outbound"):
         load_config(_write(tmp_path, bad))
 
 

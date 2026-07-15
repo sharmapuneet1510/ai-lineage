@@ -71,6 +71,23 @@ def test_fail_on_error_flag_exits_one(tmp_path):
     assert main(["--config", config_path, "--fail-on", "error"]) == 1
 
 
+def test_fatal_abort_still_writes_the_partial_run_summary(tmp_path):
+    # A CI system parses run_summary.json after every run, fatal abort
+    # included. Before the fix, exc.summary was printed to stderr but never
+    # written to disk, so a fatal abort left no run_summary.json at all.
+    config_path = _project(tmp_path)
+    (tmp_path / "src" / "bad.xml").write_text("<order><unclosed></order>")
+
+    code = main(["--config", config_path, "--fail-on", "error"])
+    assert code == 1
+
+    summary_path = tmp_path / "out" / "run_summary.json"
+    assert summary_path.exists()
+    summary = json.loads(summary_path.read_text())
+    assert summary["files_parsed"] == 1
+    assert summary["issues_by_severity"]["error"] == 1
+
+
 def test_documented_invocation_runs_as_a_real_subprocess(tmp_path):
     """Regression test for the documented `python scripts/run_parse.py` command.
 
