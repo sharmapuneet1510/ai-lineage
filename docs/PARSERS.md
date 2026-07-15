@@ -60,6 +60,17 @@ read. Assume adversarial or merely corrupt input, not just malformed-but-well-
 intentioned input. Write a test for each failure mode you find, not just the
 one that was reported.
 
+The runner has a catch-all backstop for this rule (`runner.py` wraps
+`yield from parser.parse(...)` in `except Exception` and converts any leaked
+parser exception into an ERROR `ParseIssue`), so a leaked exception becomes a
+degraded-but-attributed gap rather than a crash. This is a safety net, **not**
+license to skip your own error handling: a parser that relies on the backstop
+loses per-fact provenance (the backstop only knows the file, not which
+construct inside it failed) and gets a generic `"parser raised
+{ExceptionType}: {message}"` instead of a precise, actionable message. Handle
+your own failure modes; treat the backstop as the last line of defense, not
+the first.
+
 ## Security: never resolve DTDs or external entities (XML-family parsers)
 
 The XML parser refuses **any** document that declares a DTD (`<!DOCTYPE ...>`),
