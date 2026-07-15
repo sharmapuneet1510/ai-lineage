@@ -5,227 +5,227 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Lineage Inspector — Field 360</title>
 <style>
-  /* ---- tokens: clean regulatory-console, light-primary + dark ---------- */
+  /* ---- tokens: plain regulatory-ops console -------------------------- */
   :root {
-    color-scheme: light dark;
-    --bg: #eef1f6;
+    color-scheme: light;
+    --bg: #f3f5f9;
     --surface: #ffffff;
-    --surface-2: #f5f7fb;
-    --sink: #f0f3f8;
-    --ink: #1a2233;
-    --ink-2: #3c4863;
-    --muted: #6b7488;
-    --faint: #949cb0;
-    --line: #e2e7f0;
-    --line-2: #d3dae6;
-    --nav: #202a4d;
-    --nav-ink: #eaeefb;
-    --accent: #2f6fb0;
-    --accent-ink: #ffffff;
-    --ok: #2f9e6f;
-    --gap: #c07a2b;
-    --danger: #c24b45;
+    --surface-2: #f6f8fb;
+    --sink: #f7f9fc;
+    --ink: #1d2740;
+    --ink-2: #39435c;
+    --muted: #66708a;
+    --faint: #98a1b5;
+    --line: #e6eaf1;
+    --line-2: #d7dde8;
+    --nav-a: #2a3866;
+    --nav-b: #212d54;
+    --nav-ink: #eef1fb;
+    --accent: #2f5fa0;
+    --chip-bg: #eef1f7;
+    --chip-line: #dde3ee;
+    --chip-ink: #46516d;
+    --tag-bg: #e5eaf3;
+    --tag-ink: #45526f;
+    --code-ink: #2f6fb0;
+    --ok: #2c9a6a;
     --link: #b0472e;
-    --lang-java: #2f6fe0;
-    --lang-xslt: #7b52d6;
-    --lang-xsd: #2e9560;
-    --lang-xml: #1a8a98;
-    --lang-document: #a9702c;
+    --gap: #b0752a;
     --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
     --sans: ui-sans-serif, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    --shadow: 0 1px 2px rgba(24,40,80,.05), 0 6px 20px rgba(24,40,80,.06);
   }
   :root[data-theme="light"] { color-scheme: light; }
   @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #0d1220; --surface: #151b2b; --surface-2: #1b2334; --sink: #101626;
-      --ink: #e7ebf5; --ink-2: #bcc5da; --muted: #8b95ac; --faint: #6c7690;
-      --line: rgba(150,170,210,.13); --line-2: rgba(150,170,210,.22);
-      --nav: #10162a; --nav-ink: #dbe2f5;
-      --accent: #4f9be0; --accent-ink: #07131f; --ok: #52c48d; --gap: #e0a35e; --danger: #e0645e; --link: #e0906a;
-      --lang-java: #6ea8fe; --lang-xslt: #b28bff; --lang-xsd: #62c98a; --lang-xml: #4db6c4; --lang-document: #d9a066;
-      --shadow: 0 1px 0 rgba(255,255,255,.03) inset, 0 8px 26px rgba(0,0,0,.4);
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --bg: #0e1421; --surface: #161d2c; --surface-2: #1a2233; --sink: #121a28;
+      --ink: #e8ecf5; --ink-2: #c0c9dc; --muted: #8b95ac; --faint: #6d7791;
+      --line: rgba(150,170,210,.12); --line-2: rgba(150,170,210,.2);
+      --nav-a: #141c30; --nav-b: #0e1424; --nav-ink: #dbe2f4;
+      --accent: #4f92da; --chip-bg: #1f2942; --chip-line: rgba(150,170,210,.18); --chip-ink: #b7c1d8;
+      --tag-bg: #212c46; --tag-ink: #b0bbd4; --code-ink: #5fa2e0;
+      --ok: #4bbd88; --link: #dd8a63; --gap: #d6a05c;
     }
   }
   :root[data-theme="dark"] {
     color-scheme: dark;
-    --bg: #0d1220; --surface: #151b2b; --surface-2: #1b2334; --sink: #101626;
-    --ink: #e7ebf5; --ink-2: #bcc5da; --muted: #8b95ac; --faint: #6c7690;
-    --line: rgba(150,170,210,.13); --line-2: rgba(150,170,210,.22);
-    --nav: #10162a; --nav-ink: #dbe2f5;
-    --accent: #4f9be0; --accent-ink: #07131f; --ok: #52c48d; --gap: #e0a35e; --danger: #e0645e; --link: #e0906a;
-    --lang-java: #6ea8fe; --lang-xslt: #b28bff; --lang-xsd: #62c98a; --lang-xml: #4db6c4; --lang-document: #d9a066;
-    --shadow: 0 1px 0 rgba(255,255,255,.03) inset, 0 8px 26px rgba(0,0,0,.4);
+    --bg: #0e1421; --surface: #161d2c; --surface-2: #1a2233; --sink: #121a28;
+    --ink: #e8ecf5; --ink-2: #c0c9dc; --muted: #8b95ac; --faint: #6d7791;
+    --line: rgba(150,170,210,.12); --line-2: rgba(150,170,210,.2);
+    --nav-a: #141c30; --nav-b: #0e1424; --nav-ink: #dbe2f4;
+    --accent: #4f92da; --chip-bg: #1f2942; --chip-line: rgba(150,170,210,.18); --chip-ink: #b7c1d8;
+    --tag-bg: #212c46; --tag-ink: #b0bbd4; --code-ink: #5fa2e0;
+    --ok: #4bbd88; --link: #dd8a63; --gap: #d6a05c;
   }
 
   * { box-sizing: border-box; }
   html, body { height: 100%; }
   body { margin: 0; font-family: var(--sans); background: var(--bg); color: var(--ink); font-size: 14px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
-  .mono { font-family: var(--mono); }
   button, input { font-family: inherit; color: inherit; }
   button { cursor: pointer; }
-  ::selection { background: color-mix(in srgb, var(--accent) 30%, transparent); }
+  code { font-family: var(--mono); }
+  ::selection { background: color-mix(in srgb, var(--accent) 24%, transparent); }
 
   .app { display: flex; flex-direction: column; height: 100vh; }
 
-  /* ---- top nav -------------------------------------------------------- */
-  .nav { display: flex; align-items: center; gap: 16px; height: 50px; padding: 0 16px; background: var(--nav); color: var(--nav-ink); flex-shrink: 0; z-index: 30; }
-  .logo { font-weight: 650; font-size: 15px; letter-spacing: .01em; display: flex; align-items: center; gap: 9px; }
-  .logo .glyph { width: 20px; height: 20px; }
-  .logo .tag { font-weight: 400; font-size: 11px; opacity: .62; letter-spacing: .02em; }
-  .src { display: flex; align-items: center; gap: 7px; font-family: var(--mono); font-size: 11px; padding: 4px 10px; border-radius: 6px; background: rgba(255,255,255,.08); color: var(--nav-ink); }
-  .src .dot { width: 7px; height: 7px; border-radius: 50%; background: #8b95ac; flex: none; }
-  .src.live .dot { background: #57c48d; box-shadow: 0 0 0 3px rgba(87,196,141,.25); }
-  .src.demo .dot { background: #e0a35e; }
-  .search-wrap { flex: 1; max-width: 440px; position: relative; }
-  .search { width: 100%; height: 32px; padding: 0 12px 0 32px; border-radius: 7px; border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.07); color: var(--nav-ink); font-family: var(--mono); font-size: 12px; }
-  .search::placeholder { color: rgba(234,238,251,.5); }
-  .search:focus { outline: none; border-color: var(--accent); background: rgba(255,255,255,.12); }
-  .search-ico { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); opacity: .6; pointer-events: none; }
-  .results { position: absolute; top: 38px; left: 0; right: 0; z-index: 50; background: var(--surface); color: var(--ink); border: 1px solid var(--line-2); border-radius: 8px; box-shadow: var(--shadow); max-height: 62vh; overflow: auto; padding: 6px; display: none; }
+  /* ---- top nav ------------------------------------------------------- */
+  .nav { display: flex; align-items: center; gap: 16px; height: 48px; padding: 0 16px; background: linear-gradient(180deg, var(--nav-a), var(--nav-b)); color: var(--nav-ink); flex-shrink: 0; z-index: 30; }
+  .logo { display: flex; align-items: center; gap: 9px; font-size: 15px; font-weight: 600; letter-spacing: .005em; }
+  .logo .glyph { width: 19px; height: 19px; opacity: .95; }
+  .logo .tag { font-weight: 400; font-size: 10.5px; opacity: .58; letter-spacing: .04em; margin-left: 1px; }
+  .src { display: flex; align-items: center; gap: 7px; font-family: var(--mono); font-size: 11px; padding: 4px 10px; border-radius: 5px; background: rgba(255,255,255,.09); }
+  .src .dot { width: 7px; height: 7px; border-radius: 50%; background: #93a; background: #8b95ac; flex: none; }
+  .src.live .dot { background: #52c48d; box-shadow: 0 0 0 3px rgba(82,196,141,.22); }
+  .src.demo .dot { background: #d6a05c; }
+  .search-wrap { flex: 1; max-width: 420px; position: relative; }
+  .search { width: 100%; height: 31px; padding: 0 12px 0 32px; border-radius: 6px; border: 1px solid rgba(255,255,255,.13); background: rgba(255,255,255,.08); color: var(--nav-ink); font-size: 12.5px; }
+  .search::placeholder { color: rgba(238,241,251,.52); }
+  .search:focus { outline: none; border-color: rgba(255,255,255,.4); background: rgba(255,255,255,.14); }
+  .search-ico { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); opacity: .55; pointer-events: none; }
+  .results { position: absolute; top: 37px; left: 0; right: 0; z-index: 50; background: var(--surface); color: var(--ink); border: 1px solid var(--line-2); border-radius: 7px; box-shadow: 0 10px 34px rgba(20,30,60,.16); max-height: 62vh; overflow: auto; padding: 5px; display: none; }
   .results.open { display: block; }
-  .results .grp { padding: 8px 8px 3px; }
-  .res { display: flex; align-items: center; gap: 10px; padding: 7px 9px; border-radius: 6px; cursor: pointer; font-family: var(--mono); font-size: 12px; }
+  .results .g { padding: 8px 8px 3px; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); }
+  .res { display: flex; align-items: center; gap: 10px; padding: 6px 9px; border-radius: 5px; cursor: pointer; font-family: var(--mono); font-size: 12px; }
   .res:hover { background: var(--surface-2); }
+  .res .n { min-width: 22px; text-align: center; font-size: 10px; color: var(--muted); border: 1px solid var(--line-2); border-radius: 4px; padding: 1px 0; }
   .spacer { flex: 1; }
-  .nbtn { display: inline-flex; align-items: center; gap: 7px; height: 32px; padding: 0 12px; border-radius: 7px; border: 1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.06); color: var(--nav-ink); font-size: 12.5px; font-weight: 550; white-space: nowrap; }
-  .nbtn:hover { background: rgba(255,255,255,.13); }
-  .nbtn.icon { width: 32px; padding: 0; justify-content: center; }
+  .nbtn { display: inline-flex; align-items: center; gap: 7px; height: 31px; padding: 0 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,.15); background: rgba(255,255,255,.07); color: var(--nav-ink); font-size: 12.5px; font-weight: 500; white-space: nowrap; }
+  .nbtn:hover { background: rgba(255,255,255,.14); }
+  .nbtn.icon { width: 31px; padding: 0; justify-content: center; }
 
-  .banner { display: none; align-items: center; gap: 10px; padding: 8px 16px; background: color-mix(in srgb, var(--gap) 16%, var(--surface)); border-bottom: 1px solid color-mix(in srgb, var(--gap) 40%, transparent); font-size: 12.5px; color: var(--ink-2); }
+  .banner { display: none; align-items: center; gap: 10px; padding: 7px 16px; background: color-mix(in srgb, var(--gap) 13%, var(--surface)); border-bottom: 1px solid color-mix(in srgb, var(--gap) 34%, transparent); font-size: 12.5px; color: var(--ink-2); }
   .banner.show { display: flex; }
   .banner .x { margin-left: auto; background: none; border: none; color: var(--muted); font-size: 16px; }
 
-  /* ---- two-pane body -------------------------------------------------- */
-  .body { flex: 1; display: grid; grid-template-columns: 288px 1fr; min-height: 0; }
+  /* ---- two-pane ------------------------------------------------------ */
+  .body { flex: 1; display: grid; grid-template-columns: 292px 1fr; min-height: 0; }
   .panel { min-height: 0; overflow: auto; }
 
   /* sidebar */
   .side { background: var(--surface); border-right: 1px solid var(--line); }
-  .side-search { position: sticky; top: 0; background: var(--surface); padding: 12px; border-bottom: 1px solid var(--line); z-index: 5; }
-  .filter { width: 100%; height: 34px; padding: 0 11px; border-radius: 7px; border: 1px solid var(--line-2); background: var(--surface-2); color: var(--ink); font-size: 13px; }
+  .side-top { position: sticky; top: 0; background: var(--surface); padding: 11px 12px 10px; border-bottom: 1px solid var(--line); z-index: 5; }
+  .filter { width: 100%; height: 32px; padding: 0 11px; border-radius: 6px; border: 1px solid var(--line-2); background: var(--surface); color: var(--ink); font-size: 13px; }
   .filter:focus { outline: none; border-color: var(--accent); }
   .side-chips { display: flex; gap: 6px; margin-top: 9px; }
-  .chip-t { font-family: var(--mono); font-size: 10px; letter-spacing: .05em; padding: 3px 9px; border-radius: 20px; border: 1px solid var(--line-2); color: var(--muted); background: transparent; }
-  .chip-t[aria-pressed="true"] { color: var(--accent); border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
-  .chip-t.gap[aria-pressed="true"] { color: var(--gap); border-color: var(--gap); background: color-mix(in srgb, var(--gap) 12%, transparent); }
+  .cf { font-size: 11px; padding: 3px 10px; border-radius: 5px; border: 1px solid var(--line-2); color: var(--muted); background: var(--surface); }
+  .cf[aria-pressed="true"] { color: var(--accent); border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); }
+  .cf.gap[aria-pressed="true"] { color: var(--gap); border-color: var(--gap); background: color-mix(in srgb, var(--gap) 10%, transparent); }
 
-  .grp-h { display: flex; align-items: center; justify-content: space-between; padding: 13px 14px 6px; cursor: pointer; user-select: none; }
-  .grp-h .gt { font-family: var(--mono); font-size: 11px; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-2); font-weight: 600; }
-  .grp-h .gc { font-family: var(--mono); font-size: 11px; color: var(--faint); }
-  .frow { display: flex; align-items: flex-start; gap: 9px; width: 100%; text-align: left; padding: 8px 14px; border: none; background: none; border-left: 2px solid transparent; }
+  .grp-h { display: flex; align-items: center; justify-content: space-between; padding: 13px 13px 5px; cursor: pointer; user-select: none; }
+  .grp-h .gt { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  .grp-h .gr { display: flex; align-items: center; gap: 7px; color: var(--faint); font-size: 11px; }
+  .grp-h .tri { font-size: 9px; transition: transform .12s; }
+  .grp-h.closed .tri { transform: rotate(-90deg); }
+  .frow { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; padding: 7px 13px; border: none; background: none; border-left: 2px solid transparent; }
   .frow:hover { background: var(--surface-2); }
-  .frow[aria-selected="true"] { background: color-mix(in srgb, var(--accent) 9%, transparent); border-left-color: var(--accent); }
-  .frow .fmeta { flex: 1; min-width: 0; }
-  .frow .fname { font-weight: 550; font-size: 13.5px; color: var(--ink); }
-  .frow[aria-selected="true"] .fname { color: var(--accent); }
-  .frow .fcode { font-family: var(--mono); font-size: 10.5px; color: var(--faint); letter-spacing: .02em; margin-top: 1px; word-break: break-all; }
-  .frow .fdot { width: 8px; height: 8px; border-radius: 50%; margin-top: 5px; flex: none; background: var(--ok); }
-  .frow.is-gap .fdot { background: var(--gap); }
-  .frow.is-gap .fname { color: var(--gap); }
+  .frow[aria-selected="true"] { background: color-mix(in srgb, var(--accent) 8%, transparent); border-left-color: var(--accent); }
+  .frow .fm { flex: 1; min-width: 0; }
+  .frow .fn { font-size: 13.5px; color: var(--ink); }
+  .frow[aria-selected="true"] .fn { color: var(--accent); font-weight: 550; }
+  .frow .fc { font-family: var(--mono); font-size: 10.5px; color: var(--faint); margin-top: 1px; word-break: break-all; }
+  .frow .fd { width: 7px; height: 7px; border-radius: 50%; flex: none; background: var(--ok); }
+  .frow.is-gap .fd { background: var(--gap); }
+  .frow.is-gap .fn { color: var(--gap); }
 
-  /* ---- field-360 document -------------------------------------------- */
+  /* ---- field-360 document ------------------------------------------- */
   .doc { background: var(--bg); }
-  .doc-inner { max-width: 940px; margin: 0 auto; padding: 22px 30px 80px; }
+  .doc-in { max-width: 960px; margin: 0 auto; padding: 22px 34px 90px; }
 
-  .fhead { padding-bottom: 6px; }
-  .ftitle { margin: 0; font-size: 26px; font-weight: 640; letter-spacing: -.01em; text-wrap: balance; }
+  .ftitle { margin: 0; font-size: 25px; font-weight: 600; letter-spacing: -.005em; color: var(--ink); text-wrap: balance; }
   .fchips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 11px; }
-  .pill { font-family: var(--mono); font-size: 11px; padding: 3px 9px; border-radius: 6px; border: 1px solid var(--line-2); color: var(--ink-2); background: var(--surface); }
-  .pill.code { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 40%, var(--line-2)); }
-  .pill.cat { background: var(--surface-2); }
-  .pill.trust { display: inline-flex; align-items: center; gap: 5px; border-color: color-mix(in srgb, var(--ok) 40%, var(--line-2)); color: var(--ok); }
-  .pill.trust::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
-  .pill.trust.gap { color: var(--gap); border-color: color-mix(in srgb, var(--gap) 45%, var(--line-2)); }
+  .pill { font-family: var(--mono); font-size: 11px; padding: 3px 9px; border-radius: 4px; border: 1px solid var(--chip-line); color: var(--chip-ink); background: var(--chip-bg); }
+  .pill.code { color: var(--code-ink); }
+  .pill.txt { font-family: var(--sans); }
+  .pill.ai { display: inline-flex; align-items: center; gap: 5px; }
+  .pill.ai::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--ok); }
+  .pill.ai.gap::before { background: var(--gap); }
+  .metastrip { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 12px; color: var(--muted); font-size: 12.5px; }
+  .metastrip b { color: var(--ink-2); font-variant-numeric: tabular-nums; font-weight: 600; }
 
-  .section { margin-top: 26px; }
-  .sec-h { display: flex; align-items: center; gap: 10px; padding-bottom: 9px; margin-bottom: 14px; border-bottom: 1px solid var(--line); }
-  .sec-h .st { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); font-weight: 600; }
-  .sec-h .sct { font-family: var(--mono); font-size: 11px; color: var(--faint); }
+  /* section = label + trailing hairline (fieldset-legend look) */
+  .section { margin-top: 30px; }
+  .sec-h { display: flex; align-items: center; gap: 13px; margin-bottom: 14px; }
+  .sec-h .st { font-size: 11px; letter-spacing: .11em; text-transform: uppercase; color: var(--muted); font-weight: 600; white-space: nowrap; }
+  .sec-h .sn { font-size: 11px; color: var(--faint); font-family: var(--mono); }
+  .sec-h::after { content: ""; flex: 1; height: 1px; background: var(--line-2); }
   .sec-h.click { cursor: pointer; user-select: none; }
-  .sec-h .tri { color: var(--faint); transition: transform .15s; font-size: 10px; }
-  .section.collapsed .tri { transform: rotate(-90deg); }
+  .sec-h .tri { font-size: 9px; color: var(--faint); transition: transform .12s; }
+  .section.collapsed .sec-h .tri { transform: rotate(-90deg); }
   .section.collapsed .sec-body { display: none; }
 
-  .prose { color: var(--ink-2); font-size: 14.5px; max-width: 72ch; }
-  .subsec { margin-top: 14px; }
+  .prose { color: var(--ink-2); font-size: 14.5px; max-width: 74ch; }
+  .subsec { margin-top: 15px; }
   .subsec:first-child { margin-top: 0; }
-  .tag { display: inline-block; font-family: var(--mono); font-size: 10px; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); background: var(--surface-2); border: 1px solid var(--line); padding: 3px 8px; border-radius: 5px; margin-bottom: 8px; }
-  .logic { font-family: var(--mono); font-size: 12.5px; color: var(--ink-2); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; white-space: pre-wrap; overflow-x: auto; }
+  .wtag { display: inline-block; font-size: 10px; letter-spacing: .09em; text-transform: uppercase; color: var(--tag-ink); background: var(--tag-bg); padding: 3px 9px; border-radius: 4px; margin-bottom: 8px; font-weight: 600; }
+  .logic { font-family: var(--mono); font-size: 12.5px; color: var(--ink-2); white-space: pre-wrap; line-height: 1.7; }
 
   .empty { color: var(--muted); font-size: 13px; font-style: italic; }
-  .empty .why { font-style: normal; font-family: var(--mono); font-size: 11px; color: var(--faint); display: block; margin-top: 3px; }
+  .empty .why { font-style: normal; font-family: var(--mono); font-size: 11px; color: var(--faint); display: block; margin-top: 4px; }
 
-  /* downstream cards */
-  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; }
-  .card { border: 1px solid var(--line-2); border-radius: 10px; padding: 13px 14px; background: var(--surface); }
-  .card .sys { font-family: var(--mono); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
-  .card .fld { font-family: var(--mono); font-size: 13px; color: var(--ink); margin: 5px 0 9px; }
-  .badge { display: inline-flex; align-items: center; gap: 5px; font-family: var(--mono); font-size: 10.5px; padding: 2px 8px; border-radius: 5px; background: color-mix(in srgb, var(--ok) 14%, transparent); color: var(--ok); border: 1px solid color-mix(in srgb, var(--ok) 35%, transparent); }
+  .cards { display: flex; gap: 12px; flex-wrap: wrap; }
+  .card { flex: 1 1 200px; min-width: 190px; border: 1px solid var(--line-2); border-radius: 7px; padding: 12px 14px; background: var(--surface); }
+  .card .sys { font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  .card .fld { font-family: var(--mono); font-size: 13px; color: var(--ink); margin: 6px 0 10px; }
+  .badge { display: inline-flex; align-items: center; gap: 5px; font-size: 10.5px; padding: 2px 8px; border-radius: 4px; background: color-mix(in srgb, var(--ok) 12%, transparent); color: var(--ok); border: 1px solid color-mix(in srgb, var(--ok) 30%, transparent); font-weight: 550; }
 
-  /* lineage graph section */
-  .flow { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; align-items: center; gap: 10px; }
+  .tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .tbl th { text-align: left; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; padding: 7px 10px; border-bottom: 1px solid var(--line-2); }
+  .tbl td { padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; color: var(--ink-2); }
+  .tbl td.key { font-family: var(--mono); color: var(--link); white-space: nowrap; }
+  .tbl tr:hover td { background: var(--surface-2); }
+
+  /* lineage graph */
+  .flow { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; align-items: center; gap: 10px; padding: 6px 0; }
   .col { display: flex; flex-direction: column; gap: 9px; min-width: 0; }
   .col.mid { align-items: center; }
-  .col-l { text-align: center; font-family: var(--mono); font-size: 10px; letter-spacing: .09em; text-transform: uppercase; color: var(--faint); margin-bottom: 3px; }
+  .col-l { text-align: center; font-size: 10px; letter-spacing: .09em; text-transform: uppercase; color: var(--faint); margin-bottom: 3px; }
   .arr { display: flex; align-items: center; justify-content: center; color: var(--faint); }
-  .arr svg { width: 24px; height: 13px; }
-  .gnode { display: block; width: 100%; text-align: left; padding: 10px 12px; border-radius: 9px; border: 1px solid var(--line-2); background: var(--surface); border-left: 3px solid var(--lc, var(--accent)); }
+  .arr svg { width: 22px; height: 12px; }
+  .gnode { display: block; width: 100%; text-align: left; padding: 9px 11px; border-radius: 7px; border: 1px solid var(--line-2); background: var(--surface); border-left: 3px solid var(--lc, var(--accent)); }
   .gnode:hover { border-color: var(--accent); }
   .gnode .gn { font-family: var(--mono); font-weight: 600; font-size: 12.5px; word-break: break-word; }
   .gnode .gs { font-family: var(--mono); font-size: 10px; color: var(--faint); margin-top: 3px; }
-  .gnode.focus { background: color-mix(in srgb, var(--accent) 11%, var(--surface)); }
-  .gnode.gap { border-style: dashed; border-color: var(--gap); border-left-color: var(--gap); background: color-mix(in srgb, var(--gap) 8%, var(--surface)); }
+  .gnode.focus { background: color-mix(in srgb, var(--accent) 9%, var(--surface)); }
+  .gnode.gap { border-style: dashed; border-color: var(--gap); border-left-color: var(--gap); }
   .gnode.gap .gn { color: var(--gap); }
-  .gexpr { font-family: var(--mono); font-size: 10px; color: var(--ink-2); background: var(--sink); border-radius: 5px; padding: 4px 6px; margin-top: 5px; word-break: break-word; }
-  .ghint { font-family: var(--mono); font-size: 10.5px; color: var(--faint); padding: 12px; border: 1px dashed var(--line-2); border-radius: 9px; text-align: center; }
+  .gexpr { font-family: var(--mono); font-size: 10px; color: var(--ink-2); background: var(--sink); border-radius: 4px; padding: 4px 6px; margin-top: 5px; word-break: break-word; }
+  .ghint { font-family: var(--mono); font-size: 10.5px; color: var(--faint); padding: 11px; border: 1px dashed var(--line-2); border-radius: 7px; text-align: center; }
 
-  /* jira / iso table */
-  .tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; }
-  .tbl th { text-align: left; font-family: var(--mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 500; padding: 7px 10px; border-bottom: 1px solid var(--line-2); background: var(--surface-2); }
-  .tbl td { padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
-  .tbl td.key { font-family: var(--mono); color: var(--link); white-space: nowrap; }
-
-  /* evidence */
-  .ev { border: 1px solid var(--line); border-radius: 10px; padding: 12px 13px; background: var(--surface); margin-top: 11px; }
+  .ev { border: 1px solid var(--line); border-radius: 7px; padding: 11px 13px; background: var(--surface); margin-top: 10px; }
   .ev-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-  .kind { font-family: var(--mono); font-size: 10px; letter-spacing: .04em; padding: 2px 8px; border-radius: 5px; border: 1px solid var(--lc, var(--line-2)); color: var(--lc, var(--ink-2)); }
-  .ev-code { font-family: var(--mono); font-size: 12px; background: var(--sink); border: 1px solid var(--line); border-radius: 7px; padding: 9px 11px; margin-top: 9px; overflow-x: auto; white-space: pre; color: var(--ink-2); }
+  .kind { font-family: var(--mono); font-size: 10px; letter-spacing: .04em; padding: 2px 8px; border-radius: 4px; border: 1px solid var(--lc, var(--line-2)); color: var(--lc, var(--ink-2)); }
+  .ev-code { font-family: var(--mono); font-size: 12px; background: var(--sink); border: 1px solid var(--line); border-radius: 6px; padding: 9px 11px; margin-top: 9px; overflow-x: auto; white-space: pre; color: var(--ink-2); }
   .stamp { font-family: var(--mono); font-size: 10.5px; color: var(--muted); margin-top: 9px; display: flex; flex-wrap: wrap; gap: 4px 10px; }
   .stamp b { color: var(--ink-2); font-weight: 600; }
-
-  .gapcard { border-left: 3px solid var(--gap); background: color-mix(in srgb, var(--gap) 7%, var(--surface)); border: 1px solid color-mix(in srgb, var(--gap) 30%, var(--line)); border-left-width: 3px; border-radius: 8px; padding: 10px 12px; margin-top: 11px; }
+  .gapcard { border: 1px solid color-mix(in srgb, var(--gap) 28%, var(--line)); border-left: 3px solid var(--gap); border-radius: 6px; padding: 10px 12px; margin-top: 10px; background: color-mix(in srgb, var(--gap) 6%, var(--surface)); }
   .gapcard .gf { font-family: var(--mono); font-size: 12px; color: var(--gap); font-weight: 600; }
   .gapcard .gm { font-size: 12.5px; color: var(--ink-2); margin-top: 3px; }
-
-  .metastrip { display: flex; gap: 22px; flex-wrap: wrap; margin-top: 4px; color: var(--muted); font-size: 12.5px; }
-  .metastrip b { color: var(--ink); font-variant-numeric: tabular-nums; }
 
   @media (max-width: 900px) {
     .body { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
     .side { border-right: none; border-bottom: 1px solid var(--line); max-height: 38vh; }
     .search-wrap { display: none; }
-    .doc-inner { padding: 18px 16px 60px; }
+    .doc-in { padding: 18px 16px 60px; }
   }
-  @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto; } }
+  @media (prefers-reduced-motion: reduce) { .tri { transition: none; } }
 </style>
 </head>
 <body>
 <div class="app">
   <header class="nav">
     <div class="logo">
-      <svg class="glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="6" cy="6" r="2.4"/><circle cx="6" cy="18" r="2.4"/><circle cx="18" cy="12" r="2.4"/><path d="M8.2 7 15.6 11M8.2 17 15.6 13"/></svg>
+      <svg class="glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="6" cy="6" r="2.3"/><circle cx="6" cy="18" r="2.3"/><circle cx="18" cy="12" r="2.3"/><path d="M8.2 7 15.6 11M8.2 17 15.6 13"/></svg>
       Lineage Inspector <span class="tag">field 360</span>
     </div>
     <div class="src" id="src"><span class="dot"></span><span id="srcTxt">loading…</span></div>
     <div class="search-wrap">
       <svg class="search-ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-      <input class="search" id="search" placeholder="search fields, symbols, files, xpaths…  (/)" autocomplete="off">
+      <input class="search" id="search" placeholder="Search fields, symbols, files, xpaths…  (/)" autocomplete="off">
       <div class="results" id="results"></div>
     </div>
     <div class="spacer"></div>
     <button class="nbtn" id="loadBtn">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0 4-4m-4 4-4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0 4-4m-4 4-4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
       Load parse output
     </button>
     <button class="nbtn icon" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">
@@ -242,383 +242,276 @@
 
   <div class="body">
     <aside class="panel side">
-      <div class="side-search">
+      <div class="side-top">
         <input class="filter" id="filter" placeholder="Search fields…" autocomplete="off">
         <div class="side-chips">
-          <button class="chip-t" data-flt="all" aria-pressed="true">all</button>
-          <button class="chip-t gap" data-flt="gap" aria-pressed="false">gaps</button>
+          <button class="cf" data-flt="all" aria-pressed="true">all</button>
+          <button class="cf gap" data-flt="gap" aria-pressed="false">gaps</button>
         </div>
       </div>
       <div id="sidebar"></div>
     </aside>
-
-    <main class="panel doc">
-      <div class="doc-inner" id="doc"></div>
-    </main>
+    <main class="panel doc"><div class="doc-in" id="doc"></div></main>
   </div>
 </div>
 
 <script>
 "use strict";
 
-/* ---- embedded sample data (shape matches parser output) ----------------- */
-function P(module, file, parser, x){ x=x||{}; return {module, file, parser, parser_version:"0.1.0", source_hash:x.hash||"", parsed_at:"2026-07-15T09:22:00Z", line_start:x.line_start??null, line_end:null, symbol:x.symbol??null, xpath:x.xpath??null}; }
+/* ---- sample data: facts + field docs (as the explanation phase would emit) --- */
+function P(m,f,p,x){ x=x||{}; return {module:m,file:f,parser:p,parser_version:"0.1.0",source_hash:x.hash||"",parsed_at:"2026-07-15T09:22:00Z",line_start:x.line_start??null,line_end:null,symbol:x.symbol??null,xpath:x.xpath??null}; }
 const DEMO_FACTS = [
-  {kind:"call",         subject:"base",     reads:["order"],            writes:["base"],     attrs:{expr:"order.getBasePrice()"},   provenance:P("pricing-core","Pricer.java","java",{symbol:"Pricer.calc",line_start:38,hash:"a1c9"})},
-  {kind:"assignment",   subject:"discount", reads:["rate"],             writes:["discount"], attrs:{expr:"rate / 100.0"},           provenance:P("pricing-core","Pricer.java","java",{symbol:"Pricer.calc",line_start:39,hash:"a1c9"})},
-  {kind:"assignment",   subject:"price",    reads:["base","discount"],  writes:["price"],    attrs:{expr:"base * (1 - discount)"},   provenance:P("pricing-core","Pricer.java","java",{symbol:"Pricer.calc",line_start:41,hash:"a1c9"})},
-  {kind:"template_match",subject:"/Order/Price",reads:["price"],        writes:["EffectiveUnitPrice"],attrs:{template:"emitPrice"}, provenance:P("pricing-core","out.xsl","xslt",{symbol:"emitPrice",xpath:"/Order/Price",line_start:22,hash:"77b0"})},
-  {kind:"element_decl", subject:"EffectiveUnitPrice",reads:[],          writes:[],           attrs:{type:"xsd:decimal"},            provenance:P("outbound","out.xsd","xsd",{symbol:"EffectiveUnitPrice",line_start:14,hash:"5d2e"})},
+  {kind:"call",         subject:"base",     reads:["order"],           writes:["base"],     attrs:{expr:"order.getBasePrice()"},  provenance:P("pricing-core","Pricer.java","java",{symbol:"Pricer.calc",line_start:38,hash:"a1c9"})},
+  {kind:"assignment",   subject:"discount", reads:["rate"],            writes:["discount"], attrs:{expr:"rate / 100.0"},          provenance:P("pricing-core","Pricer.java","java",{symbol:"Pricer.calc",line_start:39,hash:"a1c9"})},
+  {kind:"assignment",   subject:"price",    reads:["base","discount"], writes:["price"],    attrs:{expr:"base * (1 - discount)"},  provenance:P("pricing-core","Pricer.java","java",{symbol:"Pricer.calc",line_start:41,hash:"a1c9"})},
+  {kind:"template_match",subject:"/Order/Price",reads:["price"],       writes:["EffectiveUnitPrice"],attrs:{template:"emitPrice"},provenance:P("pricing-core","out.xsl","xslt",{symbol:"emitPrice",xpath:"/Order/Price",line_start:22,hash:"77b0"})},
+  {kind:"element_decl", subject:"EffectiveUnitPrice",reads:[],         writes:[],           attrs:{type:"xsd:decimal"},           provenance:P("outbound","out.xsd","xsd",{symbol:"EffectiveUnitPrice",line_start:14,hash:"5d2e"})},
   {kind:"assignment",   subject:"final_total",reads:["price","rounding"],writes:["final_total"],attrs:{expr:"round(price, rounding)"},provenance:P("pricing-core","Ledger.java","java",{symbol:"Ledger.total",line_start:60,hash:"c4f1"})},
   {kind:"element",      subject:"order",    reads:[], writes:[], attrs:{path:"/order", text:null},                 provenance:P("order-intake","order.xml","xml",{xpath:"/order",line_start:2,hash:"be31"})},
   {kind:"attribute",    subject:"currency", reads:[], writes:[], attrs:{path:"/order/price/@currency", value:"USD"},provenance:P("order-intake","order.xml","xml",{xpath:"/order/price/@currency",line_start:3,hash:"be31"})},
 ];
-const DEMO_ISSUES = [{severity:"error", parser:"java", file:"Rounding.java", message:"cannot decode as utf-8: invalid start byte 0x9f at position 512", provenance:null}];
+const DEMO_ISSUES = [{severity:"error",parser:"java",file:"Rounding.java",message:"cannot decode as utf-8: invalid start byte 0x9f at position 512",provenance:null}];
+const DEMO_FIELDS = [
+  {name:"price", group:"Pricing", status:"parsed",
+   description:"The unit price of an order line after any applicable discount is applied, but before tax and rounding. It is the value carried forward into the reporting pipeline and mapped to the outbound schema.",
+   plain_english:{
+     what:"This field records what a single unit costs once the customer discount has been taken off the base price.",
+     when:'IF a base price and a discount rate are both present\n    THEN price = base × (1 − discount)\nELSE IF no discount applies\n    THEN price = base price\nELSE\n    THEN price is not produced',
+     why:"Downstream systems and the outbound schema need a single, discount-adjusted unit price so the effective amount reported is consistent across every consumer."},
+   downstream:[{system:"OUTBOUND XSD",field:"EffectiveUnitPrice",status:"mapped"},{system:"LEDGER",field:"final_total",status:"in pipeline"}],
+   tickets:[{key:"LIN-1042",summary:"Confirm discount rounding matches ledger before reporting"},{key:"LIN-0988",summary:"price → EffectiveUnitPrice mapping added for outbound schema"}]},
+  {name:"final_total", group:"Pricing", status:"gap",
+   description:"The rounded order total derived from the unit price. Its rounding input originates in a source file that failed to parse, so the trace is incomplete.",
+   plain_english:{what:"The order total after rounding is applied to the unit price."},
+   tickets:[{key:"LIN-1050",summary:"Rounding.java fails to decode — re-encode as UTF-8"}]},
+];
 const DEMO_SUMMARY = {files_parsed:5, facts:DEMO_FACTS.length, facts_by_kind:tally(DEMO_FACTS,"kind"), issues_by_severity:{error:1}, duration_s:0.21};
 function tally(a,k){ const o={}; a.forEach(x=>o[x[k]]=(o[x[k]]||0)+1); return o; }
 
 /* ---- state -------------------------------------------------------------- */
-const state = { facts:[], issues:[], fields:[], summary:null, subjects:new Map(), tokens:new Map(), selected:null, live:false, flt:"all", collapsed:new Set(), groupsClosed:new Set() };
+const state = { facts:[], issues:[], docs:new Map(), summary:null, subjects:new Map(), tokens:new Map(), selected:null, live:false, flt:"all", groupsClosed:new Set() };
 const LANGS = ["java","xslt","xsd","xml","document"];
-const langColor = p => LANGS.includes(p) ? `var(--lang-${p})` : "var(--accent)";
+const langColor = p => LANGS.includes(p) ? `var(--code-ink)` : "var(--accent)";
 
 function rebuild() {
   state.subjects = new Map(); state.tokens = new Map();
   const sub = n => { if(!state.subjects.has(n)) state.subjects.set(n,{name:n,module:null,producedBy:[],consumedBy:[],langs:new Set()}); return state.subjects.get(n); };
   const tok = (t,i) => { if(!t) return; if(!state.tokens.has(t)) state.tokens.set(t,new Set()); state.tokens.get(t).add(i); };
   state.facts.forEach((f,i) => {
-    f._i = i; const pv = f.provenance||{};
-    new Set([f.subject,...(f.writes||[])].filter(Boolean)).forEach(n => { const s=sub(n); s.producedBy.push(i); if(!s.module)s.module=pv.module; if(pv.parser)s.langs.add(pv.parser); });
-    (f.reads||[]).forEach(n => sub(n).consumedBy.push(i));
-    [f.subject,...(f.reads||[]),...(f.writes||[]),pv.symbol,pv.xpath].forEach(t => tok(t,i));
-    if (pv.module && pv.file) tok(`${pv.module}/${pv.file}`, i);
+    const pv=f.provenance||{};
+    new Set([f.subject,...(f.writes||[])].filter(Boolean)).forEach(n=>{ const s=sub(n); s.producedBy.push(i); if(!s.module)s.module=pv.module; if(pv.parser)s.langs.add(pv.parser); });
+    (f.reads||[]).forEach(n=>sub(n).consumedBy.push(i));
+    [f.subject,...(f.reads||[]),...(f.writes||[]),pv.symbol,pv.xpath].forEach(t=>tok(t,i));
+    if(pv.module&&pv.file) tok(`${pv.module}/${pv.file}`,i);
   });
 }
 const isGap = n => { const s=state.subjects.get(n); return !!s && s.producedBy.length===0 && s.consumedBy.length>0; };
 
-/* ---- data loading ------------------------------------------------------- */
-async function boot() {
-  const ok = await tryFetch();
-  if (!ok) loadData(DEMO_FACTS, DEMO_ISSUES, [], DEMO_SUMMARY, false);
-  wire();
+/* ---- loading ------------------------------------------------------------ */
+async function boot(){ if(!await tryFetch()) loadData(DEMO_FACTS,DEMO_ISSUES,DEMO_FIELDS,DEMO_SUMMARY,false); wire(); }
+async function tryFetch(){
+  let facts=[],issues=[],fields=[],summary=null,any=false;
+  try{const r=await fetch("./data/evidence.idx",{cache:"no-store"}); if(r.ok){const j=await r.json(); if(Array.isArray(j.facts)){facts=j.facts;any=true;}}}catch(e){}
+  if(!any){try{const r=await fetch("./data/facts.jsonl",{cache:"no-store"}); if(r.ok){const p=parseJsonl(await r.text()); facts=p.facts;issues=p.issues;any=true;}}catch(e){}}
+  if(!any) return false;
+  try{const r=await fetch("./data/run_summary.json",{cache:"no-store"}); if(r.ok) summary=await r.json();}catch(e){}
+  try{const r=await fetch("./data/fields.json",{cache:"no-store"}); if(r.ok){const j=await r.json(); if(Array.isArray(j.fields)) fields=j.fields;}}catch(e){}
+  loadData(facts,issues,fields,summary,true); return true;
 }
-async function tryFetch() {
-  let facts=[], issues=[], fields=[], summary=null, any=false;
-  try { const r=await fetch("./data/evidence.idx",{cache:"no-store"}); if(r.ok){const j=await r.json(); if(Array.isArray(j.facts)){facts=j.facts; any=true;}} } catch(e){}
-  if (!any) { try { const r=await fetch("./data/facts.jsonl",{cache:"no-store"}); if(r.ok){const p=parseJsonl(await r.text()); facts=p.facts; issues=p.issues; any=true;} } catch(e){} }
-  if (!any) return false;
-  try { const r=await fetch("./data/run_summary.json",{cache:"no-store"}); if(r.ok) summary=await r.json(); } catch(e){}
-  try { const r=await fetch("./data/fields.json",{cache:"no-store"}); if(r.ok){const j=await r.json(); if(Array.isArray(j.fields)) fields=j.fields;} } catch(e){}
-  loadData(facts, issues, fields, summary, true); return true;
+function parseJsonl(t){ const facts=[],issues=[]; t.split(/\r?\n/).forEach(l=>{l=l.trim();if(!l)return;let o;try{o=JSON.parse(l);}catch(e){return;}(o.record==="issue"?issues:facts).push(o);}); return {facts,issues}; }
+function loadData(facts,issues,fields,summary,live){
+  state.facts=facts||[]; state.issues=issues||[]; state.summary=summary; state.live=live;
+  state.docs=new Map(); (fields||[]).forEach(f=>state.docs.set(f.name,f));
+  rebuild(); renderSrc(); renderSidebar(); select(defaultSelection()); banner(!live);
 }
-function parseJsonl(text) {
-  const facts=[], issues=[];
-  text.split(/\r?\n/).forEach(l => { l=l.trim(); if(!l) return; let o; try{o=JSON.parse(l);}catch(e){return;} (o.record==="issue"?issues:facts).push(o); });
-  return {facts, issues};
+function defaultSelection(){
+  for(const d of state.docs.keys()) if(state.subjects.has(d)) return d;
+  let best=null,n=-1; for(const s of state.subjects.values()){ if(!s.producedBy.length)continue; const c=s.producedBy.length+s.consumedBy.length; if(c>n){n=c;best=s.name;} } return best;
 }
-function loadData(facts, issues, fields, summary, live) {
-  state.facts=facts||[]; state.issues=issues||[]; state.fields=fields||[]; state.summary=summary; state.live=live;
-  rebuild(); renderSrc(); renderSidebar();
-  select(defaultSelection()); banner(!live);
-}
-function defaultSelection() {
-  if (state.fields.length) return state.fields[0].name;
-  let best=null,n=-1; for(const s of state.subjects.values()){ if(!s.producedBy.length) continue; const c=s.producedBy.length+s.consumedBy.length; if(c>n){n=c;best=s.name;} } return best;
-}
-function ingest(files) {
-  Promise.all([...files].map(f => f.text().then(t => ({name:f.name, text:t})))).then(parts => {
+function ingest(files){
+  Promise.all([...files].map(f=>f.text().then(t=>({name:f.name,text:t})))).then(parts=>{
     let facts=[],issues=[],fields=[],summary=null;
-    parts.forEach(({name,text}) => {
-      const t=text.trim();
-      if (name.endsWith(".jsonl") || t.startsWith('{"record"')) { const p=parseJsonl(text); facts=facts.concat(p.facts); issues=issues.concat(p.issues); return; }
-      let j; try{j=JSON.parse(text);}catch(e){return;}
-      if (Array.isArray(j.facts)) facts=facts.concat(j.facts);
-      if (Array.isArray(j.fields)) fields=j.fields;
-      if (j.files_parsed!==undefined || j.facts_by_kind) summary=j;
+    parts.forEach(({name,text})=>{ const t=text.trim();
+      if(name.endsWith(".jsonl")||t.startsWith('{"record"')){const p=parseJsonl(text);facts=facts.concat(p.facts);issues=issues.concat(p.issues);return;}
+      let j;try{j=JSON.parse(text);}catch(e){return;}
+      if(Array.isArray(j.facts))facts=facts.concat(j.facts);
+      if(Array.isArray(j.fields))fields=j.fields;
+      if(j.files_parsed!==undefined||j.facts_by_kind)summary=j;
     });
-    if (!facts.length && !fields.length) { alert("No facts found. Load facts.jsonl or evidence.idx from your parse output."); return; }
-    loadData(facts, issues, fields, summary, true);
+    if(!facts.length&&!fields.length){alert("No facts found. Load facts.jsonl or evidence.idx from your parse output.");return;}
+    loadData(facts,issues,fields,summary,true);
   });
 }
 
 /* ---- helpers ------------------------------------------------------------ */
-const $ = s => document.querySelector(s);
-const el = (t,c,h) => { const e=document.createElement(t); if(c)e.className=c; if(h!=null)e.innerHTML=h; return e; };
-const esc = s => String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const humanize = s => String(s).replace(/[_./]+/g," ").replace(/([a-z])([A-Z])/g,"$1 $2").trim().replace(/^\w/,c=>c.toUpperCase());
-function coord(pv){ if(!pv) return ""; const loc = pv.symbol?pv.symbol+(pv.line_start?":"+pv.line_start:""):pv.xpath?pv.xpath:pv.file+(pv.line_start?":"+pv.line_start:""); return `${pv.file} · ${loc}`; }
+const $=s=>document.querySelector(s);
+const el=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e;};
+const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const humanize=s=>String(s).replace(/[_./]+/g," ").replace(/([a-z])([A-Z])/g,"$1 $2").trim().replace(/^\w/,c=>c.toUpperCase());
+function coord(pv){ if(!pv)return""; const loc=pv.symbol?pv.symbol+(pv.line_start?":"+pv.line_start:""):pv.xpath?pv.xpath:pv.file+(pv.line_start?":"+pv.line_start:""); return `${pv.file} · ${loc}`; }
 
-/* ---- source chip -------------------------------------------------------- */
-function renderSrc() {
-  const c=$("#src"); c.classList.toggle("live",state.live); c.classList.toggle("demo",!state.live);
-  $("#srcTxt").textContent = state.live ? `${state.facts.length} facts · ${state.issues.length} gaps` : "sample data";
-}
+function renderSrc(){ const c=$("#src"); c.classList.toggle("live",state.live); c.classList.toggle("demo",!state.live); $("#srcTxt").textContent=state.live?`${state.facts.length} facts · ${state.issues.length} gaps`:"sample data"; }
 
 /* ---- sidebar ------------------------------------------------------------ */
-function sidebarFields() {
-  if (state.fields.length) return state.fields.map(f=>({name:f.name, code:f.name, module:f.module||"—", langs:f.languages||[], n:f.fact_count||0, gap:f.status==="gap"}));
-  const out=[];
-  for (const s of state.subjects.values()) if (s.producedBy.length) out.push({name:s.name, code:s.name, module:s.module||"—", langs:[...s.langs], n:s.producedBy.length+s.consumedBy.length, gap:false});
-  for (const s of state.subjects.values()) if (!s.producedBy.length && s.consumedBy.length) out.push({name:s.name, code:s.name, module:"unresolved", langs:[], n:s.consumedBy.length, gap:true});
+function sidebarFields(){
+  const out=[]; const seen=new Set();
+  for(const s of state.subjects.values()) if(s.producedBy.length){ out.push({name:s.name,module:(state.docs.get(s.name)?.group)||s.module||"—",n:s.producedBy.length+s.consumedBy.length,gap:false}); seen.add(s.name); }
+  for(const s of state.subjects.values()) if(!s.producedBy.length&&s.consumedBy.length){ out.push({name:s.name,module:"Unresolved",n:s.consumedBy.length,gap:true}); }
   return out;
 }
-function renderSidebar() {
+function renderSidebar(){
   const host=$("#sidebar"); host.innerHTML="";
   const q=($("#filter").value||"").toLowerCase();
-  let items=sidebarFields().filter(it=>it.name.toLowerCase().includes(q) || it.code.toLowerCase().includes(q));
-  if (state.flt==="gap") items=items.filter(it=>it.gap);
+  let items=sidebarFields().filter(it=>it.name.toLowerCase().includes(q));
+  if(state.flt==="gap") items=items.filter(it=>it.gap);
   const byMod=new Map(); items.forEach(it=>{ if(!byMod.has(it.module))byMod.set(it.module,[]); byMod.get(it.module).push(it); });
-  [...byMod.entries()].sort((a,b)=>a[0].localeCompare(b[0])).forEach(([mod,list]) => {
+  [...byMod.entries()].sort((a,b)=>a[0].localeCompare(b[0])).forEach(([mod,list])=>{
     const closed=state.groupsClosed.has(mod);
-    const h=el("div","grp-h"); h.innerHTML=`<span class="gt">${esc(mod)}</span><span class="gc">${list.length}</span>`;
-    h.addEventListener("click",()=>{ if(closed)state.groupsClosed.delete(mod); else state.groupsClosed.add(mod); renderSidebar(); });
-    host.appendChild(h);
-    if (closed) return;
-    list.sort((a,b)=>a.name.localeCompare(b.name)).forEach(it => {
-      const r=el("button","frow"+(it.gap?" is-gap":"")); r.setAttribute("aria-selected", it.name===state.selected);
-      r.innerHTML=`<span class="fdot"></span><span class="fmeta"><span class="fname">${esc(humanize(it.name))}</span><span class="fcode">${esc(it.code)}</span></span>`;
+    const h=el("div","grp-h"+(closed?" closed":"")); h.innerHTML=`<span class="gt">${esc(mod)}</span><span class="gr">${list.length} <span class="tri">▾</span></span>`;
+    h.addEventListener("click",()=>{ closed?state.groupsClosed.delete(mod):state.groupsClosed.add(mod); renderSidebar(); });
+    host.appendChild(h); if(closed) return;
+    list.sort((a,b)=>a.name.localeCompare(b.name)).forEach(it=>{
+      const r=el("button","frow"+(it.gap?" is-gap":"")); r.setAttribute("aria-selected",it.name===state.selected);
+      r.innerHTML=`<span class="fm"><span class="fn">${esc(humanize(it.name))}</span><span class="fc">${esc(it.name)}</span></span><span class="fd"></span>`;
       r.addEventListener("click",()=>select(it.name)); host.appendChild(r);
     });
   });
-  if (!items.length) { const e=el("div","empty","No matching fields."); e.style.padding="12px 14px"; host.appendChild(e); }
+  if(!items.length){ const e=el("div","empty","No matching fields."); e.style.padding="12px 14px"; host.appendChild(e); }
 }
 
-/* ---- field-360 document ------------------------------------------------- */
-function fieldMeta(name){ return state.fields.find(f=>f.name===name)||null; }
-
-function select(name) {
+/* ---- field-360 ---------------------------------------------------------- */
+function select(name){
   state.selected=name;
-  document.querySelectorAll(".frow").forEach(r=>r.setAttribute("aria-selected", r.querySelector(".fcode")?.textContent===name));
-  renderDoc(name);
-  $(".doc").scrollTop = 0;
+  document.querySelectorAll(".frow").forEach(r=>r.setAttribute("aria-selected",r.querySelector(".fc")?.textContent===name));
+  renderDoc(name); $(".doc").scrollTop=0;
 }
-
-function renderDoc(name) {
+function renderDoc(name){
   const doc=$("#doc"); doc.innerHTML="";
-  if (!name) { doc.appendChild(el("div","empty","No field selected.")); return; }
-  const s=state.subjects.get(name); const meta=fieldMeta(name); const gap=isGap(name);
-  const langs = s ? [...s.langs] : [];
-  const parser = s && s.producedBy.length ? state.facts[s.producedBy[0]].provenance?.parser : null;
+  if(!name){ doc.appendChild(el("div","empty","No field selected.")); return; }
+  const s=state.subjects.get(name), d=state.docs.get(name), gap=isGap(name);
+  const langs=s?[...s.langs]:[];
 
-  // header
   const head=el("div","fhead");
-  const trust = gap ? "unresolved" : (meta?.status==="verified" ? "verified" : "parsed");
-  head.innerHTML =
-    `<h1 class="ftitle">${esc(meta?.name ? meta.name : humanize(name))}</h1>`+
+  const trust=gap?"unresolved":(d?.status==="verified"?"verified":d?.description?"AI enriched":"parsed");
+  head.innerHTML=
+    `<h1 class="ftitle">${esc(d?.name?d.name:humanize(name))}</h1>`+
     `<div class="fchips">`+
       `<span class="pill code">${esc(name)}</span>`+
-      (meta?.group?`<span class="pill cat">${esc(meta.group)}</span>`:s?.module?`<span class="pill cat">${esc(s.module)}</span>`:"")+
+      (d?.group?`<span class="pill txt">${esc(d.group)}</span>`:s?.module?`<span class="pill txt">${esc(s.module)}</span>`:"")+
       langs.map(l=>`<span class="pill">${esc(l)}</span>`).join("")+
-      `<span class="pill trust${gap?" gap":""}">${esc(trust)}</span>`+
+      `<span class="pill ai${gap?" gap":""}">${esc(trust)}</span>`+
     `</div>`+
-    `<div class="metastrip">`+
-      `<span>produced by <b>${s?s.producedBy.length:0}</b></span>`+
-      `<span>consumed by <b>${s?s.consumedBy.length:0}</b></span>`+
-      `<span>modules <b>${new Set([...(s?s.producedBy:[]),...(s?s.consumedBy:[])].map(i=>state.facts[i].provenance?.module)).size}</b></span>`+
-    `</div>`;
+    `<div class="metastrip"><span>produced by <b>${s?s.producedBy.length:0}</b></span><span>consumed by <b>${s?s.consumedBy.length:0}</b></span><span>modules <b>${new Set([...(s?s.producedBy:[]),...(s?s.consumedBy:[])].map(i=>state.facts[i].provenance?.module)).size}</b></span></div>`;
   doc.appendChild(head);
 
-  // BUSINESS DEFINITION
-  doc.appendChild(section("Business definition", null,
-    meta?.description
-      ? el("div","prose", esc(meta.description))
-      : emptyState("Not generated yet.", "Produced by the explanation phase (shared LLM client) — not part of deterministic parsing.")));
+  doc.appendChild(section("Business definition",null,
+    d?.description ? el("div","prose",esc(d.description)) : emptyState("Not generated yet.","Produced by the explanation phase — not part of deterministic parsing.")));
 
-  // PLAIN ENGLISH SUMMARY
-  doc.appendChild(section("Plain English summary", null,
-    emptyState("Not generated yet.", "WHAT / WHEN / WHY narrative comes from the explanation phase, grounded in the facts below.")));
-
-  // DOWNSTREAM SYSTEMS
-  doc.appendChild(section("Downstream systems", null, downstream(name)));
-
-  // TECHNICAL SUMMARY (derived from real facts — honest)
-  doc.appendChild(section("Technical summary", null, technical(name)));
-
-  // ENRICHMENT PIPELINE (collapsible)
-  doc.appendChild(collapsible("Enrichment pipeline", null,
-    emptyState("No enrichers detected.", "Populated when a configured enrichment step contributes to this field."), true));
-
-  // JIRA TICKETS (collapsible)
-  doc.appendChild(collapsible("Linked tickets", "0",
-    emptyState("No linked tickets.", "Surfaced from the review & feedback workflow."), true));
-
-  // ISO 20022 XML OUTPUT (collapsible) — real, from xsd/xslt facts
-  const iso = isoOutput(name);
-  doc.appendChild(collapsible("Schema output mappings", iso.count!=null?String(iso.count):null, iso.node, iso.count===0));
-
-  // LINEAGE GRAPH (collapsible, open)
-  doc.appendChild(collapsible("Lineage graph", null, flowGraph(name), false));
-
-  // EVIDENCE & PROVENANCE — our signature, real
+  doc.appendChild(section("Plain English summary",null, plainEnglish(d)));
+  doc.appendChild(section("Downstream systems",null, downstream(name,d)));
+  doc.appendChild(section("Technical summary",null, technical(name)));
+  doc.appendChild(collapsible("Enrichment pipeline",null, emptyState("No enrichers detected.","Set when a configured enrichment step contributes to this field."), true));
+  const tix=d?.tickets||[];
+  doc.appendChild(collapsible("Linked tickets", String(tix.length), tickets(tix), tix.length===0));
+  const iso=isoOutput(name);
+  doc.appendChild(collapsible("Schema output mappings", String(iso.count), iso.node, iso.count===0));
+  doc.appendChild(collapsible("Lineage graph",null, flowGraph(name), false));
   doc.appendChild(section("Evidence & provenance", s?String([...new Set([...s.producedBy,...s.consumedBy])].length):"0", evidence(name)));
 }
 
-function section(title, count, body) {
-  const sec=el("div","section");
-  const h=el("div","sec-h"); h.innerHTML=`<span class="st">${esc(title)}</span>`+(count!=null?`<span class="sct">${esc(count)}</span>`:"");
-  const b=el("div","sec-body"); b.appendChild(body);
-  sec.appendChild(h); sec.appendChild(b); return sec;
-}
-function collapsible(title, count, body, startClosed) {
-  const key=title;
-  const sec=el("div","section"+((startClosed&&!state.collapsed.has(key+":open"))||state.collapsed.has(key)?" collapsed":""));
-  const h=el("div","sec-h click"); h.innerHTML=`<span class="tri">▼</span><span class="st">${esc(title)}</span>`+(count!=null?`<span class="sct">${esc(count)}</span>`:"");
-  const b=el("div","sec-body"); b.appendChild(body);
-  h.addEventListener("click",()=>sec.classList.toggle("collapsed"));
-  sec.appendChild(h); sec.appendChild(b); return sec;
-}
-function emptyState(msg, why) { return el("div","empty", `${esc(msg)}${why?`<span class="why">${esc(why)}</span>`:""}`); }
+function section(title,count,body){ const sec=el("div","section"); const h=el("div","sec-h"); h.innerHTML=`<span class="st">${esc(title)}</span>`+(count!=null?`<span class="sn">${esc(count)}</span>`:""); const b=el("div","sec-body"); b.appendChild(body); sec.appendChild(h); sec.appendChild(b); return sec; }
+function collapsible(title,count,body,startClosed){ const sec=el("div","section"+(startClosed?" collapsed":"")); const h=el("div","sec-h click"); h.innerHTML=`<span class="tri">▾</span><span class="st">${esc(title)}</span>`+(count!=null?`<span class="sn">${esc(count)}</span>`:""); const b=el("div","sec-body"); b.appendChild(body); h.addEventListener("click",()=>sec.classList.toggle("collapsed")); sec.appendChild(h); sec.appendChild(b); return sec; }
+function emptyState(m,w){ return el("div","empty",`${esc(m)}${w?`<span class="why">${esc(w)}</span>`:""}`); }
 
-function technical(name) {
-  const s=state.subjects.get(name);
-  if (!s || (!s.producedBy.length && !s.consumedBy.length)) return emptyState("No facts reference this field.");
-  const idxs=[...new Set([...s.producedBy,...s.consumedBy])];
-  const kinds=[...new Set(idxs.map(i=>state.facts[i].kind))];
-  const mods=[...new Set(idxs.map(i=>state.facts[i].provenance?.module).filter(Boolean))];
-  const langs=[...s.langs];
+function plainEnglish(d){
+  const pe=d?.plain_english; if(!pe||(!pe.what&&!pe.when&&!pe.why)) return emptyState("Not generated yet.","WHAT / WHEN / WHY narrative comes from the explanation phase, grounded in the facts below.");
   const wrap=el("div");
-  wrap.appendChild(el("div","prose",
-    `<code>${esc(name)}</code> is referenced by <b>${idxs.length}</b> parsed fact${idxs.length===1?"":"s"} `+
-    `(${kinds.map(esc).join(", ")}) across ${mods.length} module${mods.length===1?"":"s"} (${mods.map(esc).join(", ")})`+
-    (langs.length?`, in ${langs.map(esc).join(" → ")}`:"")+`. Every statement is deterministic — observed in source, not inferred.`));
+  if(pe.what){ const s=el("div","subsec"); s.innerHTML=`<span class="wtag">what</span><div class="prose">${esc(pe.what)}</div>`; wrap.appendChild(s); }
+  if(pe.when){ const s=el("div","subsec"); s.innerHTML=`<span class="wtag">when</span><div class="logic">${esc(pe.when)}</div>`; wrap.appendChild(s); }
+  if(pe.why){ const s=el("div","subsec"); s.innerHTML=`<span class="wtag">why</span><div class="prose">${esc(pe.why)}</div>`; wrap.appendChild(s); }
   return wrap;
 }
-
-function downstream(name) {
-  const s=state.subjects.get(name);
-  const outs=new Map();
-  (s?s.consumedBy:[]).forEach(i => { const f=state.facts[i]; [f.subject,...(f.writes||[])].filter(Boolean).forEach(d=>{ if(d!==name && !outs.has(d)) outs.set(d,{name:d, module:f.provenance?.module, parser:f.provenance?.parser}); }); });
-  if (!outs.size) return emptyState("No downstream consumers found.", "Set once a parsed fact reads this field into another system or output.");
+function downstream(name,d){
+  let outs=[];
+  if(d?.downstream?.length) outs=d.downstream.map(o=>({sys:o.system,fld:o.field,badge:o.status||"in pipeline"}));
+  else { const s=state.subjects.get(name),m=new Map(); (s?s.consumedBy:[]).forEach(i=>{const f=state.facts[i];[f.subject,...(f.writes||[])].filter(Boolean).forEach(x=>{if(x!==name&&!m.has(x))m.set(x,{sys:f.provenance?.module||"—",fld:x,badge:"in pipeline"});});}); outs=[...m.values()]; }
+  if(!outs.length) return emptyState("No downstream consumers found.","Set once a parsed fact reads this field into another system or output.");
   const grid=el("div","cards");
-  [...outs.values()].forEach(o => {
-    const c=el("div","card");
-    c.innerHTML=`<div class="sys">${esc(o.module||"—")}</div><div class="fld">${esc(o.name)}</div><span class="badge">in pipeline</span>`;
-    c.style.cursor="pointer"; c.addEventListener("click",()=>{ if(state.subjects.get(o.name)?.producedBy.length) select(o.name); });
-    grid.appendChild(c);
-  });
+  outs.forEach(o=>{ const c=el("div","card"); c.innerHTML=`<div class="sys">${esc(o.sys)}</div><div class="fld">${esc(o.fld)}</div><span class="badge">${esc(o.badge)}</span>`; c.style.cursor="pointer"; c.addEventListener("click",()=>{ if(state.subjects.get(o.fld)?.producedBy.length)select(o.fld); }); grid.appendChild(c); });
   return grid;
 }
-
-function isoOutput(name) {
-  const s=state.subjects.get(name);
-  const rows=[];
-  [...new Set([...(s?s.producedBy:[]),...(s?s.consumedBy:[])])].forEach(i => {
-    const f=state.facts[i], pv=f.provenance||{};
-    if (pv.parser==="xsd" || pv.parser==="xslt") rows.push({field:f.subject, path:pv.xpath||f.attrs?.path||"—", type:f.attrs?.type||f.kind, file:pv.file});
-  });
-  if (!rows.length) return {count:0, node:emptyState("No schema output mappings detected.", "Populated by the XSD / XSLT parsers when this field maps to an output element.")};
-  const t=el("table","tbl"); t.innerHTML="<thead><tr><th>element</th><th>path</th><th>type</th><th>source</th></tr></thead>";
-  const tb=el("tbody");
-  rows.forEach(r=>{ const tr=el("tr"); tr.innerHTML=`<td class="mono">${esc(r.field)}</td><td class="mono">${esc(r.path)}</td><td class="mono">${esc(r.type)}</td><td class="mono">${esc(r.file)}</td>`; tb.appendChild(tr); });
-  t.appendChild(tb);
-  return {count:rows.length, node:t};
+function technical(name){
+  const s=state.subjects.get(name); if(!s||(!s.producedBy.length&&!s.consumedBy.length)) return emptyState("No facts reference this field.");
+  const idxs=[...new Set([...s.producedBy,...s.consumedBy])];
+  const kinds=[...new Set(idxs.map(i=>state.facts[i].kind))], mods=[...new Set(idxs.map(i=>state.facts[i].provenance?.module).filter(Boolean))], langs=[...s.langs];
+  return el("div","prose",`<code>${esc(name)}</code> is referenced by <b>${idxs.length}</b> parsed fact${idxs.length===1?"":"s"} (${kinds.map(esc).join(", ")}) across ${mods.length} module${mods.length===1?"":"s"} (${mods.map(esc).join(", ")})${langs.length?`, in ${langs.map(esc).join(" → ")}`:""}. Every statement is deterministic — observed in source, not inferred.`);
 }
-
-function flowGraph(name) {
-  const s=state.subjects.get(name);
-  if (!s) return el("div","ghint","No lineage facts for this field.");
-  const up=new Map(); s.producedBy.forEach(i=>{ const f=state.facts[i]; (f.reads||[]).forEach(r=>{ if(!up.has(r)) up.set(r,{name:r,parser:f.provenance?.parser,expr:f.attrs?.expr,i}); }); });
-  const dn=new Map(); s.consumedBy.forEach(i=>{ const f=state.facts[i]; [f.subject,...(f.writes||[])].filter(Boolean).forEach(d=>{ if(d!==name && !dn.has(d)) dn.set(d,{name:d,parser:f.provenance?.parser,expr:f.attrs?.expr,i}); }); });
-  const parser = s.producedBy.length ? state.facts[s.producedBy[0]].provenance?.parser : null;
-
+function tickets(list){
+  if(!list.length) return emptyState("No linked tickets.","Surfaced from the review & feedback workflow.");
+  const t=el("table","tbl"); t.innerHTML="<thead><tr><th style='width:150px'>Key</th><th>Summary</th></tr></thead>";
+  const tb=el("tbody"); list.forEach(x=>{const tr=el("tr"); tr.innerHTML=`<td class="key">${esc(x.key)}</td><td>${esc(x.summary)}</td>`; tb.appendChild(tr);}); t.appendChild(tb); return t;
+}
+function isoOutput(name){
+  const s=state.subjects.get(name), rows=[];
+  [...new Set([...(s?s.producedBy:[]),...(s?s.consumedBy:[])])].forEach(i=>{const f=state.facts[i],pv=f.provenance||{}; if(pv.parser==="xsd"||pv.parser==="xslt") rows.push({field:f.subject,path:pv.xpath||f.attrs?.path||"—",type:f.attrs?.type||f.kind,file:pv.file});});
+  if(!rows.length) return {count:0,node:emptyState("No schema output mappings detected.","Populated by the XSD / XSLT parsers when this field maps to an output element.")};
+  const t=el("table","tbl"); t.innerHTML="<thead><tr><th>Element</th><th>Path</th><th>Type</th><th>Source</th></tr></thead>";
+  const tb=el("tbody"); rows.forEach(r=>{const tr=el("tr"); tr.innerHTML=`<td class="mono" style="font-family:var(--mono)">${esc(r.field)}</td><td style="font-family:var(--mono)">${esc(r.path)}</td><td style="font-family:var(--mono)">${esc(r.type)}</td><td style="font-family:var(--mono)">${esc(r.file)}</td>`; tb.appendChild(tr);}); t.appendChild(tb);
+  return {count:rows.length,node:t};
+}
+function flowGraph(name){
+  const s=state.subjects.get(name); if(!s) return el("div","ghint","No lineage facts for this field.");
+  const up=new Map(); s.producedBy.forEach(i=>{const f=state.facts[i];(f.reads||[]).forEach(r=>{ if(up.has(r))return; const rs=state.subjects.get(r); const pi=rs&&rs.producedBy.length?rs.producedBy[0]:null; const pf=pi!=null?state.facts[pi]:null; up.set(r,{name:r,parser:pf?pf.provenance?.parser:f.provenance?.parser,expr:pf?pf.attrs?.expr:null,i:pi}); });});
+  const dn=new Map(); s.consumedBy.forEach(i=>{const f=state.facts[i];[f.subject,...(f.writes||[])].filter(Boolean).forEach(x=>{if(x!==name&&!dn.has(x))dn.set(x,{name:x,parser:f.provenance?.parser,i});});});
+  const parser=s.producedBy.length?state.facts[s.producedBy[0]].provenance?.parser:null;
   const flow=el("div","flow");
-  const cUp=el("div","col"); cUp.appendChild(el("div","col-l", up.size?"derives from":"source"));
-  if (!up.size) cUp.appendChild(el("div","ghint","origin — no upstream reads"));
-  [...up.values()].forEach(u=>cUp.appendChild(gnode(u, isGap(u.name))));
-  const cMid=el("div","col mid"); cMid.appendChild(el("div","col-l","field")); cMid.appendChild(gnode({name,parser},false,true));
-  const cDn=el("div","col"); cDn.appendChild(el("div","col-l", dn.size?"feeds into":"output"));
-  if (!dn.size) cDn.appendChild(el("div","ghint","terminal — nothing consumes it yet"));
-  [...dn.values()].forEach(d=>cDn.appendChild(gnode(d,false)));
-
-  flow.appendChild(cUp); flow.appendChild(arrow()); flow.appendChild(cMid); flow.appendChild(arrow()); flow.appendChild(cDn);
-  return flow;
+  const cu=el("div","col"); cu.appendChild(el("div","col-l",up.size?"derives from":"source")); if(!up.size)cu.appendChild(el("div","ghint","origin — no upstream reads")); [...up.values()].forEach(u=>cu.appendChild(gnode(u,isGap(u.name))));
+  const cm=el("div","col mid"); cm.appendChild(el("div","col-l","field")); cm.appendChild(gnode({name,parser},false,true));
+  const cd=el("div","col"); cd.appendChild(el("div","col-l",dn.size?"feeds into":"output")); if(!dn.size)cd.appendChild(el("div","ghint","terminal — nothing consumes it yet")); [...dn.values()].forEach(x=>cd.appendChild(gnode(x,false)));
+  flow.appendChild(cu); flow.appendChild(arrow()); flow.appendChild(cm); flow.appendChild(arrow()); flow.appendChild(cd); return flow;
 }
-function arrow(){ const a=el("div","arr"); a.innerHTML='<svg viewBox="0 0 24 13" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 6.5h20m0 0-4.5-4.5m4.5 4.5-4.5 4.5"/></svg>'; return a; }
-function gnode(n, gap, focus) {
-  const b=el("button","gnode"+(gap?" gap":"")+(focus?" focus":"")); b.style.setProperty("--lc", gap?"var(--gap)":langColor(n.parser));
-  const f=n.i!=null?state.facts[n.i]:null;
-  const src=gap?"no producing fact":f?coord(f.provenance):(n.parser||"");
-  b.innerHTML=`<div class="gn">${esc(n.name)}</div>${src?`<div class="gs">${esc(src)}</div>`:""}`+(n.expr&&!gap?`<div class="gexpr">${esc(n.expr)}</div>`:"");
-  b.addEventListener("click",()=>{ if(!gap && state.subjects.get(n.name)?.producedBy.length) select(n.name); });
-  return b;
-}
-
-function evidence(name) {
-  const s=state.subjects.get(name);
-  const wrap=el("div");
-  const idxs=[...new Set([...(s?s.producedBy:[]),...(s?s.consumedBy:[])])];
-  if (!idxs.length) { wrap.appendChild(emptyState("No evidence.")); return wrap; }
+function arrow(){ const a=el("div","arr"); a.innerHTML='<svg viewBox="0 0 22 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 6h18m0 0-4-4m4 4-4 4"/></svg>'; return a; }
+function gnode(n,gap,focus){ const b=el("button","gnode"+(gap?" gap":"")+(focus?" focus":"")); b.style.setProperty("--lc",gap?"var(--gap)":langColor(n.parser)); const f=n.i!=null?state.facts[n.i]:null; const src=gap?"no producing fact":f?coord(f.provenance):(n.parser||""); b.innerHTML=`<div class="gn">${esc(n.name)}</div>${src?`<div class="gs">${esc(src)}</div>`:""}`+(n.expr&&!gap?`<div class="gexpr">${esc(n.expr)}</div>`:""); b.addEventListener("click",()=>{if(!gap&&state.subjects.get(n.name)?.producedBy.length)select(n.name);}); return b; }
+function evidence(name){
+  const s=state.subjects.get(name), wrap=el("div"), idxs=[...new Set([...(s?s.producedBy:[]),...(s?s.consumedBy:[])])];
+  if(!idxs.length){ wrap.appendChild(emptyState("No evidence.")); return wrap; }
   idxs.forEach(i=>wrap.appendChild(evCard(i)));
-  if (isGap(name)) {
-    const g=el("div","gapcard"); g.innerHTML=`<div class="gf">trace incomplete</div><div class="gm">Read downstream but no parsed source produces it — the producing file likely failed to parse. This is a recorded gap, not a guess.</div>`;
-    wrap.appendChild(g);
-  }
-  // relevant parse issues
-  state.issues.forEach(is => {
-    const g=el("div","gapcard"); g.innerHTML=`<div class="ev-top"><span class="gf">${esc(is.file)}</span><span class="kind" style="--lc:var(--gap)">${esc(is.severity)}</span></div><div class="gm">${esc(is.message)}</div>`;
-    if (idxs.length && state.issues.length) wrap.appendChild(g);
-  });
+  if(isGap(name)){ const g=el("div","gapcard"); g.innerHTML=`<div class="gf">trace incomplete</div><div class="gm">Read downstream but no parsed source produces it — the producing file likely failed to parse. This is a recorded gap, not a guess.</div>`; wrap.appendChild(g); }
+  if(idxs.length) state.issues.forEach(is=>{ const g=el("div","gapcard"); g.innerHTML=`<div class="ev-top"><span class="gf">${esc(is.file)}</span><span class="kind" style="--lc:var(--gap)">${esc(is.severity)}</span></div><div class="gm">${esc(is.message)}</div>`; wrap.appendChild(g); });
   return wrap;
 }
-function evCard(i) {
-  const f=state.facts[i], pv=f.provenance||{};
-  const payload = f.attrs?.expr||f.attrs?.template||f.attrs?.value||f.attrs?.text||f.attrs?.type||f.attrs?.path||"";
-  const c=el("div","ev");
-  c.innerHTML=`<div class="ev-top"><span class="kind" style="--lc:${langColor(pv.parser)}">${esc(f.kind)}</span><span class="pill trust">parsed</span></div>`+
-    (payload?`<div class="ev-code">${esc(payload)}</div>`:"")+
-    `<div class="stamp"><span><b>${esc(pv.file||"?")}</b>${pv.line_start?":"+pv.line_start:""}</span>`+
-    (pv.symbol?`<span>${esc(pv.symbol)}</span>`:"")+(pv.xpath?`<span>${esc(pv.xpath)}</span>`:"")+
-    (pv.source_hash?`<span>#${esc(pv.source_hash)}</span>`:"")+`<span>${esc(pv.parser||"")}</span></div>`;
-  return c;
-}
+function evCard(i){ const f=state.facts[i],pv=f.provenance||{}; const payload=f.attrs?.expr||f.attrs?.template||f.attrs?.value||f.attrs?.text||f.attrs?.type||f.attrs?.path||""; const c=el("div","ev"); c.innerHTML=`<div class="ev-top"><span class="kind" style="--lc:${langColor(pv.parser)}">${esc(f.kind)}</span><span class="pill ai">parsed</span></div>`+(payload?`<div class="ev-code">${esc(payload)}</div>`:"")+`<div class="stamp"><span><b>${esc(pv.file||"?")}</b>${pv.line_start?":"+pv.line_start:""}</span>`+(pv.symbol?`<span>${esc(pv.symbol)}</span>`:"")+(pv.xpath?`<span>${esc(pv.xpath)}</span>`:"")+(pv.source_hash?`<span>#${esc(pv.source_hash)}</span>`:"")+`<span>${esc(pv.parser||"")}</span></div>`; return c; }
 
 /* ---- search ------------------------------------------------------------- */
-function runSearch(q) {
-  const box=$("#results"); q=q.trim().toLowerCase();
-  if (!q) { box.classList.remove("open"); return; }
+function runSearch(q){
+  const box=$("#results"); q=q.trim().toLowerCase(); if(!q){box.classList.remove("open");return;}
   const g={field:[],symbol:[],file:[],xpath:[]};
-  for (const [t,idxs] of state.tokens) {
-    if (!t.toLowerCase().includes(q)) continue;
-    let k="field";
-    if (t.startsWith("/")) k="xpath"; else if (t.includes("/")&&/\.\w+$/.test(t)) k="file"; else if (/[.#]/.test(t)&&!state.subjects.has(t)) k="symbol";
-    g[k].push({t,idxs:[...idxs]});
-    if (Object.values(g).reduce((a,x)=>a+x.length,0)>40) break;
-  }
+  for(const [t,idxs] of state.tokens){ if(!t.toLowerCase().includes(q))continue; let k="field"; if(t.startsWith("/"))k="xpath"; else if(t.includes("/")&&/\.\w+$/.test(t))k="file"; else if(/[.#]/.test(t)&&!state.subjects.has(t))k="symbol"; g[k].push({t,idxs:[...idxs]}); if(Object.values(g).reduce((a,x)=>a+x.length,0)>40)break; }
   box.innerHTML=""; let any=false;
-  [["field","fields"],["symbol","symbols"],["file","files"],["xpath","xpaths"]].forEach(([key,title])=>{
-    if (!g[key].length) return; any=true;
-    box.appendChild(el("div","grp gt","<span style='font-family:var(--mono);font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--faint)'>"+title+"</span>"));
-    g[key].slice(0,8).forEach(({t,idxs})=>{
-      const r=el("div","res"); r.innerHTML=`<span class="kind" style="--lc:var(--accent)">${idxs.length}</span><span>${esc(t)}</span>`;
-      r.addEventListener("click",()=>{ box.classList.remove("open"); $("#search").value=""; if(state.subjects.get(t)?.producedBy.length) select(t); });
-      box.appendChild(r);
-    });
-  });
+  [["field","Fields"],["symbol","Symbols"],["file","Files"],["xpath","XPaths"]].forEach(([k,title])=>{ if(!g[k].length)return; any=true; box.appendChild(el("div","g",esc(title))); g[k].slice(0,8).forEach(({t,idxs})=>{ const r=el("div","res"); r.innerHTML=`<span class="n">${idxs.length}</span><span>${esc(t)}</span>`; r.addEventListener("click",()=>{box.classList.remove("open");$("#search").value="";if(state.subjects.get(t)?.producedBy.length)select(t);}); box.appendChild(r); }); });
   box.classList.toggle("open",any);
 }
 
 /* ---- chrome ------------------------------------------------------------- */
-function banner(show){ $("#banner").classList.toggle("show",show); }
+function banner(s){ $("#banner").classList.toggle("show",s); }
 function setTheme(m){ document.documentElement.setAttribute("data-theme",m); try{localStorage.setItem("li-theme",m);}catch(e){} }
 function curTheme(){ const s=document.documentElement.getAttribute("data-theme"); return s||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"); }
-
-function wire() {
+function wire(){
   $("#loadBtn").addEventListener("click",()=>$("#fileInput").click());
-  $("#fileInput").addEventListener("change",e=>{ if(e.target.files.length) ingest(e.target.files); });
+  $("#fileInput").addEventListener("change",e=>{if(e.target.files.length)ingest(e.target.files);});
   $("#filter").addEventListener("input",renderSidebar);
-  document.querySelectorAll(".chip-t").forEach(c=>c.addEventListener("click",()=>{ document.querySelectorAll(".chip-t").forEach(x=>x.setAttribute("aria-pressed","false")); c.setAttribute("aria-pressed","true"); state.flt=c.dataset.flt; renderSidebar(); }));
+  document.querySelectorAll(".cf").forEach(c=>c.addEventListener("click",()=>{document.querySelectorAll(".cf").forEach(x=>x.setAttribute("aria-pressed","false"));c.setAttribute("aria-pressed","true");state.flt=c.dataset.flt;renderSidebar();}));
   $("#themeBtn").addEventListener("click",()=>setTheme(curTheme()==="dark"?"light":"dark"));
   $("#bannerClose").addEventListener("click",()=>banner(false));
   const search=$("#search");
   search.addEventListener("input",()=>runSearch(search.value));
-  search.addEventListener("keydown",e=>{ if(e.key==="Escape"){$("#results").classList.remove("open"); search.blur();} });
-  document.addEventListener("click",e=>{ if(!e.target.closest(".search-wrap")) $("#results").classList.remove("open"); });
-  document.addEventListener("keydown",e=>{ if(e.key==="/"&&document.activeElement.tagName!=="INPUT"){e.preventDefault(); search.focus();} });
+  search.addEventListener("keydown",e=>{if(e.key==="Escape"){$("#results").classList.remove("open");search.blur();}});
+  document.addEventListener("click",e=>{if(!e.target.closest(".search-wrap"))$("#results").classList.remove("open");});
+  document.addEventListener("keydown",e=>{if(e.key==="/"&&document.activeElement.tagName!=="INPUT"){e.preventDefault();search.focus();}});
   window.addEventListener("dragover",e=>e.preventDefault());
-  window.addEventListener("drop",e=>{ e.preventDefault(); if(e.dataTransfer.files.length) ingest(e.dataTransfer.files); });
-  try{ const s=localStorage.getItem("li-theme"); if(s) setTheme(s); }catch(e){}
+  window.addEventListener("drop",e=>{e.preventDefault();if(e.dataTransfer.files.length)ingest(e.dataTransfer.files);});
+  try{const s=localStorage.getItem("li-theme");if(s)setTheme(s);}catch(e){}
 }
-
 boot();
 </script>
 </body>
