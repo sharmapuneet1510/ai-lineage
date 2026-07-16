@@ -1,0 +1,649 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lineage Inspector — Field 360</title>
+<style>
+  /* ===== modern data-tool design system ============================= */
+  :root {
+    color-scheme: light;
+    --bg: #f5f6f9; --surface: #ffffff; --surface-2: #f6f7fa; --sink: #f2f4f8;
+    --ink: #111624; --ink-2: #39415a; --muted: #666e86; --faint: #98a0b4;
+    --line: #ebedf3; --line-2: #e0e3ec;
+    --nav: #12172a; --nav-ink: #eef0f8; --nav-line: rgba(255,255,255,.08);
+    --accent: #4b60df; --accent-soft: #eef0fe; --accent-ink: #ffffff;
+    --code-ink: #4257c9; --ok: #12a150; --gap: #c2740c; --link: #c2410c; --danger: #dc4c46;
+    --chip-bg: #f0f2f7; --chip-line: #e2e5ee; --chip-ink: #47506a;
+    --tag-bg: #eef1fb; --tag-ink: #4557a8;
+    --r1: 7px; --r2: 10px; --r3: 14px; --rp: 999px;
+    --e1: 0 1px 2px rgba(17,22,36,.06), 0 1px 1px rgba(17,22,36,.04);
+    --e2: 0 6px 16px rgba(17,22,36,.09), 0 2px 4px rgba(17,22,36,.05);
+    --e3: 0 16px 40px rgba(17,22,36,.16);
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+    --sans: "Inter", ui-sans-serif, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --dur: .15s;
+  }
+  :root[data-theme="light"] { color-scheme: light; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --bg: #090d16; --surface: #10162340; --surface: #111726; --surface-2: #161d2d; --sink: #0d1220;
+      --ink: #e9ecf5; --ink-2: #bcc3d6; --muted: #7e879f; --faint: #5c6478;
+      --line: rgba(255,255,255,.07); --line-2: rgba(255,255,255,.12);
+      --nav: #0b101b; --nav-ink: #e2e6f2; --nav-line: rgba(255,255,255,.07);
+      --accent: #7188ff; --accent-soft: rgba(101,124,255,.14); --accent-ink: #0a0f1c;
+      --code-ink: #8598ff; --ok: #3ecf8e; --gap: #e0a458; --link: #f08a5f; --danger: #f0685f;
+      --chip-bg: #1a2233; --chip-line: rgba(255,255,255,.09); --chip-ink: #b6bdd2;
+      --tag-bg: rgba(101,124,255,.13); --tag-ink: #a8b5ff;
+      --e1: 0 1px 2px rgba(0,0,0,.4); --e2: 0 8px 24px rgba(0,0,0,.5); --e3: 0 18px 48px rgba(0,0,0,.6);
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #090d16; --surface: #111726; --surface-2: #161d2d; --sink: #0d1220;
+    --ink: #e9ecf5; --ink-2: #bcc3d6; --muted: #7e879f; --faint: #5c6478;
+    --line: rgba(255,255,255,.07); --line-2: rgba(255,255,255,.12);
+    --nav: #0b101b; --nav-ink: #e2e6f2; --nav-line: rgba(255,255,255,.07);
+    --accent: #7188ff; --accent-soft: rgba(101,124,255,.14); --accent-ink: #0a0f1c;
+    --code-ink: #8598ff; --ok: #3ecf8e; --gap: #e0a458; --link: #f08a5f; --danger: #f0685f;
+    --chip-bg: #1a2233; --chip-line: rgba(255,255,255,.09); --chip-ink: #b6bdd2;
+    --tag-bg: rgba(101,124,255,.13); --tag-ink: #a8b5ff;
+    --e1: 0 1px 2px rgba(0,0,0,.4); --e2: 0 8px 24px rgba(0,0,0,.5); --e3: 0 18px 48px rgba(0,0,0,.6);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body { margin: 0; font-family: var(--sans); background: var(--bg); color: var(--ink); font-size: 14px; line-height: 1.55; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; font-feature-settings: "cv05","ss01"; }
+  button, input, select, textarea { font-family: inherit; color: inherit; }
+  button { cursor: pointer; }
+  code { font-family: var(--mono); }
+  ::selection { background: color-mix(in srgb, var(--accent) 26%, transparent); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+  .panel::-webkit-scrollbar, .results::-webkit-scrollbar { width: 10px; height: 10px; }
+  .panel::-webkit-scrollbar-thumb, .results::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--muted) 32%, transparent); border-radius: 99px; border: 3px solid transparent; background-clip: padding-box; }
+  .panel::-webkit-scrollbar-thumb:hover { background: color-mix(in srgb, var(--muted) 48%, transparent); background-clip: padding-box; }
+
+  .app { display: flex; flex-direction: column; height: 100vh; }
+
+  /* ---- top nav ---- */
+  .nav { display: flex; align-items: center; gap: 14px; height: 54px; padding: 0 18px; background: var(--nav); color: var(--nav-ink); flex-shrink: 0; z-index: 30; border-bottom: 1px solid var(--nav-line); }
+  .logo { display: flex; align-items: center; gap: 10px; font-size: 14.5px; font-weight: 600; letter-spacing: -.01em; }
+  .logo .glyph { width: 26px; height: 26px; padding: 4px; border-radius: 8px; background: linear-gradient(140deg, var(--accent), color-mix(in srgb, var(--accent) 55%, #a9b6ff)); color: #fff; }
+  .logo .tag { font-weight: 450; font-size: 10.5px; opacity: .55; letter-spacing: .04em; padding: 2px 7px; border: 1px solid var(--nav-line); border-radius: var(--rp); }
+  .src { display: flex; align-items: center; gap: 7px; font-family: var(--mono); font-size: 11px; padding: 5px 11px; border-radius: var(--rp); background: rgba(255,255,255,.06); border: 1px solid var(--nav-line); }
+  .src .dot { width: 7px; height: 7px; border-radius: 50%; background: #8b95ac; flex: none; }
+  .src.live .dot { background: #34d399; box-shadow: 0 0 0 3px rgba(52,211,153,.22); }
+  .src.demo .dot { background: #e0a458; box-shadow: 0 0 0 3px rgba(224,164,88,.2); }
+  .search-wrap { flex: 1; max-width: 460px; position: relative; }
+  .search { width: 100%; height: 34px; padding: 0 12px 0 34px; border-radius: var(--rp); border: 1px solid var(--nav-line); background: rgba(255,255,255,.07); color: var(--nav-ink); font-size: 12.5px; transition: background var(--dur), border-color var(--dur); }
+  .search::placeholder { color: rgba(238,240,248,.5); }
+  .search:focus { outline: none; border-color: color-mix(in srgb, var(--accent) 70%, white); background: rgba(255,255,255,.12); }
+  .search-ico { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); opacity: .55; pointer-events: none; }
+  .results { position: absolute; top: 42px; left: 0; right: 0; z-index: 50; background: var(--surface); color: var(--ink); border: 1px solid var(--line-2); border-radius: var(--r2); box-shadow: var(--e3); max-height: 64vh; overflow: auto; padding: 6px; display: none; }
+  .results.open { display: block; animation: pop var(--dur) ease; }
+  @keyframes pop { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+  .results .g { padding: 9px 9px 4px; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); font-weight: 600; }
+  .res { display: flex; align-items: center; gap: 10px; padding: 7px 9px; border-radius: var(--r1); cursor: pointer; font-family: var(--mono); font-size: 12px; }
+  .res:hover { background: var(--accent-soft); color: var(--accent); }
+  .res .n { min-width: 24px; text-align: center; font-size: 10px; color: var(--muted); background: var(--sink); border-radius: 5px; padding: 2px 0; }
+  .spacer { flex: 1; }
+  .nbtn { display: inline-flex; align-items: center; gap: 7px; height: 34px; padding: 0 13px; border-radius: var(--r1); border: 1px solid var(--nav-line); background: rgba(255,255,255,.06); color: var(--nav-ink); font-size: 12.5px; font-weight: 500; white-space: nowrap; transition: background var(--dur), transform var(--dur); }
+  .nbtn:hover { background: rgba(255,255,255,.13); }
+  .nbtn:active { transform: translateY(1px); }
+  .nbtn.icon { width: 34px; padding: 0; justify-content: center; }
+
+  .banner { display: none; align-items: center; gap: 10px; padding: 9px 18px; background: color-mix(in srgb, var(--gap) 12%, var(--surface)); border-bottom: 1px solid color-mix(in srgb, var(--gap) 30%, transparent); font-size: 12.5px; color: var(--ink-2); }
+  .banner.show { display: flex; }
+  .banner svg { color: var(--gap); flex: none; }
+  .banner .x { margin-left: auto; background: none; border: none; color: var(--muted); font-size: 17px; line-height: 1; padding: 2px 6px; border-radius: 5px; }
+  .banner .x:hover { background: color-mix(in srgb, var(--gap) 14%, transparent); }
+
+  /* ---- two-pane ---- */
+  .body { flex: 1; display: grid; grid-template-columns: 300px 1fr; min-height: 0; }
+  .panel { min-height: 0; overflow: auto; }
+
+  .side { background: var(--surface); border-right: 1px solid var(--line); }
+  .side-top { position: sticky; top: 0; background: var(--surface); padding: 13px 14px 11px; border-bottom: 1px solid var(--line); z-index: 5; }
+  .filter { width: 100%; height: 36px; padding: 0 12px; border-radius: var(--r1); border: 1px solid var(--line-2); background: var(--sink); color: var(--ink); font-size: 13px; transition: border-color var(--dur), background var(--dur); }
+  .filter:focus { outline: none; border-color: var(--accent); background: var(--surface); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .side-chips { display: flex; gap: 7px; margin-top: 10px; }
+  .cf { font-size: 11.5px; padding: 4px 11px; border-radius: var(--rp); border: 1px solid var(--line-2); color: var(--muted); background: var(--surface); transition: all var(--dur); }
+  .cf:hover { border-color: var(--line-2); color: var(--ink-2); }
+  .cf[aria-pressed="true"] { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 45%, var(--line-2)); background: var(--accent-soft); }
+  .cf.gap[aria-pressed="true"] { color: var(--gap); border-color: color-mix(in srgb, var(--gap) 45%, var(--line-2)); background: color-mix(in srgb, var(--gap) 12%, transparent); }
+
+  .grp-h { display: flex; align-items: center; justify-content: space-between; padding: 15px 16px 6px; cursor: pointer; user-select: none; }
+  .grp-h .gt { font-size: 11px; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); font-weight: 650; }
+  .grp-h .gr { display: flex; align-items: center; gap: 8px; color: var(--faint); font-size: 11px; }
+  .grp-h .tri { font-size: 9px; transition: transform var(--dur); }
+  .grp-h.closed .tri { transform: rotate(-90deg); }
+  .frow { display: flex; align-items: center; gap: 11px; width: calc(100% - 16px); margin: 1px 8px; text-align: left; padding: 8px 10px; border: none; background: none; border-radius: var(--r1); transition: background var(--dur); }
+  .frow:hover { background: var(--sink); }
+  .frow[aria-selected="true"] { background: var(--accent-soft); }
+  .frow .fm { flex: 1; min-width: 0; }
+  .frow .fn { font-size: 13.5px; color: var(--ink); font-weight: 500; }
+  .frow[aria-selected="true"] .fn { color: var(--accent); font-weight: 600; }
+  .frow .fc { font-family: var(--mono); font-size: 10.5px; color: var(--faint); margin-top: 1px; word-break: break-all; }
+  .frow .fd { width: 7px; height: 7px; border-radius: 50%; flex: none; background: var(--ok); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ok) 16%, transparent); }
+  .frow.is-gap .fd { background: var(--gap); box-shadow: 0 0 0 3px color-mix(in srgb, var(--gap) 16%, transparent); }
+  .frow.is-gap .fn { color: var(--gap); }
+
+  /* ---- field-360 document ---- */
+  .doc { background: var(--bg); }
+  .doc-in { max-width: 980px; margin: 0 auto; padding: 0 36px 96px; }
+
+  .fhead { position: sticky; top: 0; z-index: 4; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: saturate(1.6) blur(8px); padding: 22px 0 16px; margin-bottom: 4px; border-bottom: 1px solid var(--line); }
+  .ftitle { margin: 0; font-size: 27px; font-weight: 650; letter-spacing: -.02em; color: var(--ink); text-wrap: balance; }
+  .fchips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
+  .pill { font-family: var(--mono); font-size: 11px; padding: 3px 10px; border-radius: var(--rp); border: 1px solid var(--chip-line); color: var(--chip-ink); background: var(--chip-bg); }
+  .pill.code { color: var(--code-ink); background: color-mix(in srgb, var(--code-ink) 9%, transparent); border-color: color-mix(in srgb, var(--code-ink) 22%, transparent); }
+  .pill.txt { font-family: var(--sans); }
+  .pill.ai { display: inline-flex; align-items: center; gap: 6px; color: var(--ok); background: color-mix(in srgb, var(--ok) 11%, transparent); border-color: color-mix(in srgb, var(--ok) 26%, transparent); }
+  .pill.ai::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .pill.ai.gap { color: var(--gap); background: color-mix(in srgb, var(--gap) 11%, transparent); border-color: color-mix(in srgb, var(--gap) 26%, transparent); }
+  .metastrip { display: flex; gap: 22px; flex-wrap: wrap; margin-top: 13px; color: var(--muted); font-size: 12.5px; }
+  .metastrip b { color: var(--ink); font-variant-numeric: tabular-nums; font-weight: 650; }
+
+  .section { margin-top: 32px; }
+  .sec-h { display: flex; align-items: center; gap: 13px; margin-bottom: 15px; }
+  .sec-h .st { font-size: 11px; letter-spacing: .11em; text-transform: uppercase; color: var(--muted); font-weight: 650; white-space: nowrap; }
+  .sec-h .sn { font-size: 10.5px; color: var(--muted); font-family: var(--mono); background: var(--sink); border: 1px solid var(--line); border-radius: var(--rp); padding: 1px 8px; }
+  .sec-h::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+  .sec-h.click { cursor: pointer; user-select: none; }
+  .sec-h.click:hover .st { color: var(--ink-2); }
+  .sec-h .tri { font-size: 9px; color: var(--faint); transition: transform var(--dur); }
+  .section.collapsed .sec-h .tri { transform: rotate(-90deg); }
+  .section.collapsed .sec-body { display: none; }
+
+  .prose { color: var(--ink-2); font-size: 14.5px; max-width: 76ch; }
+  .prose code { color: var(--code-ink); background: color-mix(in srgb, var(--code-ink) 9%, transparent); padding: 1px 6px; border-radius: 5px; font-size: .92em; }
+  .subsec { margin-top: 16px; }
+  .subsec:first-child { margin-top: 0; }
+  .wtag { display: inline-block; font-size: 10px; letter-spacing: .09em; text-transform: uppercase; color: var(--tag-ink); background: var(--tag-bg); padding: 3px 10px; border-radius: var(--rp); margin-bottom: 9px; font-weight: 650; }
+  .logic { font-family: var(--mono); font-size: 12.5px; color: var(--ink-2); white-space: pre-wrap; line-height: 1.75; background: var(--sink); border: 1px solid var(--line); border-radius: var(--r2); padding: 13px 15px; }
+
+  .empty { color: var(--muted); font-size: 13.5px; }
+  .empty .why { font-family: var(--mono); font-size: 11px; color: var(--faint); display: block; margin-top: 5px; line-height: 1.6; }
+  .empty code { color: var(--ink-2); background: var(--sink); padding: 1px 5px; border-radius: 4px; }
+
+  .cards { display: flex; gap: 13px; flex-wrap: wrap; }
+  .card { flex: 1 1 210px; min-width: 200px; border: 1px solid var(--line-2); border-radius: var(--r2); padding: 14px 15px; background: var(--surface); box-shadow: var(--e1); transition: transform var(--dur), box-shadow var(--dur), border-color var(--dur); }
+  .card:hover { transform: translateY(-2px); box-shadow: var(--e2); border-color: color-mix(in srgb, var(--accent) 35%, var(--line-2)); }
+  .card .sys { font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 650; }
+  .card .fld { font-family: var(--mono); font-size: 13.5px; color: var(--ink); margin: 7px 0 11px; }
+  .badge { display: inline-flex; align-items: center; gap: 5px; font-size: 10.5px; padding: 3px 9px; border-radius: var(--rp); background: color-mix(in srgb, var(--ok) 12%, transparent); color: var(--ok); border: 1px solid color-mix(in srgb, var(--ok) 28%, transparent); font-weight: 600; }
+
+  .tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; border: 1px solid var(--line); border-radius: var(--r2); overflow: hidden; }
+  .tbl th { text-align: left; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 650; padding: 9px 12px; background: var(--sink); border-bottom: 1px solid var(--line); }
+  .tbl td { padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; color: var(--ink-2); }
+  .tbl tr:last-child td { border-bottom: none; }
+  .tbl td.key { font-family: var(--mono); color: var(--link); white-space: nowrap; font-weight: 500; }
+  .tbl tbody tr { transition: background var(--dur); }
+  .tbl tbody tr:hover td { background: var(--sink); }
+
+  .flow { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; align-items: center; gap: 12px; padding: 8px 0; }
+  .col { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  .col.mid { align-items: center; }
+  .col-l { text-align: center; font-size: 10px; letter-spacing: .09em; text-transform: uppercase; color: var(--faint); font-weight: 650; margin-bottom: 3px; }
+  .arr { display: flex; align-items: center; justify-content: center; color: var(--faint); }
+  .arr svg { width: 24px; height: 13px; }
+  .gnode { display: block; width: 100%; text-align: left; padding: 11px 13px; border-radius: var(--r2); border: 1px solid var(--line-2); background: var(--surface); box-shadow: var(--e1); border-left: 3px solid var(--lc, var(--accent)); transition: transform var(--dur), box-shadow var(--dur), border-color var(--dur); }
+  .gnode:hover { transform: translateY(-1px); box-shadow: var(--e2); border-color: color-mix(in srgb, var(--accent) 35%, var(--line-2)); }
+  .gnode .gn { font-family: var(--mono); font-weight: 600; font-size: 12.5px; word-break: break-word; color: var(--ink); }
+  .gnode .gs { font-family: var(--mono); font-size: 10px; color: var(--faint); margin-top: 4px; }
+  .gnode.focus { background: linear-gradient(180deg, var(--accent-soft), var(--surface)); border-color: color-mix(in srgb, var(--accent) 40%, var(--line-2)); }
+  .gnode.gap { border-style: dashed; border-color: var(--gap); border-left-color: var(--gap); background: color-mix(in srgb, var(--gap) 7%, var(--surface)); box-shadow: none; }
+  .gnode.gap .gn { color: var(--gap); }
+  .gexpr { font-family: var(--mono); font-size: 10px; color: var(--ink-2); background: var(--sink); border-radius: 6px; padding: 5px 7px; margin-top: 6px; word-break: break-word; }
+  .ghint { font-family: var(--mono); font-size: 10.5px; color: var(--faint); padding: 13px; border: 1px dashed var(--line-2); border-radius: var(--r2); text-align: center; }
+
+  .ev { border: 1px solid var(--line); border-radius: var(--r2); padding: 13px 14px; background: var(--surface); margin-top: 11px; box-shadow: var(--e1); }
+  .ev-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .kind { font-family: var(--mono); font-size: 10px; letter-spacing: .04em; padding: 3px 9px; border-radius: var(--rp); border: 1px solid var(--lc, var(--line-2)); color: var(--lc, var(--ink-2)); background: color-mix(in srgb, var(--lc, var(--muted)) 8%, transparent); }
+  .ev-code { font-family: var(--mono); font-size: 12px; background: var(--sink); border: 1px solid var(--line); border-radius: var(--r1); padding: 10px 12px; margin-top: 10px; overflow-x: auto; white-space: pre; color: var(--ink-2); }
+  .stamp { font-family: var(--mono); font-size: 10.5px; color: var(--muted); margin-top: 10px; display: flex; flex-wrap: wrap; gap: 5px 12px; }
+  .stamp b { color: var(--ink-2); font-weight: 650; }
+  .gapcard { border: 1px solid color-mix(in srgb, var(--gap) 28%, var(--line)); border-left: 3px solid var(--gap); border-radius: var(--r2); padding: 12px 14px; margin-top: 11px; background: color-mix(in srgb, var(--gap) 6%, var(--surface)); }
+  .gapcard .gf { font-family: var(--mono); font-size: 12px; color: var(--gap); font-weight: 650; }
+  .gapcard .gm { font-size: 12.5px; color: var(--ink-2); margin-top: 4px; }
+
+  /* ---- feedback ---- */
+  .fb-form { border: 1px solid var(--line-2); border-radius: var(--r3); padding: 16px; background: var(--surface); box-shadow: var(--e1); }
+  .fb-row { display: flex; gap: 11px; flex-wrap: wrap; margin-bottom: 11px; }
+  .fb-row .grow { flex: 1; min-width: 150px; }
+  .fb-form label { display: block; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 5px; font-weight: 650; }
+  .fb-form select, .fb-form input, .fb-form textarea { width: 100%; padding: 8px 11px; border: 1px solid var(--line-2); border-radius: var(--r1); background: var(--sink); color: var(--ink); font-size: 13px; font-family: var(--sans); transition: border-color var(--dur), box-shadow var(--dur), background var(--dur); }
+  .fb-form textarea { resize: vertical; min-height: 60px; }
+  .fb-form :focus { outline: none; border-color: var(--accent); background: var(--surface); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .fb-actions { display: flex; align-items: flex-end; gap: 12px; }
+  .fb-submit { height: 37px; padding: 0 17px; border-radius: var(--r1); border: none; background: var(--accent); color: var(--accent-ink); font-weight: 600; font-size: 13px; box-shadow: var(--e1); transition: filter var(--dur), transform var(--dur); }
+  .fb-submit:hover { filter: brightness(1.07); }
+  .fb-submit:active { transform: translateY(1px); }
+  .fb-note { font-size: 12px; color: var(--muted); }
+  .fb-item { border: 1px solid var(--line); border-radius: var(--r2); padding: 13px 15px; margin-top: 11px; background: var(--surface); box-shadow: var(--e1); }
+  .fb-top { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+  .fb-kind { font-size: 10px; letter-spacing: .05em; text-transform: uppercase; font-weight: 650; padding: 3px 9px; border-radius: var(--rp); border: 1px solid var(--chip-line); color: var(--chip-ink); background: var(--chip-bg); }
+  .fb-kind.correct { color: var(--link); background: color-mix(in srgb, var(--link) 10%, transparent); border-color: color-mix(in srgb, var(--link) 30%, var(--chip-line)); }
+  .fb-kind.flag_gap { color: var(--gap); background: color-mix(in srgb, var(--gap) 10%, transparent); border-color: color-mix(in srgb, var(--gap) 30%, var(--chip-line)); }
+  .fb-kind.confirm { color: var(--ok); background: color-mix(in srgb, var(--ok) 10%, transparent); border-color: color-mix(in srgb, var(--ok) 30%, var(--chip-line)); }
+  .fb-status { font-size: 10px; letter-spacing: .05em; text-transform: uppercase; font-weight: 650; padding: 3px 9px; border-radius: var(--rp); }
+  .fb-status.unverified { color: var(--muted); background: var(--sink); border: 1px solid var(--line-2); }
+  .fb-status.verified { color: var(--ok); background: color-mix(in srgb, var(--ok) 12%, transparent); border: 1px solid color-mix(in srgb, var(--ok) 30%, transparent); }
+  .fb-status.rejected { color: var(--faint); background: var(--sink); border: 1px solid var(--line-2); text-decoration: line-through; }
+  .fb-who { margin-left: auto; font-family: var(--mono); font-size: 10.5px; color: var(--faint); }
+  .fb-body { color: var(--ink-2); font-size: 13.5px; margin: 9px 0 0; }
+  .fb-btns { display: flex; gap: 9px; margin-top: 11px; }
+  .fb-btn { font-size: 12px; padding: 5px 13px; border-radius: var(--r1); border: 1px solid var(--line-2); background: var(--surface); color: var(--ink-2); font-weight: 550; transition: all var(--dur); }
+  .fb-btn.verify { color: var(--ok); border-color: color-mix(in srgb, var(--ok) 40%, var(--line-2)); }
+  .fb-btn.verify:hover { background: color-mix(in srgb, var(--ok) 12%, transparent); }
+  .fb-btn.reject { color: var(--link); border-color: color-mix(in srgb, var(--link) 40%, var(--line-2)); }
+  .fb-btn.reject:hover { background: color-mix(in srgb, var(--link) 10%, transparent); }
+
+  @media (max-width: 900px) {
+    .body { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+    .side { border-right: none; border-bottom: 1px solid var(--line); max-height: 40vh; }
+    .search-wrap { display: none; }
+    .doc-in { padding: 0 16px 60px; }
+    .fhead { position: static; }
+  }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="nav">
+    <div class="logo">
+      <svg class="glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="6" cy="6" r="2.3"/><circle cx="6" cy="18" r="2.3"/><circle cx="18" cy="12" r="2.3"/><path d="M8.2 7 15.6 11M8.2 17 15.6 13"/></svg>
+      Lineage Inspector <span class="tag">field 360</span>
+    </div>
+    <div class="src" id="src"><span class="dot"></span><span id="srcTxt">loading…</span></div>
+    <div class="search-wrap">
+      <svg class="search-ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input class="search" id="search" placeholder="Search fields, symbols, files, xpaths…  (/)" autocomplete="off">
+      <div class="results" id="results"></div>
+    </div>
+    <div class="spacer"></div>
+    <button class="nbtn" id="loadBtn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0 4-4m-4 4-4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+      Load parse output
+    </button>
+    <button class="nbtn icon" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    </button>
+    <input type="file" id="fileInput" accept=".jsonl,.idx,.json" multiple hidden>
+  </header>
+
+  <div class="banner" id="banner">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
+    <span id="bannerText">Showing sample data. Run the parser and load its output to inspect your own fields.</span>
+    <button class="x" id="bannerClose" aria-label="Dismiss">&times;</button>
+  </div>
+
+  <div class="body">
+    <aside class="panel side">
+      <div class="side-top">
+        <input class="filter" id="filter" placeholder="Search fields…" autocomplete="off">
+        <div class="side-chips">
+          <button class="cf" data-flt="all" aria-pressed="true">all</button>
+          <button class="cf gap" data-flt="gap" aria-pressed="false">gaps</button>
+        </div>
+      </div>
+      <div id="sidebar"></div>
+    </aside>
+    <main class="panel doc"><div class="doc-in" id="doc"></div></main>
+  </div>
+</div>
+
+<script>
+"use strict";
+
+/* ---- sample data: facts + field docs (as the explanation phase would emit) --- */
+function P(m,f,p,x){ x=x||{}; return {module:m,file:f,parser:p,parser_version:"0.1.0",source_hash:x.hash||"",parsed_at:"2026-07-15T09:22:00Z",line_start:x.line_start??null,line_end:null,symbol:x.symbol??null,xpath:x.xpath??null}; }
+const DEMO_FACTS = [
+  {kind:"call",         subject:"base",     reads:["order"],           writes:["base"],     attrs:{expr:"order.getBasePrice()"},  provenance:P("pricing-core","Pricer.java","java",{symbol:"Pricer.calc",line_start:38,hash:"a1c9"})},
+  {kind:"assignment",   subject:"discount", reads:["rate"],            writes:["discount"], attrs:{expr:"rate / 100.0"},          provenance:P("pricing-core","Pricer.java","java",{symbol:"Pricer.calc",line_start:39,hash:"a1c9"})},
+  {kind:"assignment",   subject:"price",    reads:["base","discount"], writes:["price"],    attrs:{expr:"base * (1 - discount)"},  provenance:P("pricing-core","Pricer.java","java",{symbol:"Pricer.calc",line_start:41,hash:"a1c9"})},
+  {kind:"template_match",subject:"/Order/Price",reads:["price"],       writes:["EffectiveUnitPrice"],attrs:{template:"emitPrice"},provenance:P("pricing-core","out.xsl","xslt",{symbol:"emitPrice",xpath:"/Order/Price",line_start:22,hash:"77b0"})},
+  {kind:"element_decl", subject:"EffectiveUnitPrice",reads:[],         writes:[],           attrs:{type:"xsd:decimal"},           provenance:P("outbound","out.xsd","xsd",{symbol:"EffectiveUnitPrice",line_start:14,hash:"5d2e"})},
+  {kind:"assignment",   subject:"final_total",reads:["price","rounding"],writes:["final_total"],attrs:{expr:"round(price, rounding)"},provenance:P("pricing-core","Ledger.java","java",{symbol:"Ledger.total",line_start:60,hash:"c4f1"})},
+  {kind:"element",      subject:"order",    reads:[], writes:[], attrs:{path:"/order", text:null},                 provenance:P("order-intake","order.xml","xml",{xpath:"/order",line_start:2,hash:"be31"})},
+  {kind:"attribute",    subject:"currency", reads:[], writes:[], attrs:{path:"/order/price/@currency", value:"USD"},provenance:P("order-intake","order.xml","xml",{xpath:"/order/price/@currency",line_start:3,hash:"be31"})},
+];
+const DEMO_ISSUES = [{severity:"error",parser:"java",file:"Rounding.java",message:"cannot decode as utf-8: invalid start byte 0x9f at position 512",provenance:null}];
+const DEMO_FIELDS = [
+  {name:"price", group:"Pricing", status:"parsed",
+   description:"The unit price of an order line after any applicable discount is applied, but before tax and rounding. It is the value carried forward into the reporting pipeline and mapped to the outbound schema.",
+   plain_english:{
+     what:"This field records what a single unit costs once the customer discount has been taken off the base price.",
+     when:'IF a base price and a discount rate are both present\n    THEN price = base × (1 − discount)\nELSE IF no discount applies\n    THEN price = base price\nELSE\n    THEN price is not produced',
+     why:"Downstream systems and the outbound schema need a single, discount-adjusted unit price so the effective amount reported is consistent across every consumer."},
+   downstream:[{system:"OUTBOUND XSD",field:"EffectiveUnitPrice",status:"mapped"},{system:"LEDGER",field:"final_total",status:"in pipeline"}],
+   tickets:[{key:"LIN-1042",summary:"Confirm discount rounding matches ledger before reporting"},{key:"LIN-0988",summary:"price → EffectiveUnitPrice mapping added for outbound schema"}]},
+  {name:"final_total", group:"Pricing", status:"gap",
+   description:"The rounded order total derived from the unit price. Its rounding input originates in a source file that failed to parse, so the trace is incomplete.",
+   plain_english:{what:"The order total after rounding is applied to the unit price."},
+   tickets:[{key:"LIN-1050",summary:"Rounding.java fails to decode — re-encode as UTF-8"}]},
+];
+const DEMO_SUMMARY = {files_parsed:5, facts:DEMO_FACTS.length, facts_by_kind:tally(DEMO_FACTS,"kind"), issues_by_severity:{error:1}, duration_s:0.21};
+function tally(a,k){ const o={}; a.forEach(x=>o[x[k]]=(o[x[k]]||0)+1); return o; }
+
+/* ---- state -------------------------------------------------------------- */
+const state = { facts:[], issues:[], docs:new Map(), summary:null, subjects:new Map(), tokens:new Map(), selected:null, live:false, flt:"all", groupsClosed:new Set() };
+const LANGS = ["java","xslt","xsd","xml","document"];
+const langColor = p => LANGS.includes(p) ? `var(--code-ink)` : "var(--accent)";
+
+function rebuild() {
+  state.subjects = new Map(); state.tokens = new Map();
+  const sub = n => { if(!state.subjects.has(n)) state.subjects.set(n,{name:n,module:null,producedBy:[],consumedBy:[],langs:new Set()}); return state.subjects.get(n); };
+  const tok = (t,i) => { if(!t) return; if(!state.tokens.has(t)) state.tokens.set(t,new Set()); state.tokens.get(t).add(i); };
+  state.facts.forEach((f,i) => {
+    const pv=f.provenance||{};
+    new Set([f.subject,...(f.writes||[])].filter(Boolean)).forEach(n=>{ const s=sub(n); s.producedBy.push(i); if(!s.module)s.module=pv.module; if(pv.parser)s.langs.add(pv.parser); });
+    (f.reads||[]).forEach(n=>sub(n).consumedBy.push(i));
+    [f.subject,...(f.reads||[]),...(f.writes||[]),pv.symbol,pv.xpath].forEach(t=>tok(t,i));
+    if(pv.module&&pv.file) tok(`${pv.module}/${pv.file}`,i);
+  });
+}
+const isGap = n => { const s=state.subjects.get(n); return !!s && s.producedBy.length===0 && s.consumedBy.length>0; };
+
+/* ---- loading ------------------------------------------------------------ */
+async function boot(){ if(!await tryFetch()) loadData(DEMO_FACTS,DEMO_ISSUES,DEMO_FIELDS,DEMO_SUMMARY,false); wire(); }
+async function tryFetch(){
+  let facts=[],issues=[],fields=[],summary=null,any=false;
+  try{const r=await fetch("./data/evidence.idx",{cache:"no-store"}); if(r.ok){const j=await r.json(); if(Array.isArray(j.facts)){facts=j.facts;any=true;}}}catch(e){}
+  if(!any){try{const r=await fetch("./data/facts.jsonl",{cache:"no-store"}); if(r.ok){const p=parseJsonl(await r.text()); facts=p.facts;issues=p.issues;any=true;}}catch(e){}}
+  if(!any) return false;
+  try{const r=await fetch("./data/run_summary.json",{cache:"no-store"}); if(r.ok) summary=await r.json();}catch(e){}
+  try{const r=await fetch("./data/fields.json",{cache:"no-store"}); if(r.ok){const j=await r.json(); if(Array.isArray(j.fields)) fields=j.fields;}}catch(e){}
+  loadData(facts,issues,fields,summary,true); return true;
+}
+function parseJsonl(t){ const facts=[],issues=[]; t.split(/\r?\n/).forEach(l=>{l=l.trim();if(!l)return;let o;try{o=JSON.parse(l);}catch(e){return;}(o.record==="issue"?issues:facts).push(o);}); return {facts,issues}; }
+function loadData(facts,issues,fields,summary,live){
+  state.facts=facts||[]; state.issues=issues||[]; state.summary=summary; state.live=live;
+  state.docs=new Map(); (fields||[]).forEach(f=>state.docs.set(f.name,f));
+  rebuild(); renderSrc(); renderSidebar(); select(defaultSelection()); banner(!live);
+}
+function defaultSelection(){
+  for(const d of state.docs.keys()) if(state.subjects.has(d)) return d;
+  let best=null,n=-1; for(const s of state.subjects.values()){ if(!s.producedBy.length)continue; const c=s.producedBy.length+s.consumedBy.length; if(c>n){n=c;best=s.name;} } return best;
+}
+function ingest(files){
+  Promise.all([...files].map(f=>f.text().then(t=>({name:f.name,text:t})))).then(parts=>{
+    let facts=[],issues=[],fields=[],summary=null;
+    parts.forEach(({name,text})=>{ const t=text.trim();
+      if(name.endsWith(".jsonl")||t.startsWith('{"record"')){const p=parseJsonl(text);facts=facts.concat(p.facts);issues=issues.concat(p.issues);return;}
+      let j;try{j=JSON.parse(text);}catch(e){return;}
+      if(Array.isArray(j.facts))facts=facts.concat(j.facts);
+      if(Array.isArray(j.fields))fields=j.fields;
+      if(j.files_parsed!==undefined||j.facts_by_kind)summary=j;
+    });
+    if(!facts.length&&!fields.length){alert("No facts found. Load facts.jsonl or evidence.idx from your parse output.");return;}
+    loadData(facts,issues,fields,summary,true);
+  });
+}
+
+/* ---- helpers ------------------------------------------------------------ */
+const $=s=>document.querySelector(s);
+const el=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e;};
+const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const humanize=s=>String(s).replace(/[_./]+/g," ").replace(/([a-z])([A-Z])/g,"$1 $2").trim().replace(/^\w/,c=>c.toUpperCase());
+function coord(pv){ if(!pv)return""; const loc=pv.symbol?pv.symbol+(pv.line_start?":"+pv.line_start:""):pv.xpath?pv.xpath:pv.file+(pv.line_start?":"+pv.line_start:""); return `${pv.file} · ${loc}`; }
+
+function renderSrc(){ const c=$("#src"); c.classList.toggle("live",state.live); c.classList.toggle("demo",!state.live); $("#srcTxt").textContent=state.live?`${state.facts.length} facts · ${state.issues.length} gaps`:"sample data"; }
+
+/* ---- sidebar ------------------------------------------------------------ */
+function sidebarFields(){
+  const out=[]; const seen=new Set();
+  for(const s of state.subjects.values()) if(s.producedBy.length){ out.push({name:s.name,module:(state.docs.get(s.name)?.group)||s.module||"—",n:s.producedBy.length+s.consumedBy.length,gap:false}); seen.add(s.name); }
+  for(const s of state.subjects.values()) if(!s.producedBy.length&&s.consumedBy.length){ out.push({name:s.name,module:"Unresolved",n:s.consumedBy.length,gap:true}); }
+  return out;
+}
+function renderSidebar(){
+  const host=$("#sidebar"); host.innerHTML="";
+  const q=($("#filter").value||"").toLowerCase();
+  let items=sidebarFields().filter(it=>it.name.toLowerCase().includes(q));
+  if(state.flt==="gap") items=items.filter(it=>it.gap);
+  const byMod=new Map(); items.forEach(it=>{ if(!byMod.has(it.module))byMod.set(it.module,[]); byMod.get(it.module).push(it); });
+  [...byMod.entries()].sort((a,b)=>a[0].localeCompare(b[0])).forEach(([mod,list])=>{
+    const closed=state.groupsClosed.has(mod);
+    const h=el("div","grp-h"+(closed?" closed":"")); h.innerHTML=`<span class="gt">${esc(mod)}</span><span class="gr">${list.length} <span class="tri">▾</span></span>`;
+    h.addEventListener("click",()=>{ closed?state.groupsClosed.delete(mod):state.groupsClosed.add(mod); renderSidebar(); });
+    host.appendChild(h); if(closed) return;
+    list.sort((a,b)=>a.name.localeCompare(b.name)).forEach(it=>{
+      const r=el("button","frow"+(it.gap?" is-gap":"")); r.setAttribute("aria-selected",it.name===state.selected);
+      r.innerHTML=`<span class="fm"><span class="fn">${esc(humanize(it.name))}</span><span class="fc">${esc(it.name)}</span></span><span class="fd"></span>`;
+      r.addEventListener("click",()=>select(it.name)); host.appendChild(r);
+    });
+  });
+  if(!items.length){ const e=el("div","empty","No matching fields."); e.style.padding="12px 14px"; host.appendChild(e); }
+}
+
+/* ---- field-360 ---------------------------------------------------------- */
+function select(name){
+  state.selected=name;
+  document.querySelectorAll(".frow").forEach(r=>r.setAttribute("aria-selected",r.querySelector(".fc")?.textContent===name));
+  renderDoc(name); $(".doc").scrollTop=0;
+}
+function renderDoc(name){
+  const doc=$("#doc"); doc.innerHTML="";
+  if(!name){ doc.appendChild(el("div","empty","No field selected.")); return; }
+  const s=state.subjects.get(name), d=state.docs.get(name), gap=isGap(name);
+  const langs=s?[...s.langs]:[];
+
+  const head=el("div","fhead");
+  const trust=gap?"unresolved":(d?.status==="verified"?"verified":d?.description?"AI enriched":"parsed");
+  head.innerHTML=
+    `<h1 class="ftitle">${esc(d?.name?d.name:humanize(name))}</h1>`+
+    `<div class="fchips">`+
+      `<span class="pill code">${esc(name)}</span>`+
+      (d?.group?`<span class="pill txt">${esc(d.group)}</span>`:s?.module?`<span class="pill txt">${esc(s.module)}</span>`:"")+
+      langs.map(l=>`<span class="pill">${esc(l)}</span>`).join("")+
+      `<span class="pill ai${gap?" gap":""}">${esc(trust)}</span>`+
+    `</div>`+
+    `<div class="metastrip"><span>produced by <b>${s?s.producedBy.length:0}</b></span><span>consumed by <b>${s?s.consumedBy.length:0}</b></span><span>modules <b>${new Set([...(s?s.producedBy:[]),...(s?s.consumedBy:[])].map(i=>state.facts[i].provenance?.module)).size}</b></span></div>`;
+  doc.appendChild(head);
+
+  doc.appendChild(section("Business definition",null,
+    d?.description ? el("div","prose",esc(d.description)) : emptyState("Not generated yet.","Produced by the explanation phase — not part of deterministic parsing.")));
+
+  doc.appendChild(section("Plain English summary",null, plainEnglish(d)));
+  doc.appendChild(section("Downstream systems",null, downstream(name,d)));
+  doc.appendChild(section("Technical summary",null, technical(name)));
+  doc.appendChild(collapsible("Enrichment pipeline",null, emptyState("No enrichers detected.","Set when a configured enrichment step contributes to this field."), true));
+  const tix=d?.tickets||[];
+  doc.appendChild(collapsible("Linked tickets", String(tix.length), tickets(tix), tix.length===0));
+  const iso=isoOutput(name);
+  doc.appendChild(collapsible("Schema output mappings", String(iso.count), iso.node, iso.count===0));
+  doc.appendChild(collapsible("Lineage graph",null, flowGraph(name), false));
+  doc.appendChild(section("Evidence & provenance", s?String([...new Set([...s.producedBy,...s.consumedBy])].length):"0", evidence(name)));
+  doc.appendChild(feedbackSection(name));
+}
+
+/* ---- review & feedback (talks to the feedback API) ---------------------- */
+const _params = new URLSearchParams(location.search);
+if (_params.get("api")) { try{ localStorage.setItem("li-api", _params.get("api")); }catch(e){} }
+const API = (()=>{ try{ return localStorage.getItem("li-api") || "/api"; }catch(e){ return "/api"; } })();
+function reviewer(){ try{ return localStorage.getItem("li-reviewer")||""; }catch(e){ return ""; } }
+function setReviewer(v){ try{ localStorage.setItem("li-reviewer", v); }catch(e){} }
+async function postJSON(url, body){
+  const r = await fetch(url, {method:"POST", headers:{"content-type":"application/json"}, body:JSON.stringify(body)});
+  const j = await r.json().catch(()=>({}));
+  if (!r.ok) throw new Error((j.errors&&j.errors[0]&&j.errors[0].detail) || j.message || `HTTP ${r.status}`);
+  return j.data;
+}
+
+function feedbackSection(name){
+  const body = el("div","fb-host"); body.appendChild(el("div","empty","Loading feedback…"));
+  const sec = section("Review & feedback", null, body);
+  loadFeedback(name, sec); return sec;
+}
+async function loadFeedback(name, sec){
+  const host = sec.querySelector(".fb-host"); const cnt = sec.querySelector(".sn") || sec.querySelector(".sec-h");
+  let items = null;
+  try { const r = await fetch(`${API}/feedback?field_id=${encodeURIComponent(name)}`, {cache:"no-store"}); if (r.ok) items = (await r.json()).data || []; }
+  catch(e) { items = null; }
+  host.innerHTML = "";
+  if (items === null) { host.appendChild(fbDisconnected()); return; }
+  const h = sec.querySelector(".sec-h"); if (h && !h.querySelector(".sn")) h.insertBefore(el("span","sn",String(items.length)), h.querySelector("::after")||null);
+  host.appendChild(fbForm(name, sec));
+  const verified = items.filter(f=>f.status==="verified").length;
+  if (!items.length) host.appendChild(el("div","empty","No feedback yet. Confirm the field, propose a correction, or flag a gap."));
+  else { const note = el("div","fb-note"); note.style.margin="12px 0 2px"; note.textContent = `${items.length} entr${items.length===1?"y":"ies"} · ${verified} verified`; host.appendChild(note); items.slice().reverse().forEach(f=>host.appendChild(fbCard(f, name, sec))); }
+}
+function fbDisconnected(){
+  const d = el("div","empty");
+  d.innerHTML = `Feedback API not reachable at <code>${esc(API)}</code>.<span class="why">Start it: <code>python3 -m uvicorn scripts.feedback_server:app --port 8000</code> from lineage-backend, then open the viewer with <code>?api=http://localhost:8000/api</code></span>`;
+  return d;
+}
+function fbForm(name, sec){
+  const f = el("form","fb-form");
+  f.innerHTML =
+    `<div class="fb-row">`+
+      `<div class="grow"><label>Feedback</label><select name="kind">`+
+        `<option value="confirm">Confirm — looks right</option>`+
+        `<option value="correct">Correct — this is wrong</option>`+
+        `<option value="flag_gap">Flag gap — lineage incomplete</option>`+
+        `<option value="note">Note — comment</option>`+
+      `</select></div>`+
+      `<div class="grow"><label>About</label><select name="target">`+
+        `<option value="definition">Definition</option><option value="value">Value</option>`+
+        `<option value="lineage">Lineage</option><option value="downstream">Downstream</option>`+
+        `<option value="general">General</option></select></div>`+
+    `</div>`+
+    `<div class="fb-row"><div class="grow"><label>Detail</label><textarea name="body" placeholder="What's wrong, or what to confirm…"></textarea></div></div>`+
+    `<div class="fb-actions"><div style="width:190px"><label>Your name</label><input name="author" value="${esc(reviewer())}" placeholder="reviewer"></div>`+
+    `<button class="fb-submit" type="submit">Submit review</button><span class="fb-note" data-msg></span></div>`;
+  f.addEventListener("submit", async e => {
+    e.preventDefault();
+    const fd = new FormData(f); const author = (fd.get("author")||"").trim();
+    const msg = f.querySelector("[data-msg]");
+    if (!author) { msg.textContent = "Add your name."; return; }
+    setReviewer(author);
+    try {
+      await postJSON(`${API}/feedback`, {field_id:name, kind:fd.get("kind"), target:fd.get("target"), body:(fd.get("body")||"").trim(), author});
+      loadFeedback(name, sec);
+    } catch(err) { msg.textContent = String(err.message||err); }
+  });
+  return f;
+}
+function fbCard(fb, name, sec){
+  const c = el("div","fb-item");
+  const when = (fb.created_at||"").slice(0,16).replace("T"," ");
+  c.innerHTML =
+    `<div class="fb-top"><span class="fb-kind ${esc(fb.kind)}">${esc(fb.kind.replace("_"," "))}</span>`+
+    `<span class="fb-note">${esc(fb.target)}</span>`+
+    `<span class="fb-status ${esc(fb.status)}">${esc(fb.status)}</span>`+
+    `<span class="fb-who">${esc(fb.author)} · ${esc(when)}</span></div>`+
+    (fb.body?`<p class="fb-body">${esc(fb.body)}</p>`:"")+
+    (fb.status==="unverified"?`<div class="fb-btns"><button class="fb-btn verify">Verify</button><button class="fb-btn reject">Reject</button></div>`:
+      fb.verified_by?`<div class="fb-note" style="margin-top:8px">${fb.status} by ${esc(fb.verified_by)}</div>`:"");
+  const act = async (path) => {
+    const by = reviewer() || prompt("Your name (verifier):") || "";
+    if (!by.trim()) return; setReviewer(by.trim());
+    try { await postJSON(`${API}/feedback/${fb.id}/${path}`, {by:by.trim()}); loadFeedback(name, sec); }
+    catch(err){ alert(err.message||err); }
+  };
+  const vb = c.querySelector(".verify"); if (vb) vb.addEventListener("click", ()=>act("verify"));
+  const rb = c.querySelector(".reject"); if (rb) rb.addEventListener("click", ()=>act("reject"));
+  return c;
+}
+
+function section(title,count,body){ const sec=el("div","section"); const h=el("div","sec-h"); h.innerHTML=`<span class="st">${esc(title)}</span>`+(count!=null?`<span class="sn">${esc(count)}</span>`:""); const b=el("div","sec-body"); b.appendChild(body); sec.appendChild(h); sec.appendChild(b); return sec; }
+function collapsible(title,count,body,startClosed){ const sec=el("div","section"+(startClosed?" collapsed":"")); const h=el("div","sec-h click"); h.innerHTML=`<span class="tri">▾</span><span class="st">${esc(title)}</span>`+(count!=null?`<span class="sn">${esc(count)}</span>`:""); const b=el("div","sec-body"); b.appendChild(body); h.addEventListener("click",()=>sec.classList.toggle("collapsed")); sec.appendChild(h); sec.appendChild(b); return sec; }
+function emptyState(m,w){ return el("div","empty",`${esc(m)}${w?`<span class="why">${esc(w)}</span>`:""}`); }
+
+function plainEnglish(d){
+  const pe=d?.plain_english; if(!pe||(!pe.what&&!pe.when&&!pe.why)) return emptyState("Not generated yet.","WHAT / WHEN / WHY narrative comes from the explanation phase, grounded in the facts below.");
+  const wrap=el("div");
+  if(pe.what){ const s=el("div","subsec"); s.innerHTML=`<span class="wtag">what</span><div class="prose">${esc(pe.what)}</div>`; wrap.appendChild(s); }
+  if(pe.when){ const s=el("div","subsec"); s.innerHTML=`<span class="wtag">when</span><div class="logic">${esc(pe.when)}</div>`; wrap.appendChild(s); }
+  if(pe.why){ const s=el("div","subsec"); s.innerHTML=`<span class="wtag">why</span><div class="prose">${esc(pe.why)}</div>`; wrap.appendChild(s); }
+  return wrap;
+}
+function downstream(name,d){
+  let outs=[];
+  if(d?.downstream?.length) outs=d.downstream.map(o=>({sys:o.system,fld:o.field,badge:o.status||"in pipeline"}));
+  else { const s=state.subjects.get(name),m=new Map(); (s?s.consumedBy:[]).forEach(i=>{const f=state.facts[i];[f.subject,...(f.writes||[])].filter(Boolean).forEach(x=>{if(x!==name&&!m.has(x))m.set(x,{sys:f.provenance?.module||"—",fld:x,badge:"in pipeline"});});}); outs=[...m.values()]; }
+  if(!outs.length) return emptyState("No downstream consumers found.","Set once a parsed fact reads this field into another system or output.");
+  const grid=el("div","cards");
+  outs.forEach(o=>{ const c=el("div","card"); c.innerHTML=`<div class="sys">${esc(o.sys)}</div><div class="fld">${esc(o.fld)}</div><span class="badge">${esc(o.badge)}</span>`; c.style.cursor="pointer"; c.addEventListener("click",()=>{ if(state.subjects.get(o.fld)?.producedBy.length)select(o.fld); }); grid.appendChild(c); });
+  return grid;
+}
+function technical(name){
+  const s=state.subjects.get(name); if(!s||(!s.producedBy.length&&!s.consumedBy.length)) return emptyState("No facts reference this field.");
+  const idxs=[...new Set([...s.producedBy,...s.consumedBy])];
+  const kinds=[...new Set(idxs.map(i=>state.facts[i].kind))], mods=[...new Set(idxs.map(i=>state.facts[i].provenance?.module).filter(Boolean))], langs=[...s.langs];
+  return el("div","prose",`<code>${esc(name)}</code> is referenced by <b>${idxs.length}</b> parsed fact${idxs.length===1?"":"s"} (${kinds.map(esc).join(", ")}) across ${mods.length} module${mods.length===1?"":"s"} (${mods.map(esc).join(", ")})${langs.length?`, in ${langs.map(esc).join(" → ")}`:""}. Every statement is deterministic — observed in source, not inferred.`);
+}
+function tickets(list){
+  if(!list.length) return emptyState("No linked tickets.","Surfaced from the review & feedback workflow.");
+  const t=el("table","tbl"); t.innerHTML="<thead><tr><th style='width:150px'>Key</th><th>Summary</th></tr></thead>";
+  const tb=el("tbody"); list.forEach(x=>{const tr=el("tr"); tr.innerHTML=`<td class="key">${esc(x.key)}</td><td>${esc(x.summary)}</td>`; tb.appendChild(tr);}); t.appendChild(tb); return t;
+}
+function isoOutput(name){
+  const s=state.subjects.get(name), rows=[];
+  [...new Set([...(s?s.producedBy:[]),...(s?s.consumedBy:[])])].forEach(i=>{const f=state.facts[i],pv=f.provenance||{}; if(pv.parser==="xsd"||pv.parser==="xslt") rows.push({field:f.subject,path:pv.xpath||f.attrs?.path||"—",type:f.attrs?.type||f.kind,file:pv.file});});
+  if(!rows.length) return {count:0,node:emptyState("No schema output mappings detected.","Populated by the XSD / XSLT parsers when this field maps to an output element.")};
+  const t=el("table","tbl"); t.innerHTML="<thead><tr><th>Element</th><th>Path</th><th>Type</th><th>Source</th></tr></thead>";
+  const tb=el("tbody"); rows.forEach(r=>{const tr=el("tr"); tr.innerHTML=`<td class="mono" style="font-family:var(--mono)">${esc(r.field)}</td><td style="font-family:var(--mono)">${esc(r.path)}</td><td style="font-family:var(--mono)">${esc(r.type)}</td><td style="font-family:var(--mono)">${esc(r.file)}</td>`; tb.appendChild(tr);}); t.appendChild(tb);
+  return {count:rows.length,node:t};
+}
+function flowGraph(name){
+  const s=state.subjects.get(name); if(!s) return el("div","ghint","No lineage facts for this field.");
+  const up=new Map(); s.producedBy.forEach(i=>{const f=state.facts[i];(f.reads||[]).forEach(r=>{ if(up.has(r))return; const rs=state.subjects.get(r); const pi=rs&&rs.producedBy.length?rs.producedBy[0]:null; const pf=pi!=null?state.facts[pi]:null; up.set(r,{name:r,parser:pf?pf.provenance?.parser:f.provenance?.parser,expr:pf?pf.attrs?.expr:null,i:pi}); });});
+  const dn=new Map(); s.consumedBy.forEach(i=>{const f=state.facts[i];[f.subject,...(f.writes||[])].filter(Boolean).forEach(x=>{if(x!==name&&!dn.has(x))dn.set(x,{name:x,parser:f.provenance?.parser,i});});});
+  const parser=s.producedBy.length?state.facts[s.producedBy[0]].provenance?.parser:null;
+  const flow=el("div","flow");
+  const cu=el("div","col"); cu.appendChild(el("div","col-l",up.size?"derives from":"source")); if(!up.size)cu.appendChild(el("div","ghint","origin — no upstream reads")); [...up.values()].forEach(u=>cu.appendChild(gnode(u,isGap(u.name))));
+  const cm=el("div","col mid"); cm.appendChild(el("div","col-l","field")); cm.appendChild(gnode({name,parser},false,true));
+  const cd=el("div","col"); cd.appendChild(el("div","col-l",dn.size?"feeds into":"output")); if(!dn.size)cd.appendChild(el("div","ghint","terminal — nothing consumes it yet")); [...dn.values()].forEach(x=>cd.appendChild(gnode(x,false)));
+  flow.appendChild(cu); flow.appendChild(arrow()); flow.appendChild(cm); flow.appendChild(arrow()); flow.appendChild(cd); return flow;
+}
+function arrow(){ const a=el("div","arr"); a.innerHTML='<svg viewBox="0 0 22 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 6h18m0 0-4-4m4 4-4 4"/></svg>'; return a; }
+function gnode(n,gap,focus){ const b=el("button","gnode"+(gap?" gap":"")+(focus?" focus":"")); b.style.setProperty("--lc",gap?"var(--gap)":langColor(n.parser)); const f=n.i!=null?state.facts[n.i]:null; const src=gap?"no producing fact":f?coord(f.provenance):(n.parser||""); b.innerHTML=`<div class="gn">${esc(n.name)}</div>${src?`<div class="gs">${esc(src)}</div>`:""}`+(n.expr&&!gap?`<div class="gexpr">${esc(n.expr)}</div>`:""); b.addEventListener("click",()=>{if(!gap&&state.subjects.get(n.name)?.producedBy.length)select(n.name);}); return b; }
+function evidence(name){
+  const s=state.subjects.get(name), wrap=el("div"), idxs=[...new Set([...(s?s.producedBy:[]),...(s?s.consumedBy:[])])];
+  if(!idxs.length){ wrap.appendChild(emptyState("No evidence.")); return wrap; }
+  idxs.forEach(i=>wrap.appendChild(evCard(i)));
+  if(isGap(name)){ const g=el("div","gapcard"); g.innerHTML=`<div class="gf">trace incomplete</div><div class="gm">Read downstream but no parsed source produces it — the producing file likely failed to parse. This is a recorded gap, not a guess.</div>`; wrap.appendChild(g); }
+  if(idxs.length) state.issues.forEach(is=>{ const g=el("div","gapcard"); g.innerHTML=`<div class="ev-top"><span class="gf">${esc(is.file)}</span><span class="kind" style="--lc:var(--gap)">${esc(is.severity)}</span></div><div class="gm">${esc(is.message)}</div>`; wrap.appendChild(g); });
+  return wrap;
+}
+function evCard(i){ const f=state.facts[i],pv=f.provenance||{}; const payload=f.attrs?.expr||f.attrs?.template||f.attrs?.value||f.attrs?.text||f.attrs?.type||f.attrs?.path||""; const c=el("div","ev"); c.innerHTML=`<div class="ev-top"><span class="kind" style="--lc:${langColor(pv.parser)}">${esc(f.kind)}</span><span class="pill ai">parsed</span></div>`+(payload?`<div class="ev-code">${esc(payload)}</div>`:"")+`<div class="stamp"><span><b>${esc(pv.file||"?")}</b>${pv.line_start?":"+pv.line_start:""}</span>`+(pv.symbol?`<span>${esc(pv.symbol)}</span>`:"")+(pv.xpath?`<span>${esc(pv.xpath)}</span>`:"")+(pv.source_hash?`<span>#${esc(pv.source_hash)}</span>`:"")+`<span>${esc(pv.parser||"")}</span></div>`; return c; }
+
+/* ---- search ------------------------------------------------------------- */
+function runSearch(q){
+  const box=$("#results"); q=q.trim().toLowerCase(); if(!q){box.classList.remove("open");return;}
+  const g={field:[],symbol:[],file:[],xpath:[]};
+  for(const [t,idxs] of state.tokens){ if(!t.toLowerCase().includes(q))continue; let k="field"; if(t.startsWith("/"))k="xpath"; else if(t.includes("/")&&/\.\w+$/.test(t))k="file"; else if(/[.#]/.test(t)&&!state.subjects.has(t))k="symbol"; g[k].push({t,idxs:[...idxs]}); if(Object.values(g).reduce((a,x)=>a+x.length,0)>40)break; }
+  box.innerHTML=""; let any=false;
+  [["field","Fields"],["symbol","Symbols"],["file","Files"],["xpath","XPaths"]].forEach(([k,title])=>{ if(!g[k].length)return; any=true; box.appendChild(el("div","g",esc(title))); g[k].slice(0,8).forEach(({t,idxs})=>{ const r=el("div","res"); r.innerHTML=`<span class="n">${idxs.length}</span><span>${esc(t)}</span>`; r.addEventListener("click",()=>{box.classList.remove("open");$("#search").value="";if(state.subjects.get(t)?.producedBy.length)select(t);}); box.appendChild(r); }); });
+  box.classList.toggle("open",any);
+}
+
+/* ---- chrome ------------------------------------------------------------- */
+function banner(s){ $("#banner").classList.toggle("show",s); }
+function setTheme(m){ document.documentElement.setAttribute("data-theme",m); try{localStorage.setItem("li-theme",m);}catch(e){} }
+function curTheme(){ const s=document.documentElement.getAttribute("data-theme"); return s||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"); }
+function wire(){
+  $("#loadBtn").addEventListener("click",()=>$("#fileInput").click());
+  $("#fileInput").addEventListener("change",e=>{if(e.target.files.length)ingest(e.target.files);});
+  $("#filter").addEventListener("input",renderSidebar);
+  document.querySelectorAll(".cf").forEach(c=>c.addEventListener("click",()=>{document.querySelectorAll(".cf").forEach(x=>x.setAttribute("aria-pressed","false"));c.setAttribute("aria-pressed","true");state.flt=c.dataset.flt;renderSidebar();}));
+  $("#themeBtn").addEventListener("click",()=>setTheme(curTheme()==="dark"?"light":"dark"));
+  $("#bannerClose").addEventListener("click",()=>banner(false));
+  const search=$("#search");
+  search.addEventListener("input",()=>runSearch(search.value));
+  search.addEventListener("keydown",e=>{if(e.key==="Escape"){$("#results").classList.remove("open");search.blur();}});
+  document.addEventListener("click",e=>{if(!e.target.closest(".search-wrap"))$("#results").classList.remove("open");});
+  document.addEventListener("keydown",e=>{if(e.key==="/"&&document.activeElement.tagName!=="INPUT"){e.preventDefault();search.focus();}});
+  window.addEventListener("dragover",e=>e.preventDefault());
+  window.addEventListener("drop",e=>{e.preventDefault();if(e.dataTransfer.files.length)ingest(e.dataTransfer.files);});
+  try{const s=localStorage.getItem("li-theme");if(s)setTheme(s);}catch(e){}
+}
+boot();
+</script>
+</body>
+</html>

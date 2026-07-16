@@ -1,6 +1,18 @@
 
+
 # brainstorming visual companion
 .superpowers/
 
 __pycache__/
 *.pyc
+
+# viewer reads the user's parse output from here — not part of the repo
+lineage-viewer/data/
+
+# runtime feedback store (created by the feedback API)
+feedback_store.json
+image**/**
+lineage-viewer/feedback_store.json
+node-modules/**
+*.log
+images-2/**.**
