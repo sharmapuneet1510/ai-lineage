@@ -22,6 +22,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import app.parsing.parsers.xml  # noqa: F401
 import app.parsing.parsers.camel_xml  # noqa: F401,E402
 import app.parsing.parsers.camel_yaml  # noqa: F401,E402
+import app.parsing.parsers.java  # noqa: F401,E402
 from app.parsing.config import ConfigError, FailOn, load_config  # noqa: E402
 from app.parsing.facts import Fact, ParseIssue  # noqa: E402
 from app.parsing.index import write_indexes  # noqa: E402
