@@ -77,6 +77,20 @@ parsed facts** — only verified feedback is meant to be reused downstream. The
 same routes are also mounted in the main backend under `/api/feedback` when it
 runs with its databases.
 
+## Cross-language lineage (optional)
+
+Run the tracing stage to compute stored lineage the viewer renders in the
+**Lineage graph** section (resolved bean→class bridge and language hops):
+
+```bash
+cd ../lineage-backend
+python3 scripts/run_trace.py --out ../lineage-viewer/data
+```
+
+This writes `data/lineage.json`. When present, each field's Lineage graph shows
+the resolved backward trace (with `crosses` language markers and `gap` nodes);
+without it, the viewer falls back to an in-browser reads/writes graph.
+
 ## Notes
 
 - `data/` is git-ignored — it's your parse output, not part of the repo.

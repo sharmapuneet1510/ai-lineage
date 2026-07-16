@@ -49,11 +49,17 @@ def main(argv: list[str] | None = None) -> int:
     facts = load_facts(out_dir)
     producers = build_producers(facts)
     beans = bean_class_map(facts)
-    targets = args.target or discover_targets(facts)
 
-    lineage = {}
+    if args.target:
+        targets = args.target
+    else:
+        # every produced name gets a trace so any field in the viewer resolves;
+        # skip the synthetic routing names (they appear inside the chains).
+        targets = sorted(n for n in producers if not n.startswith(("bean:", "class:", "process:")))
+
+    lineage, cache = {}, {}   # one shared cache -> subtrees computed once across targets
     for t in targets:
-        lineage[t] = trace(t, facts, producers=producers, beans=beans)
+        lineage[t] = trace(t, facts, producers=producers, beans=beans, cache=cache)
 
     (out_dir / "lineage.json").write_text(json.dumps(lineage, indent=2), encoding="utf-8")
     print(f"traced {len(targets)} target(s) -> {out_dir/'lineage.json'}")
