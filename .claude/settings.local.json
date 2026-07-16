@@ -175,7 +175,13 @@
       "mcp__plugin_playwright_playwright__browser_type",
       "Bash(curl -s http://localhost:8000/api/feedback/summary)",
       "Bash(rm -f fb-panel.png)",
-      "Bash(printf '\\\\n# runtime feedback store \\(created by the feedback API\\)\\\\nfeedback_store.json\\\\nlineage-viewer/feedback_store.json\\\\n')"
+      "Bash(printf '\\\\n# runtime feedback store \\(created by the feedback API\\)\\\\nfeedback_store.json\\\\nlineage-viewer/feedback_store.json\\\\n')",
+      "Bash(mkdir -p app/enrich tests/enrich)",
+      "Bash(touch app/enrich/__init__.py tests/enrich/__init__.py)",
+      "Bash(mkdir -p ../lineage-viewer/data)",
+      "Bash(rm -f ../lineage-viewer/data/*)",
+      "Bash(cp /tmp/chain/src/* /tmp/chain/ -r)",
+      "Bash(curl -s -o /dev/null -w \"lineage.json %{http_code}\\\\n\" http://localhost:8080/data/lineage.json)"
     ]
   }
 }
