@@ -89,3 +89,34 @@ def test_run_trace_writes_lineage_json(tmp_path):
     lineage = json.loads((tmp_path / "lineage.json").read_text())
     assert "file:/out" in lineage
     assert lineage["file:/out"]["produced_by"]
+
+
+def test_subtree_is_memoized_and_shared():
+    # base is reachable via the bean bridge and via price; it must be expanded once
+    tree = trace("file:/out", FACTS)
+    rows = [hop for _, hop in flatten(tree)]
+    base_hops = [h for h in rows if h.get("name") == "base" and not h.get("gap")]
+    # every 'base' node in the tree is the SAME object (shared, not recomputed)
+    ids = set()
+    def collect(node):
+        for e in node.get("produced_by", []):
+            for up in e.get("upstream", []):
+                if up.get("name") == "base":
+                    ids.add(id(up))
+                collect(up)
+    collect(tree)
+    assert len(ids) == 1
+
+
+def test_crosses_marks_the_language_boundary():
+    tree = trace("file:/out", FACTS)
+    # the route_bean hop reads the Java field logic -> crosses into java
+    bean = next(e for e in _all_entries(tree) if e.get("resolved_class"))
+    assert "java" in bean.get("crosses", [])
+
+
+def _all_entries(node):
+    for e in node.get("produced_by", []):
+        yield e
+        for up in e.get("upstream", []):
+            yield from _all_entries(up)

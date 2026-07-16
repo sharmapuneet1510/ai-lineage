@@ -1,23 +1,31 @@
-"""Java parser — field logic (slice 1).
+"""Java parser.
 
-Emits facts for value-producing statements inside methods: local-variable
-declarations and assignments. Each fact records what is written, the identifiers
-read, the reconstructed expression, and the enclosing `Class.method` symbol —
-which is the seam a Camel `route_bean` (via a Spring `bean_def`) resolves onto,
-so cross-language lineage reaches the real code.
+Emits facts for the three things that matter to cross-language lineage:
 
-Not yet covered (later slices): the RouteBuilder DSL (`from().bean().to()`),
-`@Component`/`@Bean` bean-id discovery, conditions/branches, and multi-file type
-resolution. This slice is the field-level logic the tracer bridges into.
+1. Field logic — local-variable declarations and assignments inside methods
+   become assignment/call facts (reads, writes, reconstructed expression,
+   `Class.method` symbol). This is what a Camel bean resolves onto.
+2. Spring bean ids — a class carrying a stereotype annotation
+   (`@Component`/`@Service`/…), or a `@Bean` factory method, becomes a bean_def
+   binding an id to a class, so `bean:<id>` route steps resolve to real code
+   even when the bean is annotation-defined rather than declared in XML.
+3. RouteBuilder DSL — `from(...).bean(...).to(...)` chains in a RouteBuilder
+   subclass become the same route facts the XML/YAML Camel parsers emit.
+
+Never raises: a Java syntax error becomes a ParseIssue. Not yet: conditions/
+branches, cross-file type resolution.
 """
 from typing import Iterator
 
 import javalang
 
 from app.parsing.facts import Fact, ParseIssue, Provenance, Severity
+from app.parsing.parsers import _camel
 from app.parsing.registry import register
 
 _BINARY = "BinaryOperation"
+_STEREOTYPES = {"Component", "Service", "Repository", "Controller", "Named", "ManagedBean"}
+_ROUTE_BASES = {"RouteBuilder", "EndpointRouteBuilder", "AdviceWithRouteBuilder"}
 
 
 @register
@@ -38,18 +46,31 @@ class JavaParser:
                              provenance=base)
             return
 
+        package = tree.package.name if tree.package else ""
         for type_decl in getattr(tree, "types", []) or []:
-            yield from self._type(type_decl, "", base)
+            yield from self._type(type_decl, "", package, base)
 
-    def _type(self, decl, outer, base):
+    def _type(self, decl, outer, package, base):
         if not isinstance(decl, javalang.tree.TypeDeclaration):
             return
         name = (outer + "." if outer else "") + decl.name
+        fqn = (package + "." if package else "") + name
+
+        stereotype = _stereotype_bean(decl, fqn, base)
+        if stereotype is not None:
+            yield stereotype
+
+        if _extends_route(decl):
+            yield from self._routes(decl, decl.name, base)
+
         for member in getattr(decl, "body", []) or []:
             if isinstance(member, javalang.tree.MethodDeclaration):
+                bean_method = _bean_method(member, base)
+                if bean_method is not None:
+                    yield bean_method
                 yield from self._method(member, name, base)
             elif isinstance(member, javalang.tree.TypeDeclaration):
-                yield from self._type(member, name, base)  # nested class
+                yield from self._type(member, name, package, base)
 
     def _method(self, method, class_name, base):
         symbol = f"{class_name}.{method.name}"
@@ -66,11 +87,86 @@ class JavaParser:
     def _fact(self, name, expr_node, symbol, stmt, base):
         reads = [r for r in _reads(expr_node) if r != name]
         kind = "call" if isinstance(expr_node, javalang.tree.MethodInvocation) else "assignment"
-        return Fact(
-            kind=kind, subject=name, reads=reads, writes=[name],
-            attrs={"expr": _expr(expr_node)},
-            provenance=base.model_copy(update={"symbol": symbol, "line_start": _line(stmt)}),
-        )
+        return Fact(kind=kind, subject=name, reads=reads, writes=[name],
+                    attrs={"expr": _expr(expr_node)},
+                    provenance=base.model_copy(update={"symbol": symbol, "line_start": _line(stmt)}))
+
+    def _routes(self, decl, class_name, base):
+        for node in _walk(decl):
+            if (isinstance(node, javalang.tree.MethodInvocation)
+                    and node.member == "from" and not node.qualifier):
+                yield from self._from_chain(node, class_name, base)
+
+    def _from_chain(self, from_mi, class_name, base):
+        selectors = from_mi.selectors or []
+        rid = class_name
+        for sel in selectors:
+            if isinstance(sel, javalang.tree.MethodInvocation) and sel.member == "routeId" and sel.arguments:
+                rid = _str(sel.arguments[0])
+        uri = _str(from_mi.arguments[0]) if from_mi.arguments else ""
+        prev = None
+        if uri:
+            yield _camel.make_from(uri, rid, _prov(base, from_mi))
+            prev = uri
+        for sel in selectors:
+            if not isinstance(sel, javalang.tree.MethodInvocation):
+                continue
+            args = [_str(a) for a in (sel.arguments or [])]
+            prov = _prov(base, from_mi)
+            if sel.member in ("to", "toD", "recipientList", "wireTap") and args:
+                fact, prev = _camel.make_to(args[0], rid, prev, prov)
+                yield fact
+            elif sel.member == "bean" and args:
+                method = args[1] if len(args) > 1 else None
+                fact, prev = _camel.make_bean_ref(args[0], method, rid, prev, prov)
+                yield fact
+            elif sel.member == "process" and args:
+                fact, prev = _camel.make_process_ref(args[0], rid, prev, prov)
+                yield fact
+
+
+# ---- Spring bean discovery ---------------------------------------------
+
+def _stereotype_bean(decl, fqn, base):
+    for ann in getattr(decl, "annotations", []) or []:
+        if ann.name in _STEREOTYPES:
+            bean_id = _ann_value(ann) or _decapitalize(decl.name)
+            return _camel.make_bean_def(bean_id, fqn, _prov(base, decl))
+    return None
+
+
+def _bean_method(method, base):
+    for ann in getattr(method, "annotations", []) or []:
+        if ann.name == "Bean":
+            bean_id = _ann_value(ann) or method.name
+            cls = _type_name(method.return_type) or bean_id
+            return _camel.make_bean_def(bean_id, cls, _prov(base, method))
+    return None
+
+
+def _extends_route(decl):
+    ext = getattr(decl, "extends", None)
+    return bool(ext) and getattr(ext, "name", None) in _ROUTE_BASES
+
+
+def _decapitalize(name: str) -> str:
+    if len(name) > 1 and name[0].isupper() and name[1].isupper():
+        return name  # Spring leaves acronyms (URLReader) as-is
+    return name[:1].lower() + name[1:]
+
+
+def _ann_value(ann):
+    el = getattr(ann, "element", None)
+    if el is None:
+        return None
+    if type(el).__name__ == "Literal":
+        v = str(el.value)
+        return v[1:-1] if v[:1] == '"' else v
+    return None
+
+
+def _type_name(t):
+    return getattr(t, "name", None)
 
 
 # ---- expression helpers -------------------------------------------------
@@ -98,10 +194,17 @@ def _add(lst, v):
         lst.append(v)
 
 
-def _target_name(node) -> str | None:
+def _target_name(node):
     if isinstance(node, javalang.tree.MemberReference):
         return node.member
     return None
+
+
+def _str(node) -> str:
+    v = _expr(node)
+    if len(v) >= 2 and v[0] == '"' and v[-1] == '"':
+        return v[1:-1]
+    return v
 
 
 def _expr(n) -> str:
@@ -129,6 +232,10 @@ def _expr(n) -> str:
     return t
 
 
-def _line(node) -> int | None:
+def _line(node):
     pos = getattr(node, "position", None)
     return pos.line if pos else None
+
+
+def _prov(base, node):
+    return base.model_copy(update={"line_start": _line(node)})

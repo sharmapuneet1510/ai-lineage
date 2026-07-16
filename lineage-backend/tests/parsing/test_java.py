@@ -81,3 +81,68 @@ def test_malformed_java_yields_error_issue_not_crash():
 
 def test_empty_method_emits_nothing():
     assert _parse("class C { void m() {} }") == []
+
+
+# ---- Spring bean discovery + RouteBuilder DSL (enhancements) -------------
+
+SERVICE = """
+package com.acme.pricing;
+@Service("pricer")
+public class Pricer { public double calc(){ return 1.0; } }
+"""
+
+COMPONENT = """
+package com.acme;
+@Component
+public class RateLoader {}
+"""
+
+CONFIG = """
+package com.acme;
+@Configuration
+class Beans {
+  @Bean
+  public Pricer pricer() { return new Pricer(); }
+}
+"""
+
+ROUTE = """
+package com.acme.routes;
+public class PricingRoute extends RouteBuilder {
+  public void configure() {
+    from("jms:queue:orders").routeId("pricingRoute")
+      .bean("pricer","calc")
+      .to("xslt:transforms/out.xsl")
+      .to("file:/outbound/reports");
+  }
+}
+"""
+
+
+def test_service_annotation_binds_explicit_id_to_fqn():
+    d = _fact(_parse(SERVICE), "pricer")   # bean_def subject is the id
+    assert d.kind == "bean_def"
+    assert d.attrs["class"] == "com.acme.pricing.Pricer"
+
+
+def test_component_annotation_defaults_id_to_decapitalized_class():
+    facts = [f for f in _parse(COMPONENT) if isinstance(f, Fact) and f.kind == "bean_def"]
+    assert facts[0].subject == "rateLoader"
+    assert facts[0].attrs["class"] == "com.acme.RateLoader"
+
+
+def test_bean_factory_method_makes_a_bean_def():
+    facts = [f for f in _parse(CONFIG) if isinstance(f, Fact) and f.kind == "bean_def"]
+    assert any(f.subject == "pricer" and f.attrs["class"] == "Pricer" for f in facts)
+
+
+def test_routebuilder_dsl_emits_route_facts():
+    facts = [f for f in _parse(ROUTE) if isinstance(f, Fact)]
+    frm = next(f for f in facts if f.kind == "route_from")
+    bean = next(f for f in facts if f.kind == "route_bean")
+    xslt = next(f for f in facts if f.attrs.get("scheme") == "xslt")
+    assert frm.subject == "jms:queue:orders"
+    assert frm.attrs["route"] == "pricingRoute"          # routeId() applied
+    assert bean.subject == "pricer" and bean.attrs["method"] == "calc"
+    assert xslt.attrs["stylesheet"] == "transforms/out.xsl"
+    assert bean.reads == frm.writes and xslt.reads == bean.writes  # chained

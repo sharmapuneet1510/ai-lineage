@@ -64,14 +64,23 @@ def _detail(f: dict) -> str:
     return a.get("expr") or a.get("template") or a.get("stylesheet") or a.get("type") or a.get("uri") or ""
 
 
-def trace(target: str, facts: list[dict], *, producers=None, beans=None, seen=None) -> dict[str, Any]:
+def trace(target: str, facts: list[dict], *, producers=None, beans=None,
+          seen=None, cache=None) -> dict[str, Any]:
     """Backward lineage of `target` as a nested tree. Each producing fact becomes
     a node with its upstream reads (and, for a bean step, the resolved class's
-    field logic) recursively traced."""
+    field logic) recursively traced.
+
+    A completed subtree is memoized and shared, so a value reached by several
+    paths (e.g. `base` under both the bean and `price`) is expanded once. Each
+    hop is marked when it crosses a language boundary (`crosses`), so the
+    Camel→Java and Java→XSLT seams are visible in the output."""
     producers = producers if producers is not None else build_producers(facts)
     beans = beans if beans is not None else bean_class_map(facts)
     seen = seen if seen is not None else set()
+    cache = cache if cache is not None else {}
 
+    if target in cache:
+        return cache[target]
     node: dict[str, Any] = {"name": target, "produced_by": []}
     if target in seen:
         node["cycle"] = True
@@ -81,14 +90,16 @@ def trace(target: str, facts: list[dict], *, producers=None, beans=None, seen=No
     hits = producers.get(target, [])
     if not hits:
         node["gap"] = True   # read/needed but nothing produces it — honest stop
+        cache[target] = node
         return node
 
     for i in hits:
         f = facts[i]
         pv = f.get("provenance", {}) or {}
+        parser = pv.get("parser")
         entry: dict[str, Any] = {
             "kind": f.get("kind"),
-            "parser": pv.get("parser"),
+            "parser": parser,
             "file": pv.get("file"),
             "line": pv.get("line_start"),
             "symbol": pv.get("symbol"),
@@ -100,11 +111,21 @@ def trace(target: str, facts: list[dict], *, producers=None, beans=None, seen=No
             if cls:
                 entry["resolved_class"] = cls
                 for fld in class_fields(facts, cls):
-                    entry["upstream"].append(trace(fld, facts, producers=producers, beans=beans, seen=seen))
+                    entry["upstream"].append(trace(fld, facts, producers=producers, beans=beans, seen=seen, cache=cache))
         for r in f.get("reads", []):
-            entry["upstream"].append(trace(r, facts, producers=producers, beans=beans, seen=seen))
+            entry["upstream"].append(trace(r, facts, producers=producers, beans=beans, seen=seen, cache=cache))
+        crosses = sorted({p for up in entry["upstream"] if (p := _node_parser(up)) and p != parser})
+        if crosses:
+            entry["crosses"] = crosses   # this hop reads from another language
         node["produced_by"].append(entry)
+
+    cache[target] = node
     return node
+
+
+def _node_parser(node: dict) -> str | None:
+    pb = node.get("produced_by") or []
+    return pb[0].get("parser") if pb else None
 
 
 def discover_targets(facts: list[dict]) -> list[str]:
