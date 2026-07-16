@@ -1,35 +1,24 @@
 """Apache Camel route parser — Spring/Blueprint XML DSL.
 
 Camel routes are the integration spine: `from(endpoint) … bean … to(endpoint)`
-literally declares where data enters, which beans process it, which transforms
-run, and where it goes. This parser turns that topology into facts that the
-tracer joins with the Java and XSLT facts.
-
-Fact kinds emitted:
-  route_from  subject=<uri>   attrs{route, scheme, uri}                 the input endpoint
-  route_to    subject=<uri>   attrs{route, scheme, uri, stylesheet?}    a downstream step / endpoint
-  route_bean  subject=<id>    attrs{route, bean_id, method?, uri?}      a call into a Spring bean
-  bean_def    subject=<id>    attrs{class}                              a Spring bean id -> class binding
-
-Steps within a route chain via reads/writes so lineage flows end to end; a
-`route_bean` writes `bean:<id>` and a `bean_def` reads `bean:<id>` and writes the
-class — that is the seam the Java field logic joins onto.
+declares where data enters, which beans process it, which transforms run, and
+where it goes. This parser turns that topology into the shared Camel facts (see
+_camel.py) that the tracer joins with the Java and XSLT facts.
 
 Like every XML-family parser here it REFUSES documents that declare a DTD
 (libxml2 substitutes entities in attribute values below resolve_entities;
 see docs/PARSERS.md).
 """
 from typing import Iterator
-from urllib.parse import parse_qs, urlsplit
 
 from lxml import etree
 
 from app.parsing.facts import Fact, ParseIssue, Provenance, Severity
+from app.parsing.parsers import _camel
 from app.parsing.registry import register
 
 _PARSER = etree.XMLParser(resolve_entities=False, no_network=True, huge_tree=False)
-
-_ROUTE_STEPS = {"from", "to", "tod", "bean", "process", "recipientlist", "wiretap"}
+_STEPS = {"from", "to", "tod", "bean", "process", "recipientlist", "wiretap"}
 
 
 @register
@@ -52,19 +41,10 @@ class CamelXmlParser:
                              provenance=base)
             return
 
-        # Spring bean id -> class bindings, wherever they appear.
         for el in root.iter():
-            if not isinstance(el.tag, str):
-                continue
-            if _local(el.tag) == "bean" and el.get("class") and el.get("id"):
-                yield Fact(
-                    kind="bean_def", subject=el.get("id"),
-                    reads=[f"bean:{el.get('id')}"], writes=[f"class:{el.get('class')}"],
-                    attrs={"class": el.get("class")},
-                    provenance=_at(base, el),
-                )
+            if isinstance(el.tag, str) and _local(el.tag) == "bean" and el.get("class") and el.get("id"):
+                yield _camel.make_bean_def(el.get("id"), el.get("class"), _at(base, el))
 
-        # Routes: walk each route's steps in document order, chaining reads->writes.
         for route in (e for e in root.iter() if isinstance(e.tag, str) and _local(e.tag) == "route"):
             rid = route.get("id") or "route"
             prev: str | None = None
@@ -72,67 +52,33 @@ class CamelXmlParser:
                 if step is route or not isinstance(step.tag, str):
                     continue
                 ln = _local(step.tag)
-                if ln not in _ROUTE_STEPS:
+                if ln not in _STEPS:
                     continue
-                fact, prev = self._step_fact(ln, step, rid, prev, base)
+                fact, prev = self._fact(ln, step, rid, prev, base)
                 if fact is not None:
                     yield fact
 
-    def _step_fact(self, ln, step, rid, prev, base):
-        reads = [prev] if prev else []
+    def _fact(self, ln, step, rid, prev, base):
+        prov = _at(base, step)
         if ln == "from":
-            uri = step.get("uri") or ""
-            return Fact(kind="route_from", subject=uri, reads=[], writes=[uri],
-                        attrs={"route": rid, "scheme": _scheme(uri), "uri": uri},
-                        provenance=_at(base, step)), uri
+            return _camel.make_from(step.get("uri") or "", rid, prov), (step.get("uri") or "")
         if ln in ("to", "tod", "recipientlist", "wiretap"):
-            uri = step.get("uri") or ""
-            if _scheme(uri) == "bean":
-                bean_id, method = _bean_uri(uri)
-                w = f"bean:{bean_id}"
-                return Fact(kind="route_bean", subject=bean_id, reads=reads, writes=[w],
-                            attrs={"route": rid, "bean_id": bean_id, "method": method, "uri": uri},
-                            provenance=_at(base, step)), w
-            attrs = {"route": rid, "scheme": _scheme(uri), "uri": uri}
-            if _scheme(uri) == "xslt":
-                attrs["stylesheet"] = uri.split(":", 1)[1].split("?", 1)[0]
-            return Fact(kind="route_to", subject=uri, reads=reads, writes=[uri],
-                        attrs=attrs, provenance=_at(base, step)), uri
+            return _camel.make_to(step.get("uri") or "", rid, prev, prov)
         if ln == "bean":
             ref = step.get("ref")
             if not ref:
                 return None, prev
-            w = f"bean:{ref}"
-            return Fact(kind="route_bean", subject=ref, reads=reads, writes=[w],
-                        attrs={"route": rid, "bean_id": ref, "method": step.get("method")},
-                        provenance=_at(base, step)), w
+            return _camel.make_bean_ref(ref, step.get("method"), rid, prev, prov)
         if ln == "process":
             ref = step.get("ref")
             if not ref:
                 return None, prev
-            w = f"process:{ref}"
-            return Fact(kind="route_process", subject=ref, reads=reads, writes=[w],
-                        attrs={"route": rid, "ref": ref}, provenance=_at(base, step)), w
+            return _camel.make_process_ref(ref, rid, prev, prov)
         return None, prev
 
 
 def _local(tag: str) -> str:
     return tag.rsplit("}", 1)[-1]
-
-
-def _scheme(uri: str) -> str:
-    return uri.split(":", 1)[0] if ":" in uri else uri
-
-
-def _bean_uri(uri: str) -> tuple[str, str | None]:
-    """bean:pricer?method=calc -> ('pricer', 'calc');  bean:pricer -> ('pricer', None)."""
-    rest = uri.split(":", 1)[1] if ":" in uri else uri
-    parts = urlsplit("//" + rest)  # borrow query parsing
-    bean_id = (parts.netloc + parts.path).split("?", 1)[0] or rest.split("?", 1)[0]
-    method = None
-    if parts.query:
-        method = (parse_qs(parts.query).get("method") or [None])[0]
-    return bean_id, method
 
 
 def _at(base: Provenance, el: etree._Element) -> Provenance:
