@@ -181,7 +181,8 @@
       "Bash(mkdir -p ../lineage-viewer/data)",
       "Bash(rm -f ../lineage-viewer/data/*)",
       "Bash(cp /tmp/chain/src/* /tmp/chain/ -r)",
-      "Bash(curl -s -o /dev/null -w \"lineage.json %{http_code}\\\\n\" http://localhost:8080/data/lineage.json)"
+      "Bash(curl -s -o /dev/null -w \"lineage.json %{http_code}\\\\n\" http://localhost:8080/data/lineage.json)",
+      "Bash(xargs -n1 basename)"
     ]
   }
 }
